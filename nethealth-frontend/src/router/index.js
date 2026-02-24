@@ -19,27 +19,27 @@ const router = createRouter({
           name: 'Login',
           component: () => import('../views/Login.vue') },
         {
-          path: 'register',
+          path: '/register',
           name: 'RegisterRole',
           component: () => import('../views/RegisterRole.vue'),
         },
         {
-          path: 'register/patient',
+          path: '/register/patient',
           name: 'RegisterPatient',
           component: () => import('../views/RegisterPatient.vue'),
         },
         {
-          path: 'register/doctor',
+          path: '/register/doctor',
           name: 'RegisterDoctor',
           component: () => import('../views/RegisterDoctor.vue'),
         },
         {
-          path: 'register/clinic',
+          path: '/register/clinic',
           name: 'RegisterClinic',
           component: () => import('../views/RegisterClinic.vue'),
         },
         {
-          path: 'register/pharmacy',
+          path: '/register/pharmacy',
           name: 'RegisterPharmacy',
           component: () => import('../views/RegisterPharmacy.vue'),
         },
