@@ -25,7 +25,7 @@ const roles = [
   {
     id: 'pharmacy',
     title: 'Pharmacy',
-    subtitle: 'Manage inventory, prescriptions, and orders.',
+    subtitle: 'Manage inventory, prescriptions, orders and your staff workflow.',
     routeName: 'RegisterPharmacy',
   },
 ]
