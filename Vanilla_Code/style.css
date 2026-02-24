@@ -1,0 +1,9 @@
+/* style.css */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  /* Prevents horizontal scrolling on mobile */
+  overflow-x: hidden; 
+}
