@@ -4,10 +4,9 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
 import { ref } from 'vue';
 import { z } from 'zod';
+import netHealthLogo from '@/assets/logo.png';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import BaseInput from '../components/base/BaseInput.vue';
-
-const netHealthLogo = '/images/logo.png';
 
 const loginSchema = z.object({
     email: z.string({ required_error: 'Email is required' }).min(1, 'Email is required').email('Please enter a valid email address'),
