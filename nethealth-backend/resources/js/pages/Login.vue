@@ -1,79 +1,69 @@
-<script setup lang="ts">
+<script setup>
 import { Link, router } from '@inertiajs/vue3';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
 import { ref } from 'vue';
 import { z } from 'zod';
+import AuthLayout from '@/layouts/AuthLayout.vue';
+import BaseInput from '../components/base/BaseInput.vue';
 
-// Imports mapped to your new folder structure
-import BaseInput from '@/components/NetHealth/base/BaseInput.vue';
-import AuthLayout from '@/layouts/NetHealth/AuthLayout.vue';
+const netHealthLogo = '/images/logo.png';
 
 const loginSchema = z.object({
-    email: z
-        .string({ required_error: 'Email is required' })
-        .min(1, 'Email is required')
-        .email('Please enter a valid email address'),
-    password: z
-        .string({ required_error: 'Password is required' })
-        .min(1, 'Password is required')
-        .min(6, 'Password must be at least 6 characters'),
+    email: z.string({ required_error: 'Email is required' }).min(1, 'Email is required').email('Please enter a valid email address'),
+    password: z.string({ required_error: 'Password is required' }).min(1, 'Password is required').min(6, 'Password must be at least 6 characters'),
 });
 
-const { handleSubmit } = useForm({
+// 1. Added setErrors here to handle backend responses
+const { handleSubmit, setErrors } = useForm({
     validationSchema: toTypedSchema(loginSchema),
     initialValues: { email: '', password: '' },
 });
 
-// Added <string> to fix the TypeScript 'unknown' error
-const { value: email, errorMessage: emailError } = useField<string>('email');
-const { value: password, errorMessage: passwordError } =
-    useField<string>('password');
+const { value: email, errorMessage: emailError } = useField('email', undefined, {
+    validateOnBlur: true,
+    validateOnValueUpdate: false,
+});
+const { value: password, errorMessage: passwordError } = useField('password', undefined, {
+    validateOnBlur: true,
+    validateOnValueUpdate: false,
+});
 
 const showPassword = ref(false);
 const rememberMe = ref(false);
 
+// 2. Added onError to map Laravel errors to the form fields
 const onSubmit = handleSubmit((values) => {
-    // Send data to Laravel backend
-    router.post('/login', {
-        email: values.email,
-        password: values.password,
-        remember: rememberMe.value,
-    });
+    router.post(
+        '/login',
+        {
+            email: values.email,
+            password: values.password,
+            rememberMe: rememberMe.value,
+        },
+        {
+            onError: (errors) => {
+                setErrors(errors);
+            },
+        },
+    );
 });
 </script>
 
 <template>
     <AuthLayout>
         <div class="space-y-6">
+            <!-- Header -->
             <div class="mb-8 flex flex-col items-center">
-                <img
-                    src="/images/NetHealth/logo.png"
-                    alt="NetHealth Logo"
-                    class="mb-2 h-16 w-16"
-                    style="width: 180px; height: 180px; margin: -10px"
-                />
+                <img :src="netHealthLogo" alt="NetHealth Logo" class="mb-2 h-16 w-16" style="width: 180px; height: 180px; margin: -10px" />
 
-                <h1
-                    class="mt-2 text-3xl font-extrabold text-gray-900"
-                    style="font-size: 25px"
-                >
-                    Welcome
-                </h1>
-                <p class="mt-1 text-sm text-gray-500">
-                    Your health, managed in one secure place
-                </p>
+                <h1 class="mt-2 text-3xl font-extrabold text-gray-900" style="font-size: 25px">Welcome</h1>
+                <p class="mt-1 text-sm text-gray-500">Your health, managed in one secure place</p>
             </div>
 
+            <!-- Form -->
             <form class="space-y-4" @submit.prevent="onSubmit" novalidate>
-                <BaseInput
-                    v-model="email"
-                    label="Email"
-                    type="email"
-                    placeholder="you@example.com"
-                    :error="emailError"
-                />
-
+                <BaseInput v-model="email" label="Email" type="email" placeholder="you@example.com" :error="emailError" />
                 <BaseInput
                     v-model="password"
                     :type="showPassword ? 'text' : 'password'"
@@ -85,18 +75,10 @@ const onSubmit = handleSubmit((values) => {
                         <button
                             type="button"
                             class="rounded p-1 text-gray-500 hover:text-gray-700 focus:ring-2 focus:ring-primary/30 focus:outline-none"
-                            :aria-label="
-                                showPassword ? 'Hide password' : 'Show password'
-                            "
+                            :aria-label="showPassword ? 'Hide password' : 'Show password'"
                             @click="showPassword = !showPassword"
                         >
-                            <svg
-                                v-if="showPassword"
-                                class="h-5 w-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
+                            <svg v-if="showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -104,19 +86,8 @@ const onSubmit = handleSubmit((values) => {
                                     d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
                                 />
                             </svg>
-                            <svg
-                                v-else
-                                class="h-5 w-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
+                            <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -130,20 +101,10 @@ const onSubmit = handleSubmit((values) => {
 
                 <div class="flex items-center justify-between">
                     <label class="flex cursor-pointer items-center gap-2">
-                        <input
-                            v-model="rememberMe"
-                            type="checkbox"
-                            class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/30"
-                        />
+                        <input v-model="rememberMe" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/30" />
                         <span class="text-sm text-gray-700">Remember me</span>
                     </label>
-
-                    <Link
-                        href="/forgot-password"
-                        class="text-sm font-medium text-primary hover:underline"
-                    >
-                        Forgot password?
-                    </Link>
+                    <Link href="/forgot-password" class="text-sm font-medium text-primary hover:underline"> Forgot password? </Link>
                 </div>
 
                 <button
@@ -155,15 +116,8 @@ const onSubmit = handleSubmit((values) => {
             </form>
 
             <div class="space-y-4 border-t border-gray-200 pt-6">
-                <p
-                    class="flex items-center justify-center gap-2 text-xs text-gray-500"
-                >
-                    <svg
-                        class="h-4 w-4 shrink-0 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
+                <p class="flex items-center justify-center gap-2 text-xs text-gray-500">
+                    <svg class="h-4 w-4 shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
@@ -175,13 +129,7 @@ const onSubmit = handleSubmit((values) => {
                 </p>
                 <p class="text-center text-sm text-gray-600">
                     Don't have an account?
-
-                    <Link
-                        href="/register"
-                        class="font-medium text-primary hover:underline"
-                    >
-                        Register
-                    </Link>
+                    <Link href="/register" class="font-medium text-primary hover:underline"> Register </Link>
                 </p>
             </div>
         </div>
