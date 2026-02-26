@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('NetHealth Vanilla JS initialized.');
 
-    // ==========================================
-    // 1. Password Toggle Logic (For login.html)
+     // 1. Password Toggle Logic (For login.html)
     // ==========================================
     const togglePasswordBtn = document.getElementById('togglePasswordBtn');
     const passwordInput = document.getElementById('password');
