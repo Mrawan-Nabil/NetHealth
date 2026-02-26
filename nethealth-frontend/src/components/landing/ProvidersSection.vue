@@ -37,12 +37,8 @@ const providers = [
       </h2>
 
       <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <article
-          v-for="(provider, index) in providers"
-          :key="index"
-          class="flex flex-col rounded-xl bg-white p-6 text-center shadow-[0_2px_8px_rgba(0,0,0,0.06)] sm:p-8"
-        >
-          <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center text-primary" aria-hidden="true">
+        <article v-for="(provider, index) in providers" :key="index"class="group flex flex-col rounded-xl bg-white p-6 text-center shadow-[0_2px_8px_rgba(0,0,0,0.06)] sm:p-8 transition-all duration-500 ease-out hover:-translate-y-3 hover:shadow-2xl hover:bg-primary/5">
+          <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center text-primary transition-all duration-500 group-hover:scale-125 group-hover:rotate-6" aria-hidden="true">
             <!-- Patient -->
             <svg v-if="provider.icon === 'patient'" class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
