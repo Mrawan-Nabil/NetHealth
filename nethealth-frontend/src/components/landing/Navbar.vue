@@ -7,7 +7,11 @@ const navLinks = [
   { label: 'About Us', href: '#about' },
   { label: 'Contact', href: '#contact' },
 ]
+
+
 </script>
+
+
 
 <template>
   <header

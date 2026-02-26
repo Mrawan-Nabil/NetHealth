@@ -8,9 +8,9 @@ const doctors = [
 </script>
 
 <template>
-  <section id="doctors" class="py-16 sm:py-20 lg:py-24">
+  <section id="about" ref="aboutSection" class="py-16 sm:py-20 lg:py-24">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <h2 class="text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+      <h2  class="text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
         Meet Our <span class="text-primary">Certified Doctors</span>
       </h2>
 

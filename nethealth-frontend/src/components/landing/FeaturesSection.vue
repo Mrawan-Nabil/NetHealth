@@ -23,8 +23,9 @@ const features = [
 ]
 </script>
 
+
 <template>
-  <section id="features" class="py-16 sm:py-20 lg:py-24">
+  <section id="features" ref="featuresSection" class="py-16 sm:py-20 lg:py-24">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <h2 class="text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
         Why Choose <span class="text-primary">Our Platform?</span>

@@ -8,8 +8,9 @@ const highlights = [
 ]
 </script>
 
+
 <template>
-  <section id="home" class="overflow-hidden">
+  <section id="home" ref="homeSection" class="overflow-hidden">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-16">
         <!-- Left column -->
@@ -57,8 +58,7 @@ const highlights = [
             <div class="relative flex justify-center lg:justify-end h-full w-full">
               <img :src="doctorImage" alt="Doctor holding tablet" class="w-full h-full object-cover rounded-2xl" />
             <div
-               class="relative flex aspect-4/5 w-full max-w-md items-center justify-center overflow-hidden rounded-2xl bg-gray-100 ring-1 ring-gray-200/50 animate-[float_6s_ease-in-out_infinite]"
-            ></div>
+               class="relative flex aspect-4/5 w-full max-w-md items-center justify-center overflow-hidden rounded-2xl bg-gray-100 ring-1 ring-gray-200/50 animate-[float_6s_ease-in-out_infinite]"></div>
             </div>
           </div>
         </div>

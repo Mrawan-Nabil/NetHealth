@@ -25,28 +25,26 @@ const socialLinks = [
 ]
 </script>
 
+
 <template>
-  <footer class="bg-gray-900 text-white">
+  <footer id="contact" ref="contactSection" class="bg-gray-900 text-white animate-fadeInUp">
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
       <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
         <!-- Column 1: Logo, description, Get Started -->
-        <div class="lg:col-span-1">
+        <div class="lg:col-span-1 animate-fadeInUp delay-100">
           <RouterLink to="/" class="inline-flex items-center gap-2">
               <img :src="netHealthLogo" alt="NetHealth Logo" class="w-16 h-16 mb-2" style="width: 165px; height: 160px; margin-bottom: -50px;margin-top: -50px;"/>
             </RouterLink>
           <p class="mt-4 max-w-xs text-sm text-gray-400">
             Your health, managed in one secure place. Connect with doctors, manage records, and take control of your care.
           </p>
-          <RouterLink
-            :to="{ name: 'RegisterRole' }"
-            class="mt-6 inline-block rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 focus:ring-offset-gray-900"
-          >
+          <RouterLink :to="{ name: 'RegisterRole' }" class="mt-6 inline-block rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-all duration-300 animate-fadeInUp hover:scale-105 hover:shadow-lg hover:shadow-primary/40">
             Get Started
           </RouterLink>
         </div>
 
         <!-- Column 2: Quick Links -->
-        <div>
+        <div class="animate-fadeInUp delay-200">
           <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-300">
             Quick Links
           </h3>
@@ -55,14 +53,14 @@ const socialLinks = [
               <RouterLink
                 v-if="link.to"
                 :to="link.to"
-                class="text-sm text-gray-400 transition-colors hover:text-primary"
+                class="text-sm text-gray-400 transition-all duration-300 hover:text-primary hover:translate-x-1"
               >
                 {{ link.label }}
               </RouterLink>
               <a
                 v-else
                 :href="link.href"
-                class="text-sm text-gray-400 transition-colors hover:text-primary"
+                class="text-sm text-gray-400 transition-all duration-300 hover:text-primary hover:translate-x-1"
               >
                 {{ link.label }}
               </a>
@@ -71,7 +69,7 @@ const socialLinks = [
         </div>
 
         <!-- Column 3: Legal -->
-        <div>
+        <div class="animate-fadeInUp delay-300">
           <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-300">
             Legal
           </h3>
@@ -79,7 +77,7 @@ const socialLinks = [
             <li v-for="link in legalLinks" :key="link.label">
               <a
                 :href="link.href"
-                class="text-sm text-gray-400 transition-colors hover:text-primary"
+                class="text-sm text-gray-400 transition-all duration-300 hover:text-primary hover:translate-x-1"
               >
                 {{ link.label }}
               </a>
@@ -88,7 +86,7 @@ const socialLinks = [
         </div>
 
         <!-- Column 4: Follow Us -->
-        <div>
+        <div class="animate-fadeInUp delay-500">
           <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-300">
             Follow Us
           </h3>
@@ -98,7 +96,7 @@ const socialLinks = [
               :key="social.label"
               :href="social.href"
               :aria-label="social.label"
-              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-primary"
+              class="rounded-lg p-2 text-gray-400 transition-all duration-300 hover:bg-gray-800 hover:text-primary hover:-translate-y-1 hover:scale-110"
             >
               <!-- Facebook -->
               <svg v-if="social.label === 'Facebook'" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -130,3 +128,4 @@ const socialLinks = [
     </div>
   </footer>
 </template>
+
