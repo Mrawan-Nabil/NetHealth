@@ -35,10 +35,10 @@ class DoctorController extends Controller
 
         Doctor::create([
             'user_id' => $user->id,
-            'national_id' => $data['national_id'], // ADDED: National ID from frontend
-            'medical_license' => $data['medical_license_number'], // FIXED: Matches frontend payload
+            'national_id' => $data['national_id'],
+            'medical_license' => $data['medical_license_number'],
             'specialty' => $data['specialty'],
-            'experience' => $data['experience'] ?? null, // ADDED: Null fallback
+            'experience' => $data['experience'] ?? null,
             'qualifications' => $data['qualifications'] ?? null,
         ]);
 
@@ -47,7 +47,6 @@ class DoctorController extends Controller
 
         Auth::login($user);
 
-        // FIXED: Changed route('/') to route('home') to match Patient controller
         return redirect()->route('home')->with('success', 'Registration Successful!');
     }
 }

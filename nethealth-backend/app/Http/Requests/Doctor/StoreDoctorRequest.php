@@ -27,18 +27,15 @@ class StoreDoctorRequest extends FormRequest
         $registerRules = app(RegisterRequest::class)->rules();
 
         return array_merge($registerRules, [
-            // 1. Added National ID
             'national_id' => [
                 'required',
                 'unique:doctors,national_id',
                 new ValidNationalId,
             ],
-            // 2. Fixed key to match frontend (medical_license_number)
             'medical_license_number' => 'required|string|max:50|unique:doctors,medical_license',
             'specialty' => 'required|string|max:255',
             'experience' => 'nullable|string|max:255',
             'qualifications' => 'nullable|string|max:255',
-            // 3. Added validation for the file uploads
             'verification_documents' => 'nullable|array',
             'verification_documents.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240', // Max 10MB
         ]);

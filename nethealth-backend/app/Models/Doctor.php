@@ -16,6 +16,7 @@ class Doctor extends Model
         'specialty',
         'experience',
         'qualifications',
+        'national_id',
     ];
 
     public function user(): BelongsTo
