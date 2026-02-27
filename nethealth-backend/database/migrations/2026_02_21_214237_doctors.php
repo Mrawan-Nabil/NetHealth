@@ -17,10 +17,13 @@ return new class extends Migration
                 ->constrained('users')
                 ->cascadeOnDelete();
 
+            $table->string('national_id')->unique();
             $table->string('medical_license')->unique();
             $table->string('specialty');
             $table->text('experience')->nullable();
             $table->text('qualifications')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->nullable();
         });
     }
 
