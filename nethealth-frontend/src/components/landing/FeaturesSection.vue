@@ -23,8 +23,9 @@ const features = [
 ]
 </script>
 
+
 <template>
-  <section id="features" class="py-16 sm:py-20 lg:py-24">
+  <section id="features" ref="featuresSection" class="py-16 sm:py-20 lg:py-24">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <h2 class="text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
         Why Choose <span class="text-primary">Our Platform?</span>
@@ -32,10 +33,7 @@ const features = [
 
       <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <article
-          v-for="(feature, index) in features"
-          :key="index"
-          class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)] sm:p-8"
-        >
+          v-for="(feature, index) in features":key="index" class="rounded-xl bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)] sm:p-8transform transition duration-300 hover:-translate-y-2 hover:shadow-lg hover:bg-primary/5">
           <div
             class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"
             aria-hidden="true"
