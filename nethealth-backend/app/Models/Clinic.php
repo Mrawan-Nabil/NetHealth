@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Clinic extends Model
 {
     protected $fillable = [
-        'name',
         'license_number',
-        'phone',
-        'address',
-        'governorate',
         'is_verified',
+        'clinic_name',
+        'user_id',
+        'clinic_address',
+        'clinic_governorate',
+        'clinic_phone',
     ];
 
     protected $casts = [
