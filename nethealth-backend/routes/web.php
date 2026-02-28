@@ -10,6 +10,10 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
+})->name('test');
+
+Route::get('/home', function () {
+    return Inertia::render('Home');
 })->name('home');
 
 Route::middleware('guest')->group(function () {

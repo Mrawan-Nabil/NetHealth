@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup >
 // Full-screen medical team background; replace with your own asset if needed
 const backgroundImage = 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1920'
 </script>
