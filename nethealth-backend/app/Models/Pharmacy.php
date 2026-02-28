@@ -13,6 +13,13 @@ class Pharmacy extends Model
         'address',
         'governorate',
         'is_verified',
+        'user_id',
+        'commercial_registration_number',
+        'pharmacy_name',
+        'pharmacy_phone',
+        'pharmacy_address',
+        'pharmacy_governorate',
+        'tax_id',
     ];
 
     protected $casts = [
