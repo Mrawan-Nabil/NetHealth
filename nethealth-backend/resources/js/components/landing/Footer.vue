@@ -25,7 +25,6 @@ const socialLinks = [
 ];
 function handleSmoothScroll(href) {
     if (href === '#home') {
-        // التمرير إلى أعلى الصفحة
         window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
         const targetId = href.replace('#', '');

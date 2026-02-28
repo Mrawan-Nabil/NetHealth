@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pharmacy\StorePharmacyRequest;
 use App\Models\Pharmacy;
+use Inertia\Inertia;
 
 class PharmacyController extends Controller
 {
-    public function create() {}
+    public function create()
+    {
+        return Inertia::render('RegisterPharmacy');
+    }
 
     public function store(StorePharmacyRequest $request)
     {
