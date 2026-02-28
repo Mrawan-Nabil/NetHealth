@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('clinics', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('clinic_name');
             $table->string('license_number')->unique();
-            $table->string('phone');
-            $table->string('address');
-            $table->string('governorate');
+            $table->string('clinic_phone');
+            $table->string('clinic_address');
+            $table->string('clinic_governorate');
             $table->boolean('is_verified')->default(false);
             $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->nullable();
         });
     }
 

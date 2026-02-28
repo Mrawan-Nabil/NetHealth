@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Clinic;
 
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Rules\ValidNationalId;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreClinicRequest extends FormRequest
@@ -21,12 +23,20 @@ class StoreClinicRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => 'required|string|max:255|min:5',
+        $registerRules = app(RegisterRequest::class)->rules();
+
+        return array_merge($registerRules, [
+            'national_id' => [
+                'required',
+                'unique:users,national_id',
+                new ValidNationalId,
+            ],
+
+            'clinic_name' => 'required|string|max:255|min:5',
             'license_number' => 'required|string|unique:clinics,license_number',
-            'phone' => ['required', 'regex:/^[0-9]{10,11}$/'],
-            'address' => 'required|string|min:5|max:500',
-            'governorate' => 'required|string',
-        ];
+            'clinic_phone' => ['required', 'regex:/^\+?[0-9]{10,15}$/'],
+            'clinic_address' => 'required|string|min:5|max:500',
+            'clinic_governorate' => 'required|string',
+        ]);
     }
 }

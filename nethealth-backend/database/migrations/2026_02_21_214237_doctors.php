@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ProfessionalTitle;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,6 +21,11 @@ return new class extends Migration
             $table->string('national_id')->unique();
             $table->string('medical_license')->unique();
             $table->string('specialty');
+            $table->string('professional_title')
+                ->default(ProfessionalTitle::Resident->value);
+            $table->string('syndicate_id')->unique();
+            $table->unsignedInteger('consultation_fee')
+                ->default(0);
             $table->text('experience')->nullable();
             $table->text('qualifications')->nullable();
             $table->timestamp('created_at')->useCurrent();
@@ -32,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('doctors');
     }
 };

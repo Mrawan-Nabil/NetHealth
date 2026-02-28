@@ -14,9 +14,13 @@ class Doctor extends Model
         'user_id',
         'medical_license',
         'specialty',
+        'professional_title',
+        'syndicate_id',
+        'consultation_fee',
         'experience',
         'qualifications',
         'national_id',
+        'syndicate_id',
     ];
 
     public function user(): BelongsTo

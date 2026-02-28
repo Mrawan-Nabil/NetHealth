@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests\Doctor;
 
+use App\Enums\ProfessionalTitle;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Rules\ValidNationalId; // Added this import!
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class StoreDoctorRequest extends FormRequest
 {
@@ -34,6 +36,9 @@ class StoreDoctorRequest extends FormRequest
             ],
             'medical_license_number' => 'required|string|max:50|unique:doctors,medical_license',
             'specialty' => 'required|string|max:255',
+            'professional_title' => ['required', new Enum(ProfessionalTitle::class)],
+            'syndicate_id' => 'required|string|unique:doctors,syndicate_id|max:50',
+            'consultation_fee' => 'required|integer|min:0',
             'experience' => 'nullable|string|max:255',
             'qualifications' => 'nullable|string|max:255',
             'verification_documents' => 'nullable|array',
