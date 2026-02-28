@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme inline {
+    --font-sans: Instrument Sans, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@theme {
+    --color-primary: #1ABC9C;
+    --font-sans: "Manrope", sans-serif;
+}
+
+body {
+    font-family: var(--font-sans), sans-serif;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+
+@keyframes heartPulse {
+    0%, 25% {
+        transform: scale(1);
+    }
+
+    35% {
+        transform: scale(1.08);
+    }
+
+    45% {
+        transform: scale(1);
+    }
+
+    55% {
+        transform: scale(1.05);
+    }
+
+    65%, 100% {
+        transform: scale(1);
+    }
+}
+
+.heart-pulse-hover:hover {
+    animation: heartPulse 1.4s ease-in-out infinite;
+}
