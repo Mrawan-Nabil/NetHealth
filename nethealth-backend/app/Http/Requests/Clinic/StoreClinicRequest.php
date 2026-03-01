@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Clinic;
 
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Rules\ValidNationalId;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreClinicRequest extends FormRequest
@@ -28,10 +27,13 @@ class StoreClinicRequest extends FormRequest
         return array_merge($registerRules, [
 
             'clinic_name' => 'required|string|max:255|min:5',
+            'clinic_type' => ['required', 'string', 'in:single_specialty,polyclinic,specialized_center'],
             'license_number' => 'required|string|unique:clinics,license_number',
             'clinic_phone' => ['required', 'regex:/^\+?[0-9]{10,15}$/'],
             'clinic_address' => 'required|string|min:5|max:500',
             'clinic_governorate' => 'required|string',
+            'commercial_registration_number' => 'required|string|unique:pharmacies,commercial_registration_number',
+            'tax_id' => 'required|string|unique:pharmacies,tax_id',
         ]);
     }
 }

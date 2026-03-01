@@ -13,13 +13,15 @@ return new class extends Migration
             $table->id();
 
             // Basic Info
-            $table->string('name');
-            $table->string('phone');
-            $table->string('address');
-            $table->string('governorate');
+            $table->string('clinic_name');
+            $table->string('clinic_type');
+
+            $table->string('clinic_phone');
+            $table->string('clinic_address');
+            $table->string('clinic_governorate');
 
             // Legal & Verification (MANDATORY)
-            $table->string('license_number')->unique(); // MoH Clinic License
+            $table->string('license_number')->unique();
             $table->string('commercial_registration_number')->unique();
             $table->string('tax_id')->unique();
 

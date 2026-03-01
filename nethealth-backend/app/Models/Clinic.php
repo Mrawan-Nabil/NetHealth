@@ -14,6 +14,10 @@ class Clinic extends Model
         'clinic_address',
         'clinic_governorate',
         'clinic_phone',
+        'clinic_type',
+        'commercial_registration_number',
+        'tax_id',
+        'verification_documents',
     ];
 
     protected $casts = [
