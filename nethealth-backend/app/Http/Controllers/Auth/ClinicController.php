@@ -28,6 +28,7 @@ class ClinicController extends Controller
                 'gender' => $data['gender'],
                 'birth_date' => $data['date_of_birth'],
                 'governorate' => $data['governorate'],
+                'national_id' => $data['national_id'],
                 'role' => UserRole::Clinic->value,
                 'password' => Hash::make($data['password']),
 

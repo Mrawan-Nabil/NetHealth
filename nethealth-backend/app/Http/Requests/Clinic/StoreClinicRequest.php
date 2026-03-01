@@ -26,11 +26,6 @@ class StoreClinicRequest extends FormRequest
         $registerRules = app(RegisterRequest::class)->rules();
 
         return array_merge($registerRules, [
-            'national_id' => [
-                'required',
-                'unique:users,national_id',
-                new ValidNationalId,
-            ],
 
             'clinic_name' => 'required|string|max:255|min:5',
             'license_number' => 'required|string|unique:clinics,license_number',

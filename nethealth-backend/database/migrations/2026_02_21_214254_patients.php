@@ -17,7 +17,6 @@ return new class extends Migration
                 ->constrained('users')
                 ->cascadeOnDelete();
 
-            $table->string('national_id')->unique();
             $table->string('blood_type')->nullable();
             $table->text('allergies')->nullable();
             $table->text('chronic_conditions')->nullable();

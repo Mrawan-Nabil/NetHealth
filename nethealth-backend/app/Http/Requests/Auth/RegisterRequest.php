@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use App\Enums\Gender;
+use App\Rules\ValidNationalId;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
@@ -24,6 +25,11 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'national_id' => [
+                'required',
+                'unique:patients,national_id',
+                new ValidNationalId,
+            ],
             'full_name' => 'required|string|max:255|min:8',
             'email' => 'required|email|unique:users,email',
             'phone' => ['required', 'regex:/^\+?[0-9]{10,15}$/', 'unique:users,phone'],

@@ -30,12 +30,12 @@ class DoctorController extends Controller
             'gender' => $data['gender'],
             'birth_date' => $data['date_of_birth'],
             'governorate' => $data['governorate'],
+            'national_id' => $data['national_id'],
             'role' => UserRole::Doctor->value,
         ]);
 
         Doctor::create([
             'user_id' => $user->id,
-            'national_id' => $data['national_id'],
             'medical_license' => $data['medical_license_number'],
             'specialty' => $data['specialty'],
             'professional_title' => $data['professional_title'],
