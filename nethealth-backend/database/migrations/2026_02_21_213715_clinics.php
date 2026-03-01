@@ -11,6 +11,7 @@ return new class extends Migration
         // 1. Create the Workspace (Clinic)
         Schema::create('clinics', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
 
             // Basic Info
             $table->string('clinic_name');

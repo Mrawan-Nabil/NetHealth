@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Clinic\StoreClinicRequest;
 use App\Models\Clinic;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
@@ -47,6 +48,8 @@ class ClinicController extends Controller
             'is_verified' => false,
         ]);
 
+        Auth::login($user);
+//        dd(Auth::user());
         return redirect()
             ->route('home')
             ->with('success', 'Clinic registered successfully');
