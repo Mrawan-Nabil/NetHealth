@@ -31,12 +31,12 @@ class PatientController extends Controller
             'gender' => $data['gender'],
             'birth_date' => $data['date_of_birth'],
             'governorate' => $data['governorate'],
+            'national_id' => $data['national_id'],
             'role' => UserRole::Patient->value,
             'password' => Hash::make($data['password']),
         ]);
         Patient::create([
             'user_id' => $user->id,
-            'national_id' => $data['national_id'],
             'blood_type' => $data['blood_type'],
             'allergies' => $data['allergies'] ?? null,
             'chronic_conditions' => $data['chronic_conditions'] ?? null,

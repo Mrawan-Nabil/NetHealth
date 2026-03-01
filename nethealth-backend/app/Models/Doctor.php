@@ -19,7 +19,6 @@ class Doctor extends Model
         'consultation_fee',
         'experience',
         'qualifications',
-        'national_id',
         'syndicate_id',
     ];
 

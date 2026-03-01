@@ -30,6 +30,7 @@ class PharmacyController extends Controller
                 'gender' => $data['gender'],
                 'birth_date' => $data['date_of_birth'],
                 'governorate' => $data['governorate'],
+                'national_id' => $data['national_id'],
                 'role' => UserRole::Pharmacy->value,
                 'password' => Hash::make($data['password']),
 

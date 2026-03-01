@@ -28,11 +28,6 @@ class StorePatientRequest extends FormRequest
         $registerRules = app(RegisterRequest::class)->rules();
 
         return array_merge($registerRules, [
-            'national_id' => [
-                'required',
-                'unique:patients,national_id',
-                new ValidNationalId,
-            ],
             'blood_type' => ['nullable', new Enum(BloodType::class)],
             'allergies' => 'nullable|string',
             'chronic_conditions' => 'nullable|string',

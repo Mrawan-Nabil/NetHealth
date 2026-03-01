@@ -17,8 +17,6 @@ return new class extends Migration
                 ->primary()
                 ->constrained('users')
                 ->cascadeOnDelete();
-
-            $table->string('national_id')->unique();
             $table->string('medical_license')->unique();
             $table->string('specialty');
             $table->string('professional_title')

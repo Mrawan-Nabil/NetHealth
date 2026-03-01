@@ -27,6 +27,7 @@ class User extends Authenticatable
         'role',
         'is_verified',
         'account_status',
+        'national_id',
         'password',
     ];
     protected $hidden = [

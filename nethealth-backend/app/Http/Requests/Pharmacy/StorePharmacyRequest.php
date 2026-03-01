@@ -26,11 +26,6 @@ class StorePharmacyRequest extends FormRequest
         $registerRules = app(RegisterRequest::class)->rules();
 
         return array_merge($registerRules, [
-            'national_id' => [
-                'required',
-                'unique:users,national_id',
-                new ValidNationalId,
-            ],
             'pharmacy_name' => 'required|string|max:255|min:3',
             'license_number' => 'required|string|unique:pharmacies,license_number',
             'pharmacy_phone' => ['required', 'regex:/^\+?[0-9]{10,15}$/'],
