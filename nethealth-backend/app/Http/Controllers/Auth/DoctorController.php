@@ -28,7 +28,7 @@ class DoctorController extends Controller
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
             'gender' => $data['gender'],
-            'birth_date' => $data['date_of_birth'], // FIXED: Matches frontend & patient
+            'birth_date' => $data['date_of_birth'],
             'governorate' => $data['governorate'],
             'role' => UserRole::Doctor->value,
         ]);
@@ -38,6 +38,9 @@ class DoctorController extends Controller
             'national_id' => $data['national_id'],
             'medical_license' => $data['medical_license_number'],
             'specialty' => $data['specialty'],
+            'professional_title' => $data['professional_title'],
+            'syndicate_id' => $data['syndicate_id'],
+            'consultation_fee' => $data['consultation_fee'],
             'experience' => $data['experience'] ?? null,
             'qualifications' => $data['qualifications'] ?? null,
         ]);

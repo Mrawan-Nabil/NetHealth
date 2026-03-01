@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Pharmacy;
 
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Rules\ValidNationalId;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePharmacyRequest extends FormRequest
@@ -21,13 +23,21 @@ class StorePharmacyRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => 'required|string|max:255|min:3',
+        $registerRules = app(RegisterRequest::class)->rules();
+
+        return array_merge($registerRules, [
+            'national_id' => [
+                'required',
+                'unique:users,national_id',
+                new ValidNationalId,
+            ],
+            'pharmacy_name' => 'required|string|max:255|min:3',
             'license_number' => 'required|string|unique:pharmacies,license_number',
-            'phone' => ['required', 'regex:/^[0-9]{10,11}$/'],
-            'address' => 'required|string|min:5|max:500',
-            'governorate' => 'required|string',
-            'is_verified' => 'boolean',
-        ];
+            'pharmacy_phone' => ['required', 'regex:/^\+?[0-9]{10,15}$/'],
+            'pharmacy_address' => 'required|string|min:5|max:500',
+            'pharmacy_governorate' => 'required|string',
+            'commercial_registration_number' => 'required|string|unique:pharmacies,commercial_registration_number',
+            'tax_id' => 'required|string|unique:pharmacies,tax_id',
+        ]);
     }
 }
