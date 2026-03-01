@@ -6,28 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        // 1. Create the Workspace (Clinic)
         Schema::create('clinics', function (Blueprint $table) {
             $table->id();
+
+            // Basic Info
             $table->string('name');
-            $table->string('license_number')->unique();
             $table->string('phone');
             $table->string('address');
             $table->string('governorate');
+
+            // Legal & Verification (MANDATORY)
+            $table->string('license_number')->unique(); // MoH Clinic License
+            $table->string('commercial_registration_number')->unique();
+            $table->string('tax_id')->unique();
+
+            // Verification Uploads
+            $table->json('verification_documents')->nullable(); // Stores PDF paths
             $table->boolean('is_verified')->default(false);
-            $table->timestamp('created_at')->useCurrent();
+
+            $table->timestamps();
         });
+
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('clinics');
     }
 };
