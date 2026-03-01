@@ -6,14 +6,12 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Clinic\StoreClinicRequest;
 use App\Models\Clinic;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class ClinicController extends Controller
 {
-    public function create() {
-        // اتأكد من ده انه صح
+    public function create()
+    {
         return Inertia::render('RegisterClinic');
     }
 
