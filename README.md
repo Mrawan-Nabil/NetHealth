@@ -172,7 +172,7 @@ The project follows **Agile methodology**, focusing on delivering **complete, us
 | **Mariam**  | Backend (Laravel experience leveraged conceptually) |
 | **Mennah**  | UI/UX Design                                        |
 | **Nour**    | Frontend development                                |
-| **Safi**    | Frontend development                                |
+| **Moustafa**    | Frontend development                                |
 
 ---
 
