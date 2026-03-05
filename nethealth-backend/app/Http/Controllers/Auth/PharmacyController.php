@@ -21,7 +21,10 @@ class PharmacyController extends Controller
     public function store(StorePharmacyRequest $request)
     {
         $data = $request->validated();
-//        dd($request->all());
+        //        dd($request->all());
+
+        sfsfsf
+        //make function that contain the user::create then call it in each controller to prevent duplication
         $user =
             user::create([
                 'full_name' => $data['full_name'],

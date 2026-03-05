@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('emergency_contact_phone')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
+            $table->boolean('email_verified')->default(false);
         });
     }
 

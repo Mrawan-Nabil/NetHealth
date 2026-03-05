@@ -27,7 +27,7 @@ class RegisterRequest extends FormRequest
         return [
             'national_id' => [
                 'required',
-                'unique:patients,national_id',
+                'unique:users,national_id',
                 new ValidNationalId,
             ],
             'full_name' => 'required|string|max:255|min:8',
