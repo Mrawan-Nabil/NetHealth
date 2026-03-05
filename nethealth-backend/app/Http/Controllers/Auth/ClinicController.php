@@ -49,7 +49,8 @@ class ClinicController extends Controller
         ]);
 
         Auth::login($user);
-//        dd(Auth::user());
+
+        //        dd(Auth::user());
         return redirect()
             ->route('home')
             ->with('success', 'Clinic registered successfully');
