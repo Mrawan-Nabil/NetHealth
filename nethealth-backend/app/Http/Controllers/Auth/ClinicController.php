@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\AccountStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Clinic\StoreClinicRequest;
 use App\Models\Clinic;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Traits\RegistersUsers;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ClinicController extends Controller
 {
+    use RegistersUsers;
+
     public function create()
     {
         return Inertia::render('RegisterClinic');
@@ -20,19 +23,15 @@ class ClinicController extends Controller
     public function store(StoreClinicRequest $request)
     {
         $data = $request->validated();
-        $user =
-            user::create([
-                'full_name' => $data['full_name'],
-                'email' => $data['email'],
-                'phone' => $data['phone'],
-                'gender' => $data['gender'],
-                'birth_date' => $data['date_of_birth'],
-                'governorate' => $data['governorate'],
-                'national_id' => $data['national_id'],
-                'role' => UserRole::Clinic->value,
-                'password' => Hash::make($data['password']),
+        $user = $this->createBaseUser($data, UserRole::Clinic->value);
 
-            ]);
+        $documentPaths = [];
+        if ($request->hasFile('verification_documents')) {
+            foreach ($request->file('verification_documents') as $file) {
+                $documentPaths[] = $file->store('verification_documents/clinics', 'public');
+            }
+        }
+
         Clinic::create([
             'user_id' => $user->id,
             'clinic_name' => $data['clinic_name'],
@@ -43,12 +42,16 @@ class ClinicController extends Controller
             'license_number' => $data['license_number'],
             'commercial_registration_number' => $data['commercial_registration_number'],
             'tax_id' => $data['tax_id'],
-            'verification_documents' => $data['verification_documents'],
-            'is_verified' => false,
+            'verification_documents' => $documentPaths,
         ]);
+        Auth::login($user);
 
-        return redirect()
-            ->route('home')
-            ->with('success', 'Clinic registered successfully');
+        //        dd('user is created');
+        if ($user->account_status !== AccountStatus::Active) {
+            return redirect()->route('waiting.approval');
+        }
+
+        return redirect()->route('dashboard', ['role' => Auth::user()->role])
+            ->with('success', 'Welcome to your dashboard!');
     }
 }

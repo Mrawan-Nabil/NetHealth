@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\AccountStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Patient\StorePatientRequest;
 use App\Models\Patient;
-use App\Models\User;
+use App\Traits\RegistersUsers;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PatientController extends Controller
 {
+    use RegistersUsers;
     public function create()
     {
         return Inertia::render('RegisterPatient');
@@ -23,18 +23,8 @@ class PatientController extends Controller
     {
 
         $data = $request->validated();
+        $user = $this->createBaseUser($data, UserRole::Patient->value);
 
-        $user = User::create([
-            'full_name' => $data['full_name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
-            'gender' => $data['gender'],
-            'birth_date' => $data['date_of_birth'],
-            'governorate' => $data['governorate'],
-            'national_id' => $data['national_id'],
-            'role' => UserRole::Patient->value,
-            'password' => Hash::make($data['password']),
-        ]);
         Patient::create([
             'user_id' => $user->id,
             'blood_type' => $data['blood_type'],
@@ -45,7 +35,15 @@ class PatientController extends Controller
         ]);
 
         Auth::login($user);
+//        dd('patient is working');
 
-        return redirect()->route('home')->with('success', 'Registration Successful!');
+
+        if (Auth::user()->account_status !== AccountStatus::Active) {
+            return redirect()->route('waiting.approval');
+        }
+
+        return redirect()->route('dashboard', ['role' => Auth::user()->role])
+            ->with('success', 'Welcome to your dashboard!');
+
     }
 }

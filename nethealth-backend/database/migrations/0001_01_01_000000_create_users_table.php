@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('role');
 
 
-            $table->boolean('is_verified')->default(false);
+            $table->boolean('email_verified')->default(false);
             $table->string('account_status')->default(AccountStatus::Pending->value);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();

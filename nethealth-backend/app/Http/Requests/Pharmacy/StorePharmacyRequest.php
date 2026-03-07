@@ -33,6 +33,8 @@ class StorePharmacyRequest extends FormRequest
             'pharmacy_governorate' => 'required|string',
             'commercial_registration_number' => 'required|string|unique:pharmacies,commercial_registration_number',
             'tax_id' => 'required|string|unique:pharmacies,tax_id',
+            'verification_documents' => 'nullable|array',
+            'verification_documents.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
     }
 }

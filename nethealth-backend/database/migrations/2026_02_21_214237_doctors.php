@@ -28,6 +28,7 @@ return new class extends Migration
             $table->text('qualifications')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
+            $table->json('verification_documents')->nullable();
         });
     }
 

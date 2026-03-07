@@ -21,7 +21,7 @@ class Clinic extends Model
     ];
 
     protected $casts = [
-        'is_verified' => 'boolean',
+        'verification_documents' => 'array',
     ];
 
     public function staff()

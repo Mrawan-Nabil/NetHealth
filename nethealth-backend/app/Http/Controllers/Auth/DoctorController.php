@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\AccountStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Doctor\StoreDoctorRequest;
 use App\Models\Doctor;
-use App\Models\User;
+use App\Traits\RegistersUsers;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class DoctorController extends Controller
 {
+    use RegistersUsers;
     public function create()
     {
         return Inertia::render('RegisterDoctor');
@@ -22,17 +23,14 @@ class DoctorController extends Controller
     {
         $data = $request->validated();
 
-        $user = User::create([
-            'full_name' => $data['full_name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
-            'password' => Hash::make($data['password']),
-            'gender' => $data['gender'],
-            'birth_date' => $data['date_of_birth'],
-            'governorate' => $data['governorate'],
-            'national_id' => $data['national_id'],
-            'role' => UserRole::Doctor->value,
-        ]);
+        $user = $this->createBaseUser($data, UserRole::Doctor->value);
+
+        $documentPaths = [];
+        if ($request->hasFile('verification_documents')) {
+            foreach ($request->file('verification_documents') as $file) {
+                $documentPaths[] = $file->store('verification_documents/doctors', 'public');
+            }
+        }
 
         Doctor::create([
             'user_id' => $user->id,
@@ -43,13 +41,16 @@ class DoctorController extends Controller
             'consultation_fee' => $data['consultation_fee'],
             'experience' => $data['experience'] ?? null,
             'qualifications' => $data['qualifications'] ?? null,
+            'verification_documents' => $documentPaths,
         ]);
-
-        // TODO: Handle the 'verification_documents' file uploads here
-        // if ($request->hasFile('verification_documents')) { ... }
-
         Auth::login($user);
 
-        return redirect()->route('home')->with('success', 'Registration Successful!');
+        if ($user->account_status !== AccountStatus::Active) {
+            return redirect()->route('waiting.approval');
+        }
+
+        return redirect()->route('dashboard', ['role' => Auth::user()->role])
+            ->with('success', 'Welcome to your dashboard!');
+
     }
 }

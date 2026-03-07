@@ -1,10 +1,12 @@
 <?php
 
+use App\Enums\AccountStatus;
 use App\Http\Controllers\Auth\ClinicController;
 use App\Http\Controllers\Auth\DoctorController;
 use App\Http\Controllers\Auth\PatientController;
 use App\Http\Controllers\Auth\PharmacyController;
 use App\Http\Controllers\Auth\SessionController;
+use App\Http\Controllers\DashBoard\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -15,6 +17,20 @@ Route::get('/', function () {
 Route::get('/home', function () {
     return Inertia::render('Home');
 })->name('home');
+
+Route::get('/waiting-approval', function () {
+    $user = auth()->user();
+
+    $status = $user->account_status;
+    $statusValue = $status instanceof AccountStatus ? $status->value : $status;
+
+    if ($statusValue === AccountStatus::Active->value) {
+        // pass the 'role' parameter here!
+        return redirect()->route('dashboard', ['role' => $user->role]);
+    }
+
+    return Inertia::render('Auth/WaitingApproval');
+})->name('waiting.approval')->middleware('auth');
 
 Route::middleware('guest')->group(function () {
 
@@ -44,4 +60,10 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/logout', [SessionController::class, 'destroy'])->name('logout');
+    Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
+});
+
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/dashboard/{role}', [DashboardController::class, 'create'])->name('dashboard');
+    // ... all other real features ...
 });

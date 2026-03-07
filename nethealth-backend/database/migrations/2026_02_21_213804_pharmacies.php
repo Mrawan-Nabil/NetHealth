@@ -21,8 +21,7 @@ return new class extends Migration
             $table->string('license_number')->unique();
             $table->string('commercial_registration_number')->unique();
             $table->string('tax_id')->unique();
-            $table->boolean('is_verified')->default(false);
-
+            $table->json('verification_documents')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });

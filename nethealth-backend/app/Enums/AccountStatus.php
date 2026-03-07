@@ -4,7 +4,7 @@ namespace App\Enums;
 
 enum AccountStatus: string
 {
-    case Active = 'Active';
-    case Suspended = 'Suspended';
-    case Pending = 'Pending';
+    case Active = 'active';
+    case Suspended = 'suspended';
+    case Pending = 'pending';
 }
