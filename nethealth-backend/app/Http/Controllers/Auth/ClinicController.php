@@ -47,7 +47,9 @@ class ClinicController extends Controller
             'is_verified' => false,
         ]);
 
-        if ($user->account_status !== AccountStatus::Active) {
+        Auth::login($user);
+
+        if (Auth::user()->account_status !== AccountStatus::Active) {
             return redirect()->route('waiting.approval');
         }
 
