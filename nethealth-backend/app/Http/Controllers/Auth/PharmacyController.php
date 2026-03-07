@@ -46,6 +46,8 @@ class PharmacyController extends Controller
             'tax_id' => $data['tax_id'],
         ]);
 
+        Auth::login($user);
+
         if ($user->account_status !== AccountStatus::Active) {
             return redirect()->route('waiting.approval');
         }
