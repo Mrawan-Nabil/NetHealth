@@ -15,11 +15,13 @@ class Pharmacy extends Model
         'pharmacy_phone',
         'pharmacy_address',
         'pharmacy_governorate',
+        'verification_documents',
         'tax_id',
     ];
 
+
     protected $casts = [
-        'is_verified' => 'boolean',
+        'verification_documents' => 'array',
     ];
 
     public function staff()

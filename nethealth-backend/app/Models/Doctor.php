@@ -20,6 +20,11 @@ class Doctor extends Model
         'experience',
         'qualifications',
         'syndicate_id',
+        'verification_documents',
+    ];
+
+    protected $casts = [
+        'verification_documents' => 'array',
     ];
 
     public function user(): BelongsTo
