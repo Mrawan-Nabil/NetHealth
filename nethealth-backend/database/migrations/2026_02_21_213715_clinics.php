@@ -28,9 +28,9 @@ return new class extends Migration
 
             // Verification Uploads
             $table->json('verification_documents')->nullable(); // Stores PDF paths
-            $table->boolean('email_verified')->default(false);
 
-            $table->timestamps();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->nullable();
         });
 
     }

@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\AccountStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pharmacy\StorePharmacyRequest;
 use App\Models\Pharmacy;
-use App\Models\User;
+use App\Traits\RegistersUsers;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class PharmacyController extends Controller
 {
+    use RegistersUsers;
+
     public function create()
     {
         return Inertia::render('RegisterPharmacy');
@@ -21,23 +23,17 @@ class PharmacyController extends Controller
     public function store(StorePharmacyRequest $request)
     {
         $data = $request->validated();
-        //        dd($request->all());
 
-        sfsfsf
-        //make function that contain the user::create then call it in each controller to prevent duplication
-        $user =
-            user::create([
-                'full_name' => $data['full_name'],
-                'email' => $data['email'],
-                'phone' => $data['phone'],
-                'gender' => $data['gender'],
-                'birth_date' => $data['date_of_birth'],
-                'governorate' => $data['governorate'],
-                'national_id' => $data['national_id'],
-                'role' => UserRole::Pharmacy->value,
-                'password' => Hash::make($data['password']),
+        // make function that contain the user::create then call it in each controller to prevent duplication
+        $user = $this->createBaseUser($data, UserRole::Pharmacy->value);
 
-            ]);
+        // Handle file uploads
+        $documentPaths = [];
+        if ($request->hasFile('verification_documents')) {
+            foreach ($request->file('verification_documents') as $file) {
+                $documentPaths[] = $file->store('verification_documents/pharmacies', 'public');
+            }
+        }
         Pharmacy::create([
             'user_id' => $user->id,
             'pharmacy_name' => $data['pharmacy_name'],
@@ -46,13 +42,15 @@ class PharmacyController extends Controller
             'pharmacy_address' => $data['pharmacy_address'],
             'pharmacy_governorate' => $data['pharmacy_governorate'],
             'commercial_registration_number' => $data['commercial_registration_number'],
+            'verification_documents' => $documentPaths,
             'tax_id' => $data['tax_id'],
         ]);
 
-        Auth::login($user);
+        if ($user->account_status !== AccountStatus::Active) {
+            return redirect()->route('waiting.approval');
+        }
 
-        return redirect()
-            ->route('home')
-            ->with('success', 'Pharmacy registered successfully');
+        return redirect()->route('dashboard', ['role' => Auth::user()->role])
+            ->with('success', 'Welcome to your dashboard!');
     }
 }

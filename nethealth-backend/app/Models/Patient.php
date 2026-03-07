@@ -22,6 +22,7 @@ class Patient extends Model
 
     protected $casts = [
         'blood_type' => BloodType::class,
+        'allergies' => 'array',
     ];
 
     public function user(): BelongsTo
