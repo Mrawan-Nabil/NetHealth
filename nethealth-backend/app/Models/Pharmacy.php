@@ -17,6 +17,7 @@ class Pharmacy extends Model
         'pharmacy_governorate',
         'verification_documents',
         'tax_id',
+        'verification_documents',
     ];
 
 

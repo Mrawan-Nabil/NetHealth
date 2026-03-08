@@ -14,7 +14,6 @@ use Inertia\Inertia;
 class PatientController extends Controller
 {
     use RegistersUsers;
-
     public function create()
     {
         return Inertia::render('RegisterPatient');
@@ -24,7 +23,6 @@ class PatientController extends Controller
     {
 
         $data = $request->validated();
-
         $user = $this->createBaseUser($data, UserRole::Patient->value);
 
         Patient::create([
@@ -37,13 +35,15 @@ class PatientController extends Controller
         ]);
 
         Auth::login($user);
+//        dd('patient is working');
+
 
         if (Auth::user()->account_status !== AccountStatus::Active) {
             return redirect()->route('waiting.approval');
         }
 
-        // If they are active, send them to the intended protected route (or home)
         return redirect()->route('dashboard', ['role' => Auth::user()->role])
             ->with('success', 'Welcome to your dashboard!');
+
     }
 }

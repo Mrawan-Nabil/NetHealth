@@ -31,8 +31,7 @@ class SessionController extends Controller
 
         // Prevent session fixation attacks
         $request->session()->regenerate();
-
-        // The NetHealth Routing Logic: Check status immediately!
+        //        dd('is working');
         if (Auth::user()->account_status !== AccountStatus::Active) {
             return redirect()->route('waiting.approval');
         }

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('license_number')->unique();
             $table->string('commercial_registration_number')->unique();
             $table->string('tax_id')->unique();
-            $table->json('verification_documents')->nullable(); // Stores PDF paths
+            $table->json('verification_documents')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,7 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
-        $middleware->redirectUsersTo(function (Request $request) {
+
+        $middleware->alias([
+            'active' => EnsureAccountIsActive::class,
+        ]);
+
+        $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
             return route('dashboard', ['role' => $request->user()->role]);
         });
     })

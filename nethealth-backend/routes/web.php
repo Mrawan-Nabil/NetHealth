@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\PatientController;
 use App\Http\Controllers\Auth\PharmacyController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\DashBoard\DashboardController;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -20,11 +21,10 @@ Route::get('/home', function () {
 Route::get('/waiting-approval', function () {
     $user = auth()->user();
 
-    // Safely extract the status value for the check
     $status = $user->account_status;
-    $statusValue = $status instanceof \App\Enums\AccountStatus ? $status->value : $status;
+    $statusValue = $status instanceof AccountStatus ? $status->value : $status;
 
-    if ($statusValue === \App\Enums\AccountStatus::Active->value) {
+    if ($statusValue === AccountStatus::Active->value) {
         // pass the 'role' parameter here!
         return redirect()->route('dashboard', ['role' => $user->role]);
     }
@@ -59,6 +59,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/logout', [SessionController::class, 'destroy'])->name('logout');
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
 

@@ -1,13 +1,12 @@
 <script setup lang="ts">
-  import { Head } from '@inertiajs/vue3'
-  import Layout from '@/layouts/AuthLayout'
+import { Head } from '@inertiajs/vue3';
+import Layout from '@/layouts/AuthLayout.vue';
 
-  defineProps<{}>()
+// defineProps<{}>();
 </script>
 
 <template>
-  <Layout>
-    <Head title="ClinicDashboard" />
-
-  </Layout>
+    <Layout>
+        <Head title="ClinicDashboard" />
+    </Layout>
 </template>

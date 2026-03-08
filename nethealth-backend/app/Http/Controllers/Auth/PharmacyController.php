@@ -23,17 +23,15 @@ class PharmacyController extends Controller
     public function store(StorePharmacyRequest $request)
     {
         $data = $request->validated();
-
-        // make function that contain the user::create then call it in each controller to prevent duplication
         $user = $this->createBaseUser($data, UserRole::Pharmacy->value);
 
-        // Handle file uploads
         $documentPaths = [];
         if ($request->hasFile('verification_documents')) {
             foreach ($request->file('verification_documents') as $file) {
                 $documentPaths[] = $file->store('verification_documents/pharmacies', 'public');
             }
         }
+
         Pharmacy::create([
             'user_id' => $user->id,
             'pharmacy_name' => $data['pharmacy_name'],
@@ -54,5 +52,6 @@ class PharmacyController extends Controller
 
         return redirect()->route('dashboard', ['role' => Auth::user()->role])
             ->with('success', 'Welcome to your dashboard!');
+
     }
 }

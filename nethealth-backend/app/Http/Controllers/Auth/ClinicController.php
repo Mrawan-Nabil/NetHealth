@@ -44,12 +44,11 @@ class ClinicController extends Controller
             'commercial_registration_number' => $data['commercial_registration_number'],
             'tax_id' => $data['tax_id'],
             'verification_documents' => $documentPaths,
-            'is_verified' => false,
         ]);
-
         Auth::login($user);
 
-        if (Auth::user()->account_status !== AccountStatus::Active) {
+        //        dd('user is created');
+        if ($user->account_status !== AccountStatus::Active) {
             return redirect()->route('waiting.approval');
         }
 

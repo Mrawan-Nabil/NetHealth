@@ -12,23 +12,15 @@ return new class extends Migration
         Schema::create('clinics', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-
-            // Basic Info
             $table->string('clinic_name');
             $table->string('clinic_type');
-
             $table->string('clinic_phone');
             $table->string('clinic_address');
             $table->string('clinic_governorate');
-
-            // Legal & Verification (MANDATORY)
             $table->string('license_number')->unique();
             $table->string('commercial_registration_number')->unique();
             $table->string('tax_id')->unique();
-
-            // Verification Uploads
             $table->json('verification_documents')->nullable(); // Stores PDF paths
-
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });
