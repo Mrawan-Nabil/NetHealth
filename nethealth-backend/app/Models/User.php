@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Enums\AccountStatus;
 use App\Enums\Gender;
 use App\Enums\UserRole;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -17,9 +18,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     protected $fillable = [
@@ -30,11 +29,12 @@ class User extends Authenticatable
         'birth_date',
         'governorate',
         'role',
-        'is_verified',
+        'is_verified', // should be removed from here
         'account_status',
         'national_id',
         'password',
     ];
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -52,7 +52,6 @@ class User extends Authenticatable
             'birth_date' => 'date',
         ];
     }
-
 
     // One to One
     public function patient()

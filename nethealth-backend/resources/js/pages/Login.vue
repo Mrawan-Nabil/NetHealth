@@ -8,49 +8,47 @@ import netHealthLogo from '@/assets/logo.png';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import BaseInput from '../components/base/BaseInput.vue';
 
+// 1. Define your strict frontend rules
 const loginSchema = z.object({
-    email: z.email({
-        error: (issue) =>
-            issue.input === undefined
-                ? "Email is required"
-                : "Please enter a valid email address"
-    }),
-    password: z.string({ required_error: 'Password is required' }).min(1, 'Password is required').min(6, 'Password must be at least 6 characters'),
+    email: z.email('Please enter a valid email address'),
+    password: z.string().min(1, 'Password is required'),
 });
 
-// 1. Added setErrors here to handle backend responses
-const { handleSubmit, setErrors } = useForm({
+// 2. Extract isSubmitting alongside handleSubmit and setErrors
+const { handleSubmit, setErrors, isSubmitting } = useForm({
     validationSchema: toTypedSchema(loginSchema),
     initialValues: { email: '', password: '' },
 });
 
-const { value: email, errorMessage: emailError } = useField('email', undefined, {
-    validateOnBlur: true,
-    validateOnValueUpdate: false,
-});
-const { value: password, errorMessage: passwordError } = useField('password', undefined, {
-    validateOnBlur: true,
-    validateOnValueUpdate: false,
-});
+const { value: email, errorMessage: emailError } = useField('email');
+const { value: password, errorMessage: passwordError } = useField('password');
 
 const showPassword = ref(false);
 const rememberMe = ref(false);
 
-// 2. Added onError to map Laravel errors to the form fields
+// 3. The crucial fix: Return a Promise inside handleSubmit
 const onSubmit = handleSubmit((values) => {
-    router.post(
-        '/login',
-        {
-            email: values.email,
-            password: values.password,
-            rememberMe: rememberMe.value,
-        },
-        {
-            onError: (errors) => {
-                setErrors(errors);
+    return new Promise((resolve) => {
+        router.post(
+            '/login',
+            {
+                email: values.email,
+                password: values.password,
+                rememberMe: rememberMe.value,
             },
-        },
-    );
+            {
+                // If Laravel rejects the data, map it to Vee-Validate
+                onError: (errors) => {
+                    setErrors(errors);
+                    resolve(); // Tell Vee-Validate the network request is done
+                },
+                // If login succeeds, resolve so the UI can transition cleanly
+                onSuccess: () => {
+                    resolve();
+                },
+            },
+        );
+    });
 });
 </script>
 
@@ -115,8 +113,13 @@ const onSubmit = handleSubmit((values) => {
                         <Link href="/forgot-password" class="text-sm text-primary hover:underline">Forgot password?</Link>
                     </div>
 
-                    <button type="submit" class="w-full rounded-lg bg-primary py-2 text-white transition-all hover:scale-[1.03] active:scale-95">
-                        Login
+                    <button
+                        type="submit"
+                        :disabled="isSubmitting"
+                        class="w-full rounded-lg bg-primary py-2 text-white transition-all hover:scale-[1.03] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span v-if="isSubmitting">Logging in...</span>
+                        <span v-else>Login</span>
                     </button>
                 </form>
 
