@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property string $account_status
+ * @property string $role
+ * @property string $full_name
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;

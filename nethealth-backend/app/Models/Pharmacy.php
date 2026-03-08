@@ -15,9 +15,11 @@ class Pharmacy extends Model
         'pharmacy_phone',
         'pharmacy_address',
         'pharmacy_governorate',
+        'verification_documents',
         'tax_id',
         'verification_documents',
     ];
+
 
     protected $casts = [
         'verification_documents' => 'array',
