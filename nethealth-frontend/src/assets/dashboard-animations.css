@@ -1,0 +1,116 @@
+/* Dashboard-specific animations and styles */
+
+/* Card entrance animations */
+@keyframes dashboardCardSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dashboardStatsFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes dashboardPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Dashboard-specific utility classes */
+.dashboard-card-enter {
+  animation: dashboardCardSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+.dashboard-stats-hover:hover {
+  animation: dashboardStatsFloat 2s ease-in-out infinite;
+}
+
+.dashboard-notification-pulse {
+  animation: dashboardPulse 2s ease-in-out infinite;
+}
+
+/* Staggered animations for dashboard elements */
+.dashboard-stagger-1 { animation-delay: 0.1s; }
+.dashboard-stagger-2 { animation-delay: 0.2s; }
+.dashboard-stagger-3 { animation-delay: 0.3s; }
+.dashboard-stagger-4 { animation-delay: 0.4s; }
+.dashboard-stagger-5 { animation-delay: 0.5s; }
+
+/* Dashboard card hover effects */
+.dashboard-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Dark mode specific dashboard styles */
+.dark .dashboard-card-hover:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Dashboard button animations */
+.dashboard-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(20, 184, 166, 0.3);
+}
+
+.dashboard-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px -1px rgba(20, 184, 166, 0.2);
+}
+
+/* Sidebar animations */
+@keyframes dashboardSidebarSlide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.dashboard-sidebar-enter {
+  animation: dashboardSidebarSlide 0.3s ease-out;
+}
+
+/* Loading animations for dashboard */
+@keyframes dashboardSkeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.dashboard-skeleton {
+  animation: dashboardSkeletonPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+}
+
+.dark .dashboard-skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+}

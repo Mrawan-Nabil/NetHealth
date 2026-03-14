@@ -1,7 +1,7 @@
 <template>
   <div :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'" class="min-h-screen transition-colors duration-300">
     <!-- Sidebar -->
-    <Sidebar
+    <Sidebar 
       :is-dark="isDark"
       @toggle-theme="toggleTheme"
       @logout="handleLogout"
@@ -10,11 +10,11 @@
     <!-- Main Content -->
     <div class="ml-64">
       <!-- Top Navbar -->
-      <TopNavbar
+      <TopNavbar 
         v-if="dashboardData"
         title="Dashboard"
         :is-dark="isDark"
-        :user="dashboardData.user"
+        :user="dashboardData.user" 
         :notifications="[]"
         :show-last-viewed="true"
         :show-share="false"
@@ -53,7 +53,7 @@
             </div>
             <h3 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="text-lg font-semibold mb-2">Failed to Load Dashboard</h3>
             <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-sm mb-6 leading-relaxed">{{ error }}</p>
-            <button
+            <button 
               @click="fetchDashboardData"
               class="dashboard-button px-6 py-3 bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-xl font-semibold shadow-lg"
             >
@@ -82,7 +82,7 @@
               <div class="flex-1">
                 <h3 class="text-2xl font-bold mb-3">Book a New Appointment</h3>
                 <p class="text-teal-50 mb-6 max-w-lg leading-relaxed">
-                  Schedule a consultation with your preferred doctor in just a few steps.
+                  Schedule a consultation with your preferred doctor in just a few steps. 
                   Get instant confirmation and digital prescriptions.
                 </p>
                 <div class="flex items-center gap-6 text-sm">
@@ -101,7 +101,7 @@
                 </div>
               </div>
               <div>
-                <router-link
+                <router-link 
                   to="/appointments"
                   class="dashboard-button inline-flex items-center gap-2 px-6 py-3 bg-white text-[#14B8A6] rounded-xl font-semibold shadow-lg"
                 >
@@ -120,24 +120,24 @@
         <section class="stats-grid grid grid-cols-4 gap-6 stagger-3">
           <!-- Stats Cards -->
           <div class="dashboard-card">
-            <StatsCard
-              :value="dashboardData.stats.appointments"
+            <StatsCard 
+              :value="dashboardData.stats.appointments" 
               label="Upcoming Appointments"
               icon="calendar"
               :is-dark="isDark"
             />
           </div>
           <div class="dashboard-card">
-            <StatsCard
-              :value="dashboardData.stats.prescriptions"
+            <StatsCard 
+              :value="dashboardData.stats.prescriptions" 
               label="Latest Prescription"
               icon="prescription"
               :is-dark="isDark"
             />
           </div>
           <div class="dashboard-card">
-            <StatsCard
-              :value="dashboardData.stats.pending_tests"
+            <StatsCard 
+              :value="dashboardData.stats.pending_tests" 
               label="Pending Test Results"
               icon="test"
               :is-dark="isDark"
@@ -169,8 +169,8 @@
           <div class="col-span-8 space-y-8">
             <!-- Next Appointment -->
             <div class="dashboard-card">
-              <AppointmentCard
-                :appointment="dashboardData.nextAppointment"
+              <AppointmentCard 
+                :appointment="dashboardData.nextAppointment" 
                 :is-dark="isDark"
               />
             </div>
@@ -180,7 +180,7 @@
               <div :class="isDark ? 'bg-[#1E293B] border-[#334155]' : 'bg-white border-[#E5E7EB]'" class="container-hover-subtle rounded-xl p-6 border shadow-sm">
                 <div class="flex items-center justify-between mb-6">
                   <h3 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="text-lg font-semibold">Recent Medical Records</h3>
-                  <router-link
+                  <router-link 
                     to="/medical-records"
                     class="text-sm text-[#14B8A6] hover:text-[#0F9B8E] font-semibold smooth-transition"
                   >
@@ -188,8 +188,8 @@
                   </router-link>
                 </div>
                 <div class="space-y-3">
-                  <MedicalRecordItem
-                    v-for="(record, index) in dashboardData.recentRecords"
+                  <MedicalRecordItem 
+                    v-for="(record, index) in dashboardData.recentRecords" 
                     :key="index"
                     :record="record"
                     :is-dark="isDark"
@@ -203,16 +203,16 @@
           <div class="col-span-4 space-y-8">
             <!-- Health Overview -->
             <div class="dashboard-card">
-              <HealthOverview
-                :health-data="dashboardData.healthOverview"
+              <HealthOverview 
+                :health-data="dashboardData.healthOverview" 
                 :is-dark="isDark"
               />
             </div>
 
             <!-- Recent Activity -->
             <div class="dashboard-card">
-              <ActivityTimeline
-                :activities="formattedActivities"
+              <ActivityTimeline 
+                :activities="formattedActivities" 
                 :is-dark="isDark"
               />
             </div>
@@ -226,14 +226,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import ActivityTimeline from '../components/dashboard/ActivityTimeline.vue'
-import AppointmentCard from '../components/dashboard/AppointmentCard.vue'
-import HealthOverview from '../components/dashboard/HealthOverview.vue'
-import MedicalRecordItem from '../components/dashboard/MedicalRecordItem.vue'
 import Sidebar from '../components/dashboard/Sidebar.vue'
-import StatsCard from '../components/dashboard/StatsCard.vue'
 import TopNavbar from '../components/dashboard/TopNavbar.vue'
-//import { dashboardAPI } from '../services/api.js'
+import StatsCard from '../components/dashboard/StatsCard.vue'
+import AppointmentCard from '../components/dashboard/AppointmentCard.vue'
+import MedicalRecordItem from '../components/dashboard/MedicalRecordItem.vue'
+import HealthOverview from '../components/dashboard/HealthOverview.vue'
+import ActivityTimeline from '../components/dashboard/ActivityTimeline.vue'
+import { dashboardAPI } from '../services/api.js'
 
 const router = useRouter()
 
@@ -244,11 +244,11 @@ const isDark = ref(false)
 
 const formattedActivities = computed(() => {
   if (!dashboardData.value?.activity) return []
-
-  return dashboardData.value.activity.map((activity) => {
+  
+  return dashboardData.value.activity.map((activity, index) => {
     let type = 'default'
     let time = ''
-
+    
     if (activity.toLowerCase().includes('appointment')) {
       type = 'appointment'
       time = '2 hours ago'
@@ -259,7 +259,7 @@ const formattedActivities = computed(() => {
       type = 'prescription'
       time = '3 days ago'
     }
-
+    
     return {
       title: activity,
       type,
@@ -283,14 +283,14 @@ const handleLogout = () => {
 const fetchDashboardData = async () => {
   loading.value = true
   error.value = null
-
+  
   try {
     // Fetch data from API
     dashboardData.value = await dashboardAPI.getDashboardData()
   } catch (err) {
     console.error('Error fetching dashboard data:', err)
     error.value = err.message
-
+    
     // Use dummy data as fallback for development
     dashboardData.value = getDummyData()
   } finally {
