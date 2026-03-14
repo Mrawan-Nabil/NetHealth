@@ -11,7 +11,6 @@ class Clinic extends Model
 
     protected $fillable = [
         'license_number',
-        'is_verified',
         'clinic_name',
         'user_id',
         'clinic_address',

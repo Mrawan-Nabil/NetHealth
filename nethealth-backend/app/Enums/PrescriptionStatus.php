@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum PrescriptionStatus: string
 {
-    case Pending = 'Pending';
-    case Issued = 'Issued';
-    case Dispensed = 'Dispensed';
-    case Cancelled = 'Cancelled';
+    case Pending = 'pending';
+    case Issued = 'issued'; // latest prescription   // active status
+    case Dispensed = 'dispensed'; // dispensed
+    case Cancelled = 'cancelled';
 }

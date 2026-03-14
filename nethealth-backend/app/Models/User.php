@@ -28,10 +28,11 @@ class User extends Authenticatable
         'gender',
         'birth_date',
         'governorate',
-        'role',
         'account_status',
         'national_id',
         'password',
+        'role',
+        'date_of_birth',
     ];
 
     protected $hidden = [
@@ -47,7 +48,6 @@ class User extends Authenticatable
             'gender' => Gender::class,
             'role' => UserRole::class,
             'account_status' => AccountStatus::class,
-            'is_verified' => 'boolean',
             'birth_date' => 'date',
         ];
     }

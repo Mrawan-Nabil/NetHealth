@@ -33,6 +33,7 @@ class StorePatientRequest extends FormRequest
             'chronic_conditions' => 'nullable|string',
             'emergency_contact_name' => 'nullable|string|min:3',
             'emergency_contact_phone' => ['nullable', 'regex:/^\+?[0-9]{10,15}$/'],
+            'emergency_contact_relationship' => 'nullable|string',
         ]);
     }
 }

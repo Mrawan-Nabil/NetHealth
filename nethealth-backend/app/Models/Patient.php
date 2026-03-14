@@ -7,7 +7,6 @@ use Database\Factories\PatientFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Notifications\Notifiable;
 
 class Patient extends Model
 {
@@ -25,6 +24,7 @@ class Patient extends Model
         'chronic_conditions',
         'emergency_contact_name',
         'emergency_contact_phone',
+        'emergency_contact_relationship',
     ];
 
     protected $casts = [
@@ -37,7 +37,7 @@ class Patient extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function appointments()
+    public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
     }

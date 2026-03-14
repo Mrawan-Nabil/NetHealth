@@ -66,3 +66,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard/{role}', [DashboardController::class, 'create'])->name('dashboard');
     // ... all other real features ...
 });
+
+
+Route::get('/home', [PatientController::class, 'index'])->name('Home');
+Route::get('/profile', [PatientController::class, 'show'])->name('profile.edit');
+Route::patch('/profile', [PatientController::class, 'update'])->name('profile.update');
