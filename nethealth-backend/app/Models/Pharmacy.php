@@ -8,7 +8,6 @@ class Pharmacy extends Model
 {
     protected $fillable = [
         'license_number',
-        'is_verified',
         'user_id',
         'commercial_registration_number',
         'pharmacy_name',

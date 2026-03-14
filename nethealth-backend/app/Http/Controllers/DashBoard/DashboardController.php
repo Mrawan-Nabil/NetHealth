@@ -4,6 +4,10 @@ namespace App\Http\Controllers\DashBoard;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Patient\StorePatientRequest;
+use App\Http\Requests\Patient\UpdateProfileRequest;
+use App\Models\Appointment;
+use App\Models\Prescription;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

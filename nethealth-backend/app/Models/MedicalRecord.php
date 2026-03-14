@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MedicalRecord extends Model
 {
@@ -35,7 +36,7 @@ class MedicalRecord extends Model
         return $this->hasMany(Diagnosis::class);
     }
 
-    public function attachments()
+    public function attachments() : HasMany
     {
         return $this->hasMany(MedicalAttachment::class);
     }

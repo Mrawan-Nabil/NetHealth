@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TestResultStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,6 +19,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->string('file_path');
+            $table->string('test_result_status')->default(testResultStatus::Pending->value);
             $table->string('file_type');
             $table->timestamp('uploaded_at')->useCurrent();
         });

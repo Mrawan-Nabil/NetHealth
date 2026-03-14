@@ -46,7 +46,7 @@ class ClinicController extends Controller
         ]);
         Auth::login($user);
 
-        //        dd('user is created');
+        //        dd('user is
         if ($user->account_status !== AccountStatus::Active) {
             return redirect()->route('waiting.approval');
         }
