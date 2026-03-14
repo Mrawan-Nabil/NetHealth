@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Medicine;
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -9,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PrescriptionItemsFactory extends Factory
 {
+    protected $model = PrescriptionItem::class;
     /**
      * Define the model's default state.
      *
@@ -17,7 +21,11 @@ class PrescriptionItemsFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'prescription_id' => Prescription::inRandomOrder()->value('id') ?? Prescription::factory(),
+            'medicine_id' => Medicine::inRandomOrder()->value('id') ?? Medicine::factory(),
+            'dosage' => '1 tablet',
+            'frequency' => 'Twice daily',
+            'duration_days' => 7,
         ];
     }
 }

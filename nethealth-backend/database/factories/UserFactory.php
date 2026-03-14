@@ -8,7 +8,6 @@ use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-
 class UserFactory extends Factory
 {
     public function definition(): array
@@ -18,7 +17,7 @@ class UserFactory extends Factory
 
             'email' => fake()->unique()->safeEmail(),
 
-            'phone' => fake()->unique()->phoneNumber(),
+            'phone' => fake()->unique()->numerify('01#########'),
 
             // numerify() replaces '#' with random numbers. 14 digits is standard.
             'national_id' => fake()->unique()->numerify('##############'),
@@ -66,8 +65,10 @@ class UserFactory extends Factory
 
             'account_status' => AccountStatus::Active->value,
 
-            'remember_token' => Str::random(10),
+            //            'remember_token' => Str::random(10),
 
         ];
     }
+
+
 }

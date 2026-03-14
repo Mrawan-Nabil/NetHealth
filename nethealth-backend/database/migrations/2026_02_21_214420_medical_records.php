@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('medical_records', function (Blueprint $table) {
             $table->id();
             $table->foreignId('appointment_id')->unique()->constrained()->cascadeOnDelete();
-            $table->foreignId('patient_id')->constrained('patients')->cascadeOnDelete();
-            $table->foreignId('doctor_id')->constrained('doctors')->cascadeOnDelete();
+            $table->foreignId('patient_id')->constrained('patients', 'user_id')->cascadeOnDelete();
+            $table->foreignId('doctor_id')->constrained('doctors', 'user_id')->cascadeOnDelete();
             $table->text('diagnosis_notes')->nullable();
             $table->string('record_status')->default(RecordStatus::Open->value);
             $table->timestamp('created_at')->useCurrent();

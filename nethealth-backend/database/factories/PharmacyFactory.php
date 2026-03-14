@@ -23,7 +23,6 @@ class PharmacyFactory extends Factory
     {
         return [
             'license_number' => fake()->unique()->randomNumber(6),
-            'is_verified' => fake()->boolean(),
             'user_id' => User::factory()->create(['role' => UserRole::Pharmacy->value])->id,
             'commercial_registration_number' => fake()->numerify('######'),
             'pharmacy_name' => fake()->company().' Pharmacy',

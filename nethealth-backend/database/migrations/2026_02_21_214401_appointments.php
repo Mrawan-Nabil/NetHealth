@@ -14,8 +14,8 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained('patients')->cascadeOnDelete();
-            $table->foreignId('doctor_id')->constrained('doctors')->cascadeOnDelete();
+            $table->foreignId('patient_id')->constrained('patients', 'user_id')->cascadeOnDelete();
+            $table->foreignId('doctor_id')->constrained('doctors', 'user_id')->cascadeOnDelete();
             $table->foreignId('clinic_id')->constrained('clinics')->cascadeOnDelete();
             $table->dateTime('appointment_time');
             $table->string('appointment_status')->default(AppointmentStatus::Scheduled->value);

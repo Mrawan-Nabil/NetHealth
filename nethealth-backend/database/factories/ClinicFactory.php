@@ -22,10 +22,9 @@ class ClinicFactory extends Factory
     public function definition(): array
     {
         return [
-            'license_number' => fake()->unique()->randomNumber(6),
-            'is_verified' => fake()->boolean(),
-            'clinic_name' => fake()->company().' Clinic',
             'user_id' => User::factory()->create(['role' => UserRole::Clinic->value])->id,
+            'license_number' => fake()->unique()->randomNumber(6),
+            'clinic_name' => fake()->company().' Clinic',
             'clinic_address' => fake()->address(),
             'clinic_governorate' => fake()->city(),
             'clinic_phone' => fake()->phoneNumber(),
