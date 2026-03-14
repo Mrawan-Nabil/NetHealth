@@ -1,0 +1,264 @@
+/* Unified Animation System - Professional SaaS Style */
+
+/* ===== CORE ANIMATION VARIABLES ===== */
+:root {
+  /* Timing Functions - Ultra Smooth */
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-gentle: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Durations - Slower for Smoothness */
+  --duration-fast: 0.2s;
+  --duration-normal: 0.3s;
+  --duration-slow: 0.4s;
+  --duration-slower: 0.6s;
+  
+  /* Transforms - More Subtle */
+  --lift-subtle: -1px;
+  --lift-normal: -2px;
+  --lift-strong: -4px;
+  --scale-press: 0.99;
+  --scale-hover: 1.01;
+}
+
+/* ===== CONTAINER ANIMATIONS ===== */
+
+/* Card Entrance - Ultra Smooth */
+@keyframes containerSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card Hover Effects - Gentle and Smooth */
+.container-hover {
+  transition: all var(--duration-slow) var(--ease-gentle);
+}
+
+.container-hover:hover {
+  transform: translateY(var(--lift-normal));
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
+}
+
+.container-hover-subtle {
+  transition: all var(--duration-normal) var(--ease-gentle);
+}
+
+.container-hover-subtle:hover {
+  transform: translateY(var(--lift-subtle));
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+}
+
+.container-hover-strong {
+  transition: all var(--duration-slower) var(--ease-gentle);
+}
+
+.container-hover-strong:hover {
+  transform: translateY(var(--lift-strong)) scale(var(--scale-hover));
+  box-shadow: 0 16px 24px -4px rgba(0, 0, 0, 0.12), 0 8px 12px -2px rgba(0, 0, 0, 0.06);
+}
+
+/* Dark Mode Container Shadows - Softer */
+.dark .container-hover:hover {
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.25), 0 4px 8px -2px rgba(0, 0, 0, 0.15);
+}
+
+.dark .container-hover-subtle:hover {
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .container-hover-strong:hover {
+  box-shadow: 0 16px 24px -4px rgba(0, 0, 0, 0.4), 0 8px 12px -2px rgba(0, 0, 0, 0.25);
+}
+
+/* ===== BUTTON ANIMATIONS ===== */
+
+/* Primary Button - Ultra Smooth */
+.btn-primary {
+  transition: all var(--duration-normal) var(--ease-gentle);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  transform: translateY(var(--lift-subtle));
+  box-shadow: 0 6px 14px -2px rgba(20, 184, 166, 0.25);
+}
+
+.btn-primary:active {
+  transform: scale(var(--scale-press));
+  transition-duration: var(--duration-fast);
+}
+
+/* Secondary Button - Gentle */
+.btn-secondary {
+  transition: all var(--duration-normal) var(--ease-gentle);
+}
+
+.btn-secondary:hover {
+  transform: translateY(var(--lift-subtle));
+  box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary:active {
+  transform: scale(var(--scale-press));
+  transition-duration: var(--duration-fast);
+}
+
+/* Button Shimmer Effect - Slower */
+.btn-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transition: left var(--duration-slower);
+}
+
+.btn-shimmer:hover::before {
+  left: 100%;
+}
+
+/* ===== PAGE TRANSITIONS ===== */
+
+/* Page Entrance - Smoother */
+@keyframes pageSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: pageSlideUp var(--duration-slower) var(--ease-gentle);
+}
+
+/* Form Step Transitions - Gentler */
+.step-enter-active {
+  transition: all var(--duration-slow) var(--ease-gentle);
+}
+
+.step-leave-active {
+  transition: all var(--duration-slow) var(--ease-gentle);
+}
+
+.step-enter-from {
+  opacity: 0;
+  transform: translateX(16px);
+}
+
+.step-leave-to {
+  opacity: 0;
+  transform: translateX(-16px);
+}
+
+/* ===== INPUT ANIMATIONS ===== */
+
+.input-focus {
+  transition: all var(--duration-normal) var(--ease-gentle);
+}
+
+.input-focus:focus {
+  transform: translateY(-0.5px);
+  box-shadow: 0 3px 10px -2px rgba(20, 184, 166, 0.12);
+}
+
+/* ===== LOADING ANIMATIONS ===== */
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton {
+  animation: skeletonPulse 2.5s var(--ease-gentle) infinite;
+}
+
+/* ===== STAGGER ANIMATIONS ===== */
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+
+/* ===== UTILITY CLASSES ===== */
+
+/* Smooth transitions for all interactive elements */
+.smooth-transition {
+  transition: all var(--duration-normal) var(--ease-gentle);
+}
+
+/* Gentle float animation for decorative elements */
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.gentle-float {
+  animation: gentleFloat 6s var(--ease-gentle) infinite;
+}
+
+/* Pulse animation for notifications */
+@keyframes gentlePulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.gentle-pulse {
+  animation: gentlePulse 3s var(--ease-gentle) infinite;
+}
+
+/* ===== RESPONSIVE ANIMATIONS ===== */
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .gentle-float,
+  .gentle-pulse {
+    animation: none;
+  }
+}
+
+/* Disable hover effects on touch devices */
+@media (hover: none) {
+  .container-hover:hover,
+  .container-hover-subtle:hover,
+  .container-hover-strong:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
