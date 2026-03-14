@@ -17,7 +17,9 @@ class MedicineFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->randomElement(['Amoxicillin', 'Panadol', 'Lipitor', 'Metformin']),
+            'category' => $this->faker->randomElement(['Antibiotic', 'Analgesic', 'Statin', 'Antidiabetic']),
+            'strength' => $this->faker->randomElement(['500mg', '1000mg', '20mg']),
         ];
     }
 }
