@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
+use App\Models\Doctor;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -13,11 +15,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // 1. Create YOUR master admin account first.
+        // We "override" the factory defaults by passing an array.
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'full_name' => 'Mrawan Nabil',
+            'email' => 'mrawan@gmail.com',
+            'phone' => '01093973915',
+            'national_id' => '30503211205217',
+            'role' => UserRole::Admin->value,
         ]);
+
+        // 2. Create 5 dummy Doctors
+        Doctor::factory(5)->create();
+
+        // 3. Create 20 random Patients (Falls back to the Factory defaults)
+        User::factory(20)->create();
     }
 }
