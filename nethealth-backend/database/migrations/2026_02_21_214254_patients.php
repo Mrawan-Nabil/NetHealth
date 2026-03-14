@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('chronic_conditions')->nullable();
             $table->string('emergency_contact_name')->nullable();
             $table->string('emergency_contact_phone')->nullable();
+            $table->string('emergency_contact_relationship')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });

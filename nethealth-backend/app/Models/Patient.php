@@ -5,10 +5,12 @@ namespace App\Models;
 use App\Enums\BloodType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Patient extends Model
 {
     protected $primaryKey = 'user_id';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -18,6 +20,7 @@ class Patient extends Model
         'chronic_conditions',
         'emergency_contact_name',
         'emergency_contact_phone',
+        'emergency_contact_relationship',
     ];
 
     protected $casts = [
@@ -30,7 +33,7 @@ class Patient extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function appointments()
+    public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
     }
