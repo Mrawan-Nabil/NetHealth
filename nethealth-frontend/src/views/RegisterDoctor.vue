@@ -423,7 +423,6 @@ function onFinish() {
   transform: translateY(20px);
 }
 
-
 .step-enter-active,
 .step-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -437,11 +436,16 @@ function onFinish() {
   transform: translateX(-30px);
 }
 
-
 .file-list-enter-active,
 .file-list-leave-active {
   transition: all 0.2s ease;
 }
+.file-list-enter-from,
+.file-list-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 .file-list-enter-from {
   opacity: 0;
   transform: scale(0.9);

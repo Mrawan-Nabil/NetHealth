@@ -96,28 +96,28 @@ function goPrevious() {
           <div class="flex flex-1 items-center" :class="{ 'flex-none': index === steps.length - 1 }">
             <div class="flex flex-col items-center">
               <div
-                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-medium transition-colors"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all duration-200"
                 :class="
                   index < currentStep
-                    ? 'bg-primary text-white'
+                    ? 'bg-white text-purple-600 shadow-lg'
                     : index === currentStep
-                      ? 'border-2 border-primary bg-white text-primary ring-2 ring-primary/20'
-                      : 'border-2 border-gray-300 bg-white text-gray-400'
+                      ? 'border-2 border-white bg-white/10 text-white ring-2 ring-white/20 shadow-sm backdrop-blur-sm'
+                      : 'border-2 border-white/30 bg-white/5 text-white/60 backdrop-blur-sm'
                 "
               >
                 {{ index + 1 }}
               </div>
               <span
                 class="mt-1.5 hidden text-xs font-medium sm:block"
-                :class="index <= currentStep ? 'text-gray-700' : 'text-gray-400'"
+                :class="index <= currentStep ? 'text-white' : 'text-white/60'"
               >
                 {{ label }}
               </span>
             </div>
             <div
               v-if="index < steps.length - 1"
-              class="mx-1 h-0.5 flex-1 rounded transition-colors sm:mx-2"
-              :class="index < currentStep ? 'bg-primary' : 'bg-gray-200'"
+              class="mx-1 h-0.5 flex-1 rounded transition-colors duration-200 sm:mx-2"
+              :class="index < currentStep ? 'bg-white' : 'bg-white/30'"
             />
           </div>
         </template>
@@ -125,7 +125,7 @@ function goPrevious() {
       <!-- Progress bar (optional visual) -->
       <div class="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
         <div
-          class="h-full rounded-full bg-primary transition-all duration-300"
+          class="h-full rounded-full bg-[#14B8A6] transition-all duration-300"
           :style="{ width: `${progressPercent}%` }"
         />
       </div>
@@ -140,7 +140,7 @@ function goPrevious() {
     <div class="mt-8 flex items-center justify-between gap-4 border-t border-gray-200 pt-6">
       <button
         type="button"
-        class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+        class="btn-secondary"
         :disabled="isFirst"
         @click="goPrevious"
       >
@@ -148,7 +148,7 @@ function goPrevious() {
       </button>
       <button
         type="button"
-        class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2"
+        class="btn-primary"
         @click="goNext"
       >
         {{ isLast ? 'Submit' : 'Next' }}
@@ -156,3 +156,36 @@ function goPrevious() {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Button styling */
+.btn-primary {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px -4px rgba(20, 184, 166, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  transition-duration: 0.15s;
+}
+
+.btn-secondary {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+  transition-duration: 0.15s;
+}
+</style>

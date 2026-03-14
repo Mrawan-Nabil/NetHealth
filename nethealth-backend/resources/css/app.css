@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-
+@import "../js/assets/animations.css";
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
@@ -8,13 +8,112 @@
 }
 
 @theme {
-    --color-primary: #1ABC9C;
-    --font-sans: "Manrope", sans-serif;
+  --color-primary: #14B8A6;
+  --color-primary-hover: #0D9488;
+  --font-sans: "Manrope", sans-serif;
 }
 
 body {
     font-family: var(--font-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(20, 184, 166, 0.3);
+  color: inherit;
+}
+
+/* Base transitions - lighter than before to avoid conflicts */
+* {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Button defaults */
+button {
+  cursor: pointer;
+  user-select: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Minimal Vue transitions - let layouts handle their own */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.slide-enter-from {
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.slide-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+/* Keep only essential global animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+
 
 @keyframes fadeInUp {
     from {
@@ -57,3 +156,6 @@ body {
 .heart-pulse-hover:hover {
     animation: heartPulse 1.4s ease-in-out infinite;
 }
+
+
+

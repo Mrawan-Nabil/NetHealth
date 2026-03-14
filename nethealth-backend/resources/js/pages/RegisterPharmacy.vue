@@ -336,7 +336,7 @@ function onFinish() {
 
                 <p class="text-center text-sm text-gray-600">
                     Already registered?
-                    <Link href="/login" class="font-medium text-primary transition-colors duration-200 hover:text-primary/80 hover:underline">Login</Link>
+                    <Link href="/Login" class="font-medium text-primary transition-colors duration-200 hover:text-primary/80 hover:underline">Login</Link>
                 </p>
             </div>
         </Transition>

@@ -24,7 +24,7 @@ class ClinicFactory extends Factory
         return [
             'license_number' => fake()->unique()->randomNumber(6),
             'is_verified' => fake()->boolean(),
-            'clinic_name' => fake()->company() . ' Clinic',
+            'clinic_name' => fake()->company().' Clinic',
             'user_id' => User::factory()->create(['role' => UserRole::Clinic->value])->id,
             'clinic_address' => fake()->address(),
             'clinic_governorate' => fake()->city(),

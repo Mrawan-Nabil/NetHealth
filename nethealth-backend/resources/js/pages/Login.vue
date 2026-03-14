@@ -60,7 +60,7 @@ const onSubmit = handleSubmit((values) => {
                 <div class="text-center">
                     <img
                         :src="netHealthLogo"
-                        class="heart-pulse-hover mx-auto mb-2 h-36 w-36 transition-transform duration-300 hover:scale-105"
+                        class="heart-pulse-hover mx-auto mb-2 h-36 w-36 transition-transform duration-300"
                         alt="NetHealth logo"
                     />
                     <h1 class="text-2xl font-bold">Welcome</h1>
