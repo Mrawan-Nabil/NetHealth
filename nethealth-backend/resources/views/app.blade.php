@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title >NetHealth</title>
 
         <link rel="icon" href="/logo2.png" sizes="any">
         <link rel="icon" href="/logo2.png" type="image/svg+xml">

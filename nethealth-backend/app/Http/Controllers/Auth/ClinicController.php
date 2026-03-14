@@ -23,8 +23,9 @@ class ClinicController extends Controller
     public function store(StoreClinicRequest $request)
     {
         $data = $request->validated();
-        $user = $this->createBaseUser($data, UserRole::Clinic->value);
 
+        $user = $this->createBaseUser($data, UserRole::Clinic->value);
+        // Handle file uploads
         $documentPaths = [];
         if ($request->hasFile('verification_documents')) {
             foreach ($request->file('verification_documents') as $file) {
