@@ -1,6 +1,8 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import netHealthLogo3 from '../../assets/logo3.png';
+import Auth from '@/actions/App/Http/Controllers/Auth/index.ts';
 
 const navLinks = [
     { label: 'Home', href: '#home' },
@@ -22,6 +24,12 @@ function handleSmoothScroll(href) {
         }
     }
 }
+
+//Access Inertia's globally shared data
+const page = usePage();
+
+//Create a computed property to check if the user exists (logged in)
+const user = computed(() => page.props.auth?.user);
 </script>
 
 <template>
@@ -52,19 +60,31 @@ function handleSmoothScroll(href) {
             </div>
 
             <!-- Right: Login + Register -->
-            <div class="flex shrink-0 items-center gap-3">
-                <Link
-                    href="/login"
-                    class="rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/30"
-                >
-                    Login
-                </Link>
-                <Link
-                    href="/register"
-                    class="rounded-full border border-primary px-6 py-2 text-sm font-medium text-primary transition-all duration-300 hover:-translate-y-1 hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-primary/30"
-                >
-                    Register
-                </Link>
+            <div class="flex shrink-0 items-center gap-3" >
+                <!--            @auth-->
+                <template v-if="user">
+                    <Link
+                        href="/{{ route('dashboard') }}"
+                        class="rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/30"
+                    >
+                        Dashboard
+                    </Link>
+                </template>
+                <!--            @endauth -->
+                <template v-else>
+                    <Link
+                        href="/login"
+                        class="rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/30"
+                    >
+                        Login
+                    </Link>
+                    <Link
+                        href="/register"
+                        class="rounded-full border border-primary px-6 py-2 text-sm font-medium text-primary transition-all duration-300 hover:-translate-y-1 hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-primary/30"
+                    >
+                        Register
+                    </Link>
+                </template>
             </div>
         </nav>
     </header>

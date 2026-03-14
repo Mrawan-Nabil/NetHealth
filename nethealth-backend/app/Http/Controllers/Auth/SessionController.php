@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class SessionController extends Controller
@@ -23,10 +24,10 @@ class SessionController extends Controller
 
         // The second argument 'true' tells Laravel to set a long-lived cookie
         if (! Auth::attempt($credentials, $remember)) {
-            //            return back()->withErrors([
-            //                'email' => 'Invalid email or password.',
-            //            ]);
-            dd('Invalid email or password.');
+            throw ValidationException::withMessages([
+                'email' => 'Invalid email or password.',
+            ]);
+            // dd('Invalid email or password.');
         }
 
         // Prevent session fixation attacks

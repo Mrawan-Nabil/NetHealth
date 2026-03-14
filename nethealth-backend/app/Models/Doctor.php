@@ -2,12 +2,19 @@
 
 namespace App\Models;
 
+use Database\Factories\DoctorFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\Notifiable;
 
 class Doctor extends Model
 {
+    /** @use HasFactory<DoctorFactory> */
+    use HasFactory, Notifiable;
+
     protected $primaryKey = 'user_id';
+
     public $incrementing = false;
 
     protected $fillable = [

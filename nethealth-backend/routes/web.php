@@ -59,7 +59,6 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/logout', [SessionController::class, 'destroy'])->name('logout');
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
 

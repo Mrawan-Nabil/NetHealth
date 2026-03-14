@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Pharmacy extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'license_number',
         'user_id',

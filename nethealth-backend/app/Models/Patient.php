@@ -3,12 +3,16 @@
 namespace App\Models;
 
 use App\Enums\BloodType;
+use Database\Factories\PatientFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Patient extends Model
 {
+    /** @use HasFactory<PatientFactory> */
+    use HasFactory, Notifiable;
+
     protected $primaryKey = 'user_id';
 
     public $incrementing = false;
