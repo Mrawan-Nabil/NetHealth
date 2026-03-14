@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Pharmacy>
+ * @extends Factory<Pharmacy>
  */
 class PharmacyFactory extends Factory
 {
@@ -26,10 +26,38 @@ class PharmacyFactory extends Factory
             'is_verified' => fake()->boolean(),
             'user_id' => User::factory()->create(['role' => UserRole::Pharmacy->value])->id,
             'commercial_registration_number' => fake()->numerify('######'),
-            'pharmacy_name' => fake()->company() . ' Pharmacy',
+            'pharmacy_name' => fake()->company().' Pharmacy',
             'pharmacy_phone' => fake()->phoneNumber(),
             'pharmacy_address' => fake()->address(),
-            'pharmacy_governorate' => fake()->city(),
+            'pharmacy_governorate' => fake()->randomElement([
+                'alexandria',
+                'assiut',
+                'aswan',
+                'beheira',
+                'beni_suef',
+                'cairo',
+                'daqahlia',
+                'damietta',
+                'fayoum',
+                'gharbia',
+                'giza',
+                'ismailia',
+                'kafr_el_sheikh',
+                'luxor',
+                'matrouh',
+                'menoufia',
+                'minya',
+                'new_valley',
+                'north_sinai',
+                'port_said',
+                'qalyubia',
+                'qena',
+                'red_sea',
+                'sharqia',
+                'sohag',
+                'south_sinai',
+                'suez',
+            ]),
             'tax_id' => fake()->numerify('######'),
             'verification_documents' => [],
         ];
