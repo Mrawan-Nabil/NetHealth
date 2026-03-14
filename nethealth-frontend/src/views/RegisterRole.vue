@@ -36,36 +36,48 @@ function selectRole(routeName) {
 </script>
 
 <template>
-  <Transition name="fade-slide" appear>
-    <div class="space-y-6">
+  <!-- Glassmorphism Background -->
+  <div class="min-h-screen relative overflow-hidden">
+    <!-- Vibrant Mesh Gradient Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-600 via-pink-500 to-blue-600"></div>
+    <div class="absolute inset-0 bg-gradient-to-tl from-cyan-400 via-purple-500 to-pink-600 opacity-70"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 opacity-50"></div>
+    
+    <!-- Animated Background Elements -->
+    <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-pink-300/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-300/15 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
 
-      <!-- Header -->
-      <div class="text-center animate-stagger">
-        <h1 class="text-2xl font-bold text-gray-900">
-          Create an Account
-        </h1>
-        <p class="mt-1 text-sm text-gray-600">
-          Select your account type to get started
-        </p>
-      </div>
+    <div class="relative min-h-screen flex items-center justify-center py-12 px-6 lg:px-8">
+      <Transition name="fade-slide" appear>
+        <div class="w-full max-w-md">
+          <!-- Glassmorphism Container -->
+          <div class="glass-container backdrop-blur-[15px] bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl shadow-black/20">
+            
+            <!-- Header -->
+            <div class="text-center animate-stagger mb-8">
+              <h1 class="text-3xl font-bold text-white mb-2">
+                Create an Account
+              </h1>
+              <p class="text-white/80 text-lg">
+                Select your account type to get started
+              </p>
+            </div>
 
-      <!-- Roles -->
-      <ul class="flex flex-col gap-3 animate-stagger" role="list">
-        <li v-for="role in roles" :key="role.id">
-          <button
-            type="button"
-            class="flex w-full items-center gap-4 rounded-xl border-2 border-gray-200 bg-white p-4 text-left
-                   transition-all duration-300
-                   hover:border-primary hover:bg-gray-50/50 hover:scale-[1.02] hover:shadow-md
-                   active:scale-95
-                   focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
-            @click="selectRole(role.routeName)"
-          >
-
+            <!-- Roles -->
+            <ul class="flex flex-col gap-4 animate-stagger" role="list">
+              <li v-for="role in roles" :key="role.id">
+                <button
+                  type="button"
+                  class="glass-button flex w-full items-center gap-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/20 p-5 text-left
+                         transition-all duration-300 hover:bg-white/10 hover:border-white/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-white/10
+                         active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                  @click="selectRole(role.routeName)"
+                >
             <!-- Patient -->
             <svg
               v-if="role.id === 'patient'"
-              class="h-8 w-8 shrink-0 text-primary"
+              class="h-8 w-8 shrink-0 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -77,7 +89,7 @@ function selectRole(routeName) {
             <!-- Doctor -->
             <svg
               v-else-if="role.id === 'doctor'"
-              class="h-8 w-8 shrink-0 text-primary"
+              class="h-8 w-8 shrink-0 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -89,7 +101,7 @@ function selectRole(routeName) {
             <!-- Clinic -->
             <svg
               v-else-if="role.id === 'clinic'"
-              class="h-8 w-8 shrink-0 text-primary"
+              class="h-8 w-8 shrink-0 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -102,7 +114,7 @@ function selectRole(routeName) {
             <!-- Pharmacy -->
             <svg
               v-else-if="role.id === 'pharmacy'"
-              class="h-8 w-8 shrink-0 text-primary"
+              class="h-8 w-8 shrink-0 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -117,20 +129,23 @@ function selectRole(routeName) {
 
             <!-- Text -->
             <div class="min-w-0 flex-1">
-              <span class="font-bold text-gray-900">
+              <span class="font-bold text-white text-lg">
                 {{ role.title }}
               </span>
-              <p class="mt-0.5 text-sm text-gray-600">
+              <p class="mt-1 text-white/70 text-sm">
                 {{ role.subtitle }}
               </p>
             </div>
 
-          </button>
-        </li>
-      </ul>
+                </button>
+              </li>
+            </ul>
 
+          </div>
+        </div>
+      </Transition>
     </div>
-  </Transition>
+  </div>
 </template>
 
 <style scoped>

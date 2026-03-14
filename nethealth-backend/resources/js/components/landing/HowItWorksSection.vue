@@ -28,7 +28,7 @@ const steps = [
       </h2>
 
       <div class="mt-12 grid grid-cols-1 gap-10 sm:grid-cols-3 lg:gap-12">
-        <article v-for="(step, index) in steps" :key="index" class="group flex flex-col items-center text-center">
+        <article v-for="(step, index) in steps":key="index"class="group flex flex-col items-center text-center">
           <div class="mb-6 flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-primary p-6 text-white transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-2xl"aria-hidden="true">
             <!-- Create account / user-plus -->
             <svg v-if="step.icon === 'account'" class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

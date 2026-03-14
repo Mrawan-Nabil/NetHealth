@@ -59,7 +59,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
+    Route::get('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
 
 Route::middleware(['auth', 'active'])->group(function () {
@@ -68,6 +68,6 @@ Route::middleware(['auth', 'active'])->group(function () {
 });
 
 
-Route::get('/home', [PatientController::class, 'index'])->name('Home');
+Route::get('/dashboard', [PatientController::class, 'index'])->name('profile.show');
 Route::get('/profile', [PatientController::class, 'show'])->name('profile.edit');
 Route::patch('/profile', [PatientController::class, 'update'])->name('profile.update');

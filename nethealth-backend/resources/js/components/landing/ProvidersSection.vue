@@ -90,7 +90,7 @@ const providers = [
                         {{ provider.description }}
                     </p>
                     <Link
-                        :href="provider.to"
+                        :to="provider.to"
                         class="mt-4 inline-flex items-center justify-center gap-1 text-sm font-medium text-primary hover:underline"
                     >
                         Learn More
