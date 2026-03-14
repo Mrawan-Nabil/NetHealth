@@ -400,7 +400,7 @@ function onFinish() {
 
                 <p class="text-center text-sm text-gray-600">
                     Already have an account?
-                    <Link href="/Login" class="font-medium text-primary hover:underline">Login</Link>
+                    <Link href="/login" class="font-medium text-primary hover:underline">Login</Link>
                 </p>
             </div>
         </transition>
