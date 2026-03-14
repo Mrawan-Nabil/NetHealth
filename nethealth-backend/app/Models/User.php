@@ -29,7 +29,6 @@ class User extends Authenticatable
         'birth_date',
         'governorate',
         'role',
-        'is_verified', // should be removed from here
         'account_status',
         'national_id',
         'password',
