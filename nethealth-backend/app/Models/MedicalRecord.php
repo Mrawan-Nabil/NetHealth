@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Database\Factories\MedicalRecordFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notifiable;
 
 class MedicalRecord extends Model
 {
-    use HasFactory;
+    /** @use HasFactory<MedicalRecordFactory> */
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'appointment_id',
@@ -39,7 +42,7 @@ class MedicalRecord extends Model
         return $this->hasMany(Diagnosis::class);
     }
 
-    public function attachments() : HasMany
+    public function attachments(): HasMany
     {
         return $this->hasMany(MedicalAttachment::class);
     }

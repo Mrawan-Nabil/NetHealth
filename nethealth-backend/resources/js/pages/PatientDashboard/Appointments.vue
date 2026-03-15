@@ -1,7 +1,94 @@
+<script setup>
+import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useDashboard } from '@/composables/useDashboard.js'
+import CancelledAppointmentCard from '../components/appointments/CancelledAppointmentCard.vue'
+import CompletedAppointmentCard from '../components/appointments/CompletedAppointmentCard.vue'
+import ScheduledAppointmentCard from '../components/appointments/ScheduledAppointmentCard.vue'
+import Sidebar from '../components/dashboard/Sidebar.vue'
+import TopNavbar from '../components/dashboard/TopNavbar.vue'
+
+const router = useRouter()
+const { state, fetchAppointments, setTheme, cancelAppointment } = useDashboard()
+
+// Computed properties
+const isDark = computed(() => state.isDark)
+const activeTab = computed({
+    get: () => state.activeAppointmentTab || 'completed',
+    set: (value) => { state.activeAppointmentTab = value }
+})
+const appointments = computed(() => state.appointments)
+const loading = computed(() => state.loading.appointments)
+
+const filteredAppointments = computed(() => {
+    const statusMap = {
+        'completed': 'Completed',
+        'scheduled': 'Scheduled',
+        'cancelled': 'Cancelled'
+    }
+    return appointments.value.filter(apt => apt.status === statusMap[activeTab.value])
+})
+
+// Methods
+const toggleTheme = (theme) => {
+    setTheme(theme)
+}
+
+const handleLogout = () => {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('authToken')
+        router.push('/login')
+    }
+}
+
+const handleNewAppointment = () => {
+    router.push('/appointments/create')
+}
+
+const handleViewPrescription = (appointment) => {
+    console.log('View prescription:', appointment)
+    router.push(`/prescription/${appointment.id}`)
+}
+
+const handleViewReport = (appointment) => {
+    console.log('View report:', appointment)
+    alert('Viewing report for ' + appointment.doctorName)
+}
+
+const handleUploadTestResults = (appointment) => {
+    console.log('Upload test results:', appointment)
+    alert('Upload test results for ' + appointment.doctorName)
+}
+
+const handleUploadImaging = (appointment) => {
+    console.log('Upload imaging:', appointment)
+    alert('Upload imaging for ' + appointment.doctorName)
+}
+
+const handleReschedule = (appointment) => {
+    console.log('Reschedule:', appointment)
+    alert('Reschedule appointment with ' + appointment.doctorName)
+}
+
+const handleCancelAppointment = (appointment) => {
+    if (confirm('Are you sure you want to cancel this appointment?')) {
+        cancelAppointment(appointment.id, 'Patient requested cancellation')
+        alert('Appointment cancelled')
+    }
+}
+
+// Lifecycle
+onMounted(() => {
+    if (state.appointments.length === 0) {
+        fetchAppointments()
+    }
+})
+</script>
+
 <template>
   <div :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'" class="min-h-screen transition-colors duration-300">
     <!-- Sidebar -->
-    <Sidebar 
+    <Sidebar
       :is-dark="isDark"
       @toggle-theme="toggleTheme"
       @logout="handleLogout"
@@ -10,7 +97,7 @@
     <!-- Main Content -->
     <div class="ml-64">
       <!-- Top Navbar -->
-      <TopNavbar 
+      <TopNavbar
         title="Appointments"
         :is-dark="isDark"
         :user="{ name: 'Ahmed Yahia', username: '@y7ia007', avatar: 'https://i.pravatar.cc/150?img=12' }"
@@ -86,8 +173,8 @@
               {{ activeTab === 'completed' ? 'Review details from your past visits and download medical documentation.' : activeTab === 'scheduled' ? 'View and manage your upcoming appointments.' : 'Review cancelled appointments.' }}
             </p>
           </div>
-          
-          <button 
+
+          <button
             @click="handleNewAppointment"
             class="px-4 py-2 bg-[#14B8A6] hover:bg-[#0F9B8E] text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
           >
@@ -111,7 +198,7 @@
           <div v-if="activeTab !== 'cancelled'" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Completed Appointments -->
             <CompletedAppointmentCard
-              v-if="activeTab === 'completed'"
+              :v-if="activeTab === 'completed'"
               v-for="appointment in filteredAppointments"
               :key="appointment.id"
               :appointment="appointment"
@@ -119,10 +206,10 @@
               @view-prescription="handleViewPrescription"
               @view-report="handleViewReport"
             />
-            
+
             <!-- Scheduled Appointments -->
             <ScheduledAppointmentCard
-              v-if="activeTab === 'scheduled'"
+              :v-if="activeTab === 'scheduled'"
               v-for="appointment in filteredAppointments"
               :key="appointment.id"
               :appointment="appointment"
@@ -159,89 +246,4 @@
   </div>
 </template>
 
-<script setup>
-import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useDashboard } from '../composables/useDashboard'
-import Sidebar from '../components/dashboard/Sidebar.vue'
-import TopNavbar from '../components/dashboard/TopNavbar.vue'
-import CompletedAppointmentCard from '../components/appointments/CompletedAppointmentCard.vue'
-import ScheduledAppointmentCard from '../components/appointments/ScheduledAppointmentCard.vue'
-import CancelledAppointmentCard from '../components/appointments/CancelledAppointmentCard.vue'
 
-const router = useRouter()
-const { state, fetchAppointments, setTheme, cancelAppointment } = useDashboard()
-
-// Computed properties
-const isDark = computed(() => state.isDark)
-const activeTab = computed({
-  get: () => state.activeAppointmentTab || 'completed',
-  set: (value) => { state.activeAppointmentTab = value }
-})
-const appointments = computed(() => state.appointments)
-const loading = computed(() => state.loading.appointments)
-
-const filteredAppointments = computed(() => {
-  const statusMap = {
-    'completed': 'Completed',
-    'scheduled': 'Scheduled',
-    'cancelled': 'Cancelled'
-  }
-  return appointments.value.filter(apt => apt.status === statusMap[activeTab.value])
-})
-
-// Methods
-const toggleTheme = (theme) => {
-  setTheme(theme)
-}
-
-const handleLogout = () => {
-  if (confirm('Are you sure you want to logout?')) {
-    localStorage.removeItem('authToken')
-    router.push('/login')
-  }
-}
-
-const handleNewAppointment = () => {
-  router.push('/appointments/create')
-}
-
-const handleViewPrescription = (appointment) => {
-  console.log('View prescription:', appointment)
-  router.push(`/prescription/${appointment.id}`)
-}
-
-const handleViewReport = (appointment) => {
-  console.log('View report:', appointment)
-  alert('Viewing report for ' + appointment.doctorName)
-}
-
-const handleUploadTestResults = (appointment) => {
-  console.log('Upload test results:', appointment)
-  alert('Upload test results for ' + appointment.doctorName)
-}
-
-const handleUploadImaging = (appointment) => {
-  console.log('Upload imaging:', appointment)
-  alert('Upload imaging for ' + appointment.doctorName)
-}
-
-const handleReschedule = (appointment) => {
-  console.log('Reschedule:', appointment)
-  alert('Reschedule appointment with ' + appointment.doctorName)
-}
-
-const handleCancelAppointment = (appointment) => {
-  if (confirm('Are you sure you want to cancel this appointment?')) {
-    cancelAppointment(appointment.id, 'Patient requested cancellation')
-    alert('Appointment cancelled')
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  if (state.appointments.length === 0) {
-    fetchAppointments()
-  }
-})
-</script>

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('governorate')->nullable();
             $table->string('password');
             $table->string('role');
-
+            $table->json('avatar')->nullable();
             $table->boolean('email_verified')->default(false);
             $table->string('account_status')->default(AccountStatus::Pending->value);
             $table->timestamp('created_at')->useCurrent();

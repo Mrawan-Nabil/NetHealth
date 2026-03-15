@@ -32,6 +32,7 @@ class User extends Authenticatable
         'national_id',
         'password',
         'role',
+        'avatar',
         'date_of_birth',
     ];
 
@@ -43,6 +44,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'avatar' => 'array',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'gender' => Gender::class,

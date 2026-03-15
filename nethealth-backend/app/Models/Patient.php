@@ -5,9 +5,10 @@ namespace App\Models;
 use App\Enums\BloodType;
 use Database\Factories\PatientFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notifiable;
 
 class Patient extends Model
 {
@@ -43,7 +44,7 @@ class Patient extends Model
         return $this->hasMany(Appointment::class);
     }
 
-    public function medicalRecords()
+    public function medicalRecords(): HasMany
     {
         return $this->hasMany(MedicalRecord::class);
     }

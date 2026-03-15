@@ -9,6 +9,7 @@ class MedicalAttachment extends Model
 {
     protected $fillable = [
         'medical_record_id',
+        'test_result_status',
         'file_path',
         'file_type',
         'uploaded_at',

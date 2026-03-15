@@ -4,13 +4,17 @@ namespace App\Models;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentType;
+use Database\Factories\AppointmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Notifications\Notifiable;
 
 class Appointment extends Model
 {
-    use HasFactory;
+    /** @use HasFactory<AppointmentFactory> */
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'patient_id',
@@ -43,7 +47,7 @@ class Appointment extends Model
         return $this->belongsTo(Clinic::class);
     }
 
-    public function medicalRecord()
+    public function medicalRecord(): HasOne
     {
         return $this->hasOne(MedicalRecord::class);
     }

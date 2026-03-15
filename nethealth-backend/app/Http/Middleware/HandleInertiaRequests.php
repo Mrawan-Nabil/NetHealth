@@ -44,6 +44,11 @@ class HandleInertiaRequests extends Middleware
                     'full_name' => $request->user()->full_name,
                     'role' => $request->user()->role,
                 ] : null,
+                // You can also share flash messages globally here later!
+                'flash' => [
+                    'success' => fn () => $request->session()->get('success'),
+                    'error' => fn () => $request->session()->get('error'),
+                ],
             ],
         ];
     }

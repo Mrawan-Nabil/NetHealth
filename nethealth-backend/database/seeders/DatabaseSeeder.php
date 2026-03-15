@@ -3,7 +3,11 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRole;
+use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\MedicalRecord;
+use App\Models\Patient;
+use App\Models\Pharmacy;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -31,6 +35,12 @@ class DatabaseSeeder extends Seeder
         Patient::factory(5)->create();
 
         // 3. Create 20 random Patients (Falls back to the Factory defaults)
-        User::factory(20)->create();
+        Patient::factory(20)->create();
+
+        MedicalRecord::factory(20)->create();
+
+        Pharmacy::factory(5)->create();
+
+        Appointment::factory(20)->create();
     }
 }

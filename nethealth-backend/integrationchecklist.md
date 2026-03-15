@@ -1,51 +1,103 @@
 # Patient Dashboard Integration Checklist
-*A comprehensive guide to refactoring the Vue 3 SPA into the Laravel 11/Inertia architecture.*
 
 ## 1. File Structure & Conventions
 
-- [ ] **Relocate Pages & Components**
-  - **What:** The frontend's `pages/` and `components/` directories are currently lowercase.
-  - **Why:** Inertia and Laravel typically expect a standard capitalized structure (`resources/js/Pages/` and `resources/js/Components/`) for autowiring and conventions.
-  - **Fix:** Rename `pages` to `Pages` and `components` to `Components`. Move the specific dashboard pages (e.g., `PatientDashboard/`) directly into `Pages/`.
-- [ ] **Remove Standalone Vue Router**
-  - **What:** The `routes/` directory inside `resources/js/` and any standalone routing setups.
-  - **Why:** In an Inertia app, the backend (Laravel) handles all routing. The frontend router conflicts with Inertia's request lifecycle.
-  - **Fix:** Delete `resources/js/routes/`. Remove any `createRouter` initialization from `resources/js/app.ts` or standalone configuration files.
+- [ ] **Task Name:** Relocate Pages & Components directories
+  - **The Problem:** The frontend's `pages/` and `components/` directories are currently lowercase and mixed with standard Inertia setup.
+  - **The Solution:** Rename `pages` to `Pages` and `components` to `Components` to match standard Laravel/Inertia autowiring and conventions. Move the specific dashboard pages directly into `Pages/`.
+  - **Files to Edit:** 
+    - `resources/js/pages/*`
+    - `resources/js/components/*`
+
+- [ ] **Task Name:** Remove Standalone Vue Router
+  - **The Problem:** The project still contains Vue router configuration which conflicts directly with how Inertia.js manages page visits and SPA state from the backend.
+  - **The Solution:** Delete any standalone Vue router setup files and ensure `resources/js/app.ts` does not contain any `createRouter` initialization. Route definitions belong entirely in Laravel.
+  - **Files to Edit:** 
+    - `resources/js/routes/*`
+    - `resources/js/app.ts`
 
 ## 2. Vue to Inertia Feature Conversions
 
-- [ ] **Replace `vue-router` Hooks (`useRoute`, `useRouter`)**
-  - **What:** Files like `VisitHistory.vue`, `TestResults.vue`, `Appointments.vue`, `Dashboard.vue`, `Sidebar.vue`, etc., import and use `vue-router`.
-  - **Why:** Inertia provides its own routing mechanism. `vue-router` methods like `router.push()` will break the Inertia lifecycle and perform full page reloads or fail completely.
-  - **Fix:** Replace `import { useRouter, useRoute } from 'vue-router'` with `import { router, usePage } from '@inertiajs/vue3'`. Change `router.push()` to `router.visit()` or `router.get()`. Replace `route.params` with data passed via `defineProps()`.
-- [ ] **Replace `<RouterLink>` with `<Link>`**
-  - **What:** Any navigational links within the components (e.g. Sidebar, Navbar) using standard Vue Router navigation.
-  - **Why:** Inertia requires its own `<Link>` component to intercept clicks and make XHR requests instead of full page reloads.
-  - **Fix:** Import `import { Link } from '@inertiajs/vue3'` and replace all `<router-link to="...">` or raw `<a>` tags (that point to internal pages) with `<Link href="...">`. Provide Laravel route paths instead of Vue paths.
-- [ ] **Convert Client-Side Data Fetching (State & API)**
-  - **What:** Hardcoded API fetches simulating backend delays (e.g., `fetchAppointments()`, `fetchPrescriptions()`) inside `stores/dashboard.js` and `composables/useDashboard.js`, called on `onMounted` in pages like `VisitHistory.vue` and `MedicalRecords.vue`.
-  - **Why:** Inertia eliminates the need for initial client-side loading states. The backend should eagerly load this data and pass it directly to the page component upon rendering.
-  - **Fix:** Remove the `onMounted` API calls and mock data generators. Update the Vue page components to accept this data passively using `defineProps({ appointments: Array, ... })`.
-- [ ] **Assess Global Stores for Form Submissions**
-  - **What:** Form submissions in pages and modals (e.g., `CreateAppointment.vue`, `ConfirmAppointmentModal.vue`).
-  - **Why:** Form handling without Inertia requires manual CSRF passing and manual error mapping.
-  - **Fix:** Use Inertia's `useForm` helper (`import { useForm } from '@inertiajs/vue3'`) to handle form state, submissions, loading spinners, and backend validation errors automatically.
-- [ ] **Verify Asset Paths**
-  - **What:** Image assets dynamically bound to `:src` (e.g. `netHealthLogo` bindings).
-  - **Why:** Standalone Vite setups sometimes treat relative paths differently than Laravel's tightly coupled Vite plugin.
-  - **Fix:** Ensure static assets are either placed in the `public/` folder and referenced with absolute paths (e.g., `/images/logo.png`) or properly imported via Vite aliases (e.g., `import logo from '@/assets/logo.png'`).
+- [ ] **Task Name:** Replace vue-router hooks (`useRouter`, `useRoute`)
+  - **The Problem:** Multiple components import and use `vue-router` methods like `router.push()` which break the Inertia lifecycle and cause full page reloads or routing failures.
+  - **The Solution:** Import `router` and `usePage` from `@inertiajs/vue3` instead. Change `router.push()` to `router.visit()` or `router.get()`. Replace `route.params` with proper Laravel-passed props via `defineProps()`.
+  - **Files to Edit:** 
+    - `resources/js/pages/PatientDashboard/VisitHistory.vue`
+    - `resources/js/pages/PatientDashboard/TestResults.vue`
+    - `resources/js/pages/PatientDashboard/TestResultDetails.vue`
+    - `resources/js/pages/PatientDashboard/Profile.vue`
+    - `resources/js/pages/PatientDashboard/PrescriptionDetails.vue`
+    - `resources/js/pages/PatientDashboard/Notifications.vue`
+    - `resources/js/pages/PatientDashboard/MedicalRecords.vue`
+    - `resources/js/pages/PatientDashboard/ImagingRecords.vue`
+    - `resources/js/pages/PatientDashboard/ImagingDetail.vue`
+    - `resources/js/pages/PatientDashboard/DoctorProfile.vue`
+    - `resources/js/pages/PatientDashboard/DashboardInteractive.vue`
+    - `resources/js/pages/PatientDashboard/Dashboard.vue`
+    - `resources/js/pages/PatientDashboard/CreateAppointment.vue`
+    - `resources/js/pages/PatientDashboard/Appointments.vue`
+    - `resources/js/components/dashboard/UserDropdown.vue`
+    - `resources/js/components/dashboard/Sidebar.vue`
 
-## 3. Backend Routing & Controllers
+- [ ] **Task Name:** Replace `<RouterLink>` with Inertia `<Link>`
+  - **The Problem:** Vue Components that handle navigation use standard Vue Router `<router-link>` tags which do not intercept requests correctly in an Inertia setup.
+  - **The Solution:** Import `Link` from `@inertiajs/vue3` and replace all `<router-link to="...">` instances with `<Link href="...">`, using actual Laravel route paths.
+  - **Files to Edit:** 
+    - `resources/js/components/dashboard/Sidebar.vue`
+    - `resources/js/components/landing/Navbar.vue`
+    - `resources/js/pages/PatientDashboard/*` (Any that contain navigation links)
 
-- [ ] **Create Missing Dashboard Endpoints**
-  - **What:** `routes/web.php` only has `/dashboard` and `/profile`. It is missing routes for the dashboard sub-pages (`Appointments`, `VisitHistory`, `MedicalRecords`, `ImagingRecords`, `TestResults`, `DoctorProfile`, etc.).
-  - **Why:** The frontend expects these distinct views to exist, but the Laravel backend isn't exposing endpoints for them.
-  - **Fix:** Add routes in `routes/web.php` mapped to corresponding controller methods. E.g., `Route::get('/patient/appointments', [PatientDashboardController::class, 'appointments'])->name('patient.appointments');`
-- [ ] **Setup `Inertia::render` in Controllers**
-  - **What:** The backend controllers must render the specific sub-pages.
-  - **Why:** The backend must trigger the component render and pass the required database models as props.
-  - **Fix:** In your controller methods, fetch the required database records (e.g., `Appointment::where(...)`) and return them via `return Inertia::render('PatientDashboard/Appointments', ['appointments' => $appointments]);`.
-- [ ] **Ensure Proper Middleware Application**
-  - **What:** Patient dashboard route security.
-  - **Why:** Security and role-based access control must be enforced centrally at the router level.
-  - **Fix:** Ensure all new patient-specific routes are wrapped in an `auth` middleware group, and potentially a role-specific middleware (e.g., `active` or `role:patient`) as seen in your existing setup.
+- [ ] **Task Name:** Refactor Client-Side Data Fetching (`onMounted` & State)
+  - **The Problem:** The frontend is heavily relying on `onMounted` lifecycle hooks and hardcoded mock data calls inside `stores/dashboard.js` and `composables/useDashboard.js` to simulate data loading.
+  - **The Solution:** Remove the `onMounted` data fetch calls. Inertia completely eliminates initial loading states by eagerly loading data before rendering. The backend should pass data directly to components via `defineProps()`.
+  - **Files to Edit:** 
+    - `resources/js/stores/dashboard.js`
+    - `resources/js/composables/useDashboard.js`
+    - `resources/js/pages/PatientDashboard/VisitHistory.vue`
+    - `resources/js/pages/PatientDashboard/TestResults.vue`
+    - `resources/js/pages/PatientDashboard/TestResultDetails.vue`
+    - `resources/js/pages/PatientDashboard/Profile.vue`
+    - `resources/js/pages/PatientDashboard/PrescriptionDetails.vue`
+    - `resources/js/pages/PatientDashboard/Notifications.vue`
+    - `resources/js/pages/PatientDashboard/MedicalRecords.vue`
+    - `resources/js/pages/PatientDashboard/ImagingRecords.vue`
+    - `resources/js/pages/PatientDashboard/ImagingDetail.vue`
+    - `resources/js/pages/PatientDashboard/DoctorProfile.vue`
+    - `resources/js/pages/PatientDashboard/DashboardInteractive.vue`
+    - `resources/js/pages/PatientDashboard/Dashboard.vue`
+    - `resources/js/pages/PatientDashboard/CreateAppointment.vue`
+    - `resources/js/pages/PatientDashboard/Appointments.vue`
+
+- [ ] **Task Name:** Verify Asset Paths
+  - **The Problem:** Image assets are dynamically bound (`:src="netHealthLogo"` or `src="https://..."`) and some files might use relative paths that break when compiled by Vite in the Laravel context.
+  - **The Solution:** Ensure static assets are either placed correctly in Laravel's `public/` directory and referenced absolutely (e.g., `/images/logo.png`), or imported directly via Vite aliases in the components. Remove hardcoded `https://i.pravatar.cc` mocks where dynamic model data should exist.
+  - **Files to Edit:** 
+    - `resources/js/pages/PatientDashboard/Profile.vue`
+    - `resources/js/pages/PatientDashboard/DoctorProfile.vue`
+    - `resources/js/pages/Dashboards/PatientDashboard.vue`
+    - `resources/js/components/landing/*`
+    - `resources/js/components/dashboard/*`
+    - `resources/js/components/appointments/*`
+    - `resources/js/components/prescription/*`
+
+## 3. Routing & Backend Audit
+
+- [ ] **Task Name:** Create Missing Dashboard Endpoints
+  - **The Problem:** The `routes/web.php` explicitly defines `/dashboard` and `/profile`, but entirely lacks endpoints for the nested dashboard navigation views (`Appointments`, `MedicalRecords`, `ImagingRecords`, `TestResults`, etc.).
+  - **The Solution:** Map out the exact dashboard routes needed in `routes/web.php` and assign them to specific controller methods. Example: `Route::get('/patient/appointments', [PatientDashboardController::class, 'appointments'])->name('patient.appointments');`
+  - **Files to Edit:** 
+    - `routes/web.php`
+
+- [ ] **Task Name:** Setup `Inertia::render` in Controllers
+  - **The Problem:** For the new frontend pages to render at all, the backend has to physically call them and pass data. 
+  - **The Solution:** For each new route added from the previous task, create a corresponding method in standard Laravel controllers that fetches the data from the DB, processes it, and returns `return Inertia::render('PatientDashboard/YourComponent', ['data' => $data]);`.
+  - **Files to Edit:** 
+    - `app/Http/Controllers/DashBoard/DashboardController.php`
+    - `app/Http/Controllers/Auth/PatientController.php` (or a dedicated `PatientDashboardController`)
+    - `routes/web.php`
+  
+- [ ] **Task Name:** Ensure Proper Middleware Application
+  - **The Problem:** The patient dashboard endpoints need rigorous protection; otherwise unauthenticated users can access sensitive records.
+  - **The Solution:** Apply the existing `auth` and `active` middleware groups to all newly created patient sub-routes to guarantee secure access control.
+  - **Files to Edit:** 
+    - `routes/web.php`
