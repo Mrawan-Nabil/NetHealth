@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Enums\AccountStatus;
-use App\Enums\TestResultStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Patient\StorePatientRequest;
@@ -73,24 +72,63 @@ class PatientController extends Controller
             })
             ->count();
 
-        $pendingTests = MedicalAttachment::where('test_result_status', TestResultStatus::Pending->value)
+        $pendingTests = MedicalAttachment::where('test_result_status', 'pending')
             ->whereHas('medicalRecord', function ($query) use ($patient) {
                 $query->where('patient_id', $patient->id);
             })
             ->count();
 
         $nextAppointment = Appointment::where('patient_id', $patient->id)
-            ->where('status', 'scheduled')
+            ->where('appointment_status', 'scheduled')
             ->orderBy('appointment_time')
             ->first();
 
-        //        return inertia('DashboardHome', [
-        //            'healthOverview' => $healthOverview,
-        //            'upcomingAppointments' => $upcomingAppointments,
-        //            'latestPrescriptionCount' => $latestPrescriptionCount,
-        //            'pendingTests' => $pendingTests,
-        //            'nextAppointment' => $nextAppointment,
-        //        ]);
+        // 1. ADDED: Fetch the 3 most recent appointments/records for the "Recent Medical Records" card
+        $recentRecords = Appointment::where('patient_id', $patient->id)
+            ->where('appointment_status', 'completed')
+            ->with('doctor.user')
+            ->orderBy('appointment_time', 'desc')
+            ->take(3)
+            ->get()
+            ->map(function ($appointment) {
+                // Map it to look exactly like the dummy data the Vue component expects
+                return [
+                    'title' => 'Visit Summary',
+                    'doctor' => 'Dr. '.$appointment->doctor->user->full_name,
+                    'date' => $appointment->appointment_time->format('M d, Y'),
+                    'status' => 'Completed',
+                ];
+            });
+
+        // 2. ADDED: A basic activity timeline.
+        // (Later, you might want to pull this from a dedicated 'activity_logs' table)
+        $activities = [
+            [
+                'title' => 'Appointment confirmed with Dr. Ayman',
+                'time' => now()->subHours(2)->diffForHumans(), // Carbon makes this "2 hours ago"
+                'type' => 'appointment', // Matches your Vue color keys!
+            ],
+            [
+                'title' => 'Blood Test results uploaded',
+                'time' => now()->subDay()->diffForHumans(), // "1 day ago"
+                'type' => 'test',
+            ],
+            [
+                'title' => 'Prescription renewed',
+                'time' => now()->subDays(3)->diffForHumans(), // "3 days ago"
+                'type' => 'prescription',
+            ],
+        ];
+
+        return inertia('PatientDashboard/Dashboard', [
+            'healthOverview' => $healthOverview,
+            'upcomingAppointments' => $upcomingAppointments,
+            'latestPrescriptionCount' => $latestPrescriptionCount,
+            'pendingTests' => $pendingTests,
+            'nextAppointment' => $nextAppointment,
+            'recentRecords' => $recentRecords,
+            'activities' => $activities,
+        ]);
 
     }
 

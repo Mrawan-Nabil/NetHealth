@@ -13,6 +13,8 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'avatar' => fake()->imageUrl(),
+
             'full_name' => fake()->name(),
 
             'email' => fake()->unique()->safeEmail(),
@@ -65,10 +67,8 @@ class UserFactory extends Factory
 
             'account_status' => AccountStatus::Active->value,
 
-            //            'remember_token' => Str::random(10),
+            'remember_token' => Str::random(10),
 
         ];
     }
-
-
 }
