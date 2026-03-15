@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
         // 2. Create 5 dummy Doctors
         Doctor::factory(5)->create();
 
+        Patient::factory(5)->create();
+
         // 3. Create 20 random Patients (Falls back to the Factory defaults)
         User::factory(20)->create();
     }
