@@ -137,8 +137,9 @@ class PatientController extends Controller
     {
         // return current data in view -> pass it to fields
         $user = auth()->user();
+
         //        return inertia('Profile', [
-        //            'user' => $user->load('patient')
+        //                    'user' => $user->load('patient'),
         //        ]);
     }
 
