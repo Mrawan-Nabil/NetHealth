@@ -11,7 +11,7 @@ use App\Models\Patient;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Appointment>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Appointment>
  */
 class AppointmentFactory extends Factory
 {
@@ -23,13 +23,23 @@ class AppointmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'patient_id' => Patient::inRandomOrder()->value('user_id') ?? Patient::factory(),
-            'doctor_id' => Doctor::inRandomOrder()->value('user_id') ?? Doctor::factory(),
-            'clinic_id' => Clinic::inRandomOrder()->value('id') ?? Clinic::factory(),
-            'appointment_time' => fake()->dateTimeBetween('now', '+1 month'),
-            'appointment_status' => fake()->randomElement(AppointmentStatus::cases())->value,
-            'appointment_type' => fake()->randomElement(AppointmentType::cases())->value,
-            'visit_reason' => fake()->sentence(),
+            'patient_id' => Patient::factory(),
+            'doctor_id' => Doctor::factory(),
+            'clinic_id' => Clinic::factory(),
+            'appointment_time' => fake()->dateTimeBetween('-1 month', '+1 month'),
+            'appointment_status' => fake()->randomElement([
+                AppointmentStatus::Scheduled->value,
+                AppointmentStatus::Cancelled->value,
+                AppointmentStatus::Completed->value,
+            ]),
+            'appointment_type' => fake()->randomElement([
+                AppointmentType::Physical->value,
+                AppointmentType::Remote->value,
+                AppointmentType::Emergency->value,
+            ]),
+            'visit_reason' => fake()->randomElement([
+                'Routine checkup', 'Severe headache', 'Back pain', 'Follow-up visit', 'Vaccination', 'Cold symptoms'
+            ]),
         ];
     }
 }

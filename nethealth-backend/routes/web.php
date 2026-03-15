@@ -62,9 +62,9 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'active'])->group(function () {
-//    Route::get('/dashboard/{role}', [PatientController::class, 'index'])->name('profile.show');
-//    Route::get('/dashboard/{role}/profile', [PatientController::class, 'show'])->name('profile.edit');
-//    Route::patch('/dashboard/{role}/profile', [PatientController::class, 'update'])->name('profile.update');
+    //    Route::get('/dashboard/{role}', [PatientController::class, 'index'])->name('profile.show');
+    //    Route::get('/dashboard/{role}/profile', [PatientController::class, 'show'])->name('profile.edit');
+    //    Route::patch('/dashboard/{role}/profile', [PatientController::class, 'update'])->name('profile.update');
     // ... all other real features ...
 
     // ==========================================

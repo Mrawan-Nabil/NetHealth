@@ -4,12 +4,19 @@ namespace Database\Seeders;
 
 use App\Enums\UserRole;
 use App\Models\Appointment;
+use App\Models\Clinic;
+use App\Models\ClinicStaff;
+use App\Models\Diagnosis;
 use App\Models\Doctor;
+use App\Models\MedicalAttachment;
 use App\Models\MedicalRecord;
+use App\Models\Medicine;
 use App\Models\Patient;
 use App\Models\Pharmacy;
+use App\Models\PharmacyStaff;
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,8 +26,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Create YOUR master admin account first.
-        // We "override" the factory defaults by passing an array.
+        // Tier 1 (Master Admin): Create 1 User with UserRole::Admin->value.
         User::factory()->create([
             'full_name' => 'Mrawan Nabil',
             'email' => 'mrawan@gmail.com',
@@ -29,18 +35,65 @@ class DatabaseSeeder extends Seeder
             'role' => UserRole::Admin->value,
         ]);
 
-        // 2. Create 5 dummy Doctors
-        Doctor::factory(5)->create();
+        // Tier 2 (Base Profiles): Call the factories. Note: Inline User Creation handles roles.
+        // Save to collection for later use.
+        $doctors = Doctor::factory(5)->create();
+        $patients = Patient::factory(20)->create();
+        $pharmacies = Pharmacy::factory(5)->create();
+        $clinics = Clinic::factory(5)->create();
+        
+        $medicines = Medicine::factory(20)->create();
 
-        Patient::factory(5)->create();
+        foreach ($clinics as $clinic) {
+            ClinicStaff::factory(2)->create([
+                'clinic_id' => $clinic->id,
+            ]);
+        }
 
-        // 3. Create 20 random Patients (Falls back to the Factory defaults)
-        Patient::factory(20)->create();
+        foreach ($pharmacies as $pharmacy) {
+            PharmacyStaff::factory(2)->create([
+                'pharmacy_id' => $pharmacy->id,
+            ]);
+        }
 
-        MedicalRecord::factory(20)->create();
+        // Tier 3 (Transactions): Create appointments.
+        $appointments = [];
+        for ($i = 0; $i < 20; $i++) {
+            $appointments[] = Appointment::factory()->create([
+                'patient_id' => $patients->random()->user_id,
+                'doctor_id' => $doctors->random()->user_id,
+                'clinic_id' => $clinics->random()->id,
+            ]);
+        }
 
-        Pharmacy::factory(5)->create();
+        // Tier 4 (1-to-1 Nested Records): 
+        // Avoid Factory Resolution Memory Trap on unique constraints by looping and assigning explicitly.
+        foreach ($appointments as $appointment) {
+            $medicalRecord = MedicalRecord::factory()->create([
+                'appointment_id' => $appointment->id,
+                'patient_id' => $appointment->patient_id,
+                'doctor_id' => $appointment->doctor_id,
+            ]);
 
-        Appointment::factory(20)->create();
+            Diagnosis::factory(2)->create([
+                'medical_record_id' => $medicalRecord->id,
+            ]);
+
+            MedicalAttachment::factory(1)->create([
+                'medical_record_id' => $medicalRecord->id,
+            ]);
+
+            if (fake()->boolean(80)) {
+                $prescription = Prescription::factory()->create([
+                    'medical_record_id' => $medicalRecord->id,
+                    'pharmacy_id' => $pharmacies->random()->id,
+                ]);
+
+                PrescriptionItem::factory(fake()->numberBetween(1, 4))->create([
+                    'prescription_id' => $prescription->id,
+                    'medicine_id' => $medicines->random()->id,
+                ]);
+            }
+        }
     }
 }
