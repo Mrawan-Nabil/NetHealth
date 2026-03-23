@@ -25,9 +25,9 @@
         <!-- Breadcrumb -->
         <div class="mb-6">
           <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#9CA3AF]'" class="text-sm">
-            <router-link to="/medical-records" class="hover:text-[#14B8A6] transition-colors">Medical Record</router-link>
+            <Link href="/medical-records" class="hover:text-[#14B8A6] transition-colors">Medical Record</Link>
             <span class="mx-2">/</span>
-            <router-link to="/imaging" class="hover:text-[#14B8A6] transition-colors">Imaging</router-link>
+            <Link href="/imaging" class="hover:text-[#14B8A6] transition-colors">Imaging</Link>
             <span class="mx-2">/</span>
             <span :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="font-medium">Chest CT</span>
           </p>
@@ -124,7 +124,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { router, Link } from '@inertiajs/vue3'
 import Sidebar from '../components/dashboard/Sidebar.vue'
 import TopNavbar from '../components/dashboard/TopNavbar.vue'
 import TabsNavigation from '../components/medical/TabsNavigation.vue'
@@ -132,8 +132,8 @@ import FileInformationCard from '../components/imaging/FileInformationCard.vue'
 import MedicalNotesCard from '../components/imaging/MedicalNotesCard.vue'
 import DicomViewer from '../components/imaging/DicomViewer.vue'
 
-const router = useRouter()
-const route = useRoute()
+// Using Inertia router instead
+// ID from URL parsing or props
 
 // State
 const isDark = ref(false)
@@ -168,22 +168,22 @@ const toggleTheme = (theme) => {
 const handleLogout = () => {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('authToken')
-    router.push('/login')
+    router.get('/logout')
   }
 }
 
 const handleTabChange = (tabId) => {
   if (tabId === 'prescription') {
-    router.push('/medical-records')
+    router.get('/medical-records')
   } else if (tabId === 'test-results') {
-    router.push('/test-results')
+    router.get('/test-results')
   } else if (tabId === 'imaging') {
-    router.push('/imaging')
+    router.get('/imaging')
   }
 }
 
 const handleBackToImaging = () => {
-  router.push('/imaging')
+  router.get('/imaging')
 }
 
 const handlePrint = () => {

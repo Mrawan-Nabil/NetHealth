@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import netHealthLogo3 from '@/assets/logo3.png';
+import netHealthLogo3 from '../../assets/logo3.png';
 
 // Access the data we passed from the controller
 const page = usePage();

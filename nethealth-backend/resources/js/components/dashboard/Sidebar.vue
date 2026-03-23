@@ -1,5 +1,6 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3';
+import netHealthLogo3 from '../../assets/logo3.png';
 
 const props = defineProps({
     isDark: Boolean,
@@ -13,7 +14,7 @@ const menuItems = [
     {
         name: 'Home',
         // REPLACE THIS: Make sure this matches your main patient dashboard URL
-        path: '/dashboard/patient/home',
+        path: '/dashboard',
         iconPath:
             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>',
     },
@@ -60,8 +61,8 @@ const isActive = (path) => {
     const currentUrl = page.url;
 
     // 🛑 ROUTE CHECK #2: Update these 'startsWith' checks if your URLs change
-    if (path === '/dashboard/patient') {
-        return currentUrl === '/dashboard/patient' || currentUrl === '/';
+    if (path === '/dashboard') {
+        return currentUrl === '/dashboard' || currentUrl === '/';
     }
 
     if (path === '/medical-records') {
@@ -90,17 +91,14 @@ const handleLogout = () => {
         class="fixed top-0 left-0 flex h-screen w-64 flex-col border-r transition-all duration-300"
     >
         <div class="flex items-center gap-3 p-6 pb-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#14B8A6] to-[#0D9488] shadow-lg">
-                <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                </svg>
-            </div>
-            <span :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="text-xl font-bold">NetHealth</span>
+            <Link href="/home" class="heart-pulse-hover flex shrink-0 items-center gap-2 transition-transform duration-300">
+                <img
+                    :src="netHealthLogo3"
+                    alt="NetHealth Logo"
+                    class="mb-2 h-16 w-16"
+                    style="width: 155px; height: 150px; margin-bottom: -50px; margin-top: -50px"
+                />
+            </Link>
         </div>
 
         <div class="mb-6 px-6">

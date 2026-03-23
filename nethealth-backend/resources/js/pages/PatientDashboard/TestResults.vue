@@ -38,29 +38,8 @@
           @change="handleTabChange"
         />
 
-        <!-- Loading State -->
-        <div v-if="loading" class="grid grid-cols-2 gap-6">
-          <div v-for="i in 4" :key="i" class="animate-pulse">
-            <div :class="isDark ? 'bg-[#1E293B]' : 'bg-gray-200'" class="h-48 rounded-xl skeleton"></div>
-          </div>
-        </div>
-
-        <!-- Error State -->
-        <div v-else-if="error" :class="isDark ? 'bg-red-500/10 border-red-500/20' : 'bg-red-50 border-red-200'" class="border rounded-lg p-6 text-center animate-fade-in">
-          <svg class="w-12 h-12 mx-auto mb-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <p :class="isDark ? 'text-red-400' : 'text-red-600'" class="text-sm mb-4">{{ error }}</p>
-          <button 
-            @click="fetchTestResults"
-            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            Try Again
-          </button>
-        </div>
-
         <!-- Test Results Grid -->
-        <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div 
             v-for="(result, index) in testResults" 
             :key="result.id"
@@ -81,21 +60,26 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { router, Link } from '@inertiajs/vue3'
 import { useDashboard } from '../composables/useDashboard'
 import Sidebar from '../components/dashboard/Sidebar.vue'
 import TopNavbar from '../components/dashboard/TopNavbar.vue'
 import TabsNavigation from '../components/medical/TabsNavigation.vue'
 import TestResultCard from '../components/medical/TestResultCard.vue'
 
-const router = useRouter()
-const { state, fetchTestResults, setTheme } = useDashboard()
+const { state, setTheme } = useDashboard()
+
+// LARAVEL DATA BINDING: Expects Array testResults
+const props = defineProps({
+  testResults: {
+    type: Array,
+    required: true,
+    default: () => []
+  }
+})
 
 // Computed properties
 const isDark = computed(() => state.isDark)
-const testResults = computed(() => state.testResults)
-const loading = computed(() => state.loading.testResults)
-const error = computed(() => state.errors.testResults)
 
 // Methods
 const toggleTheme = (theme) => {
@@ -105,31 +89,29 @@ const toggleTheme = (theme) => {
 const handleLogout = () => {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('authToken')
-    router.push('/login')
+    router.get('/logout')
   }
 }
 
 const handleTabChange = (tabId) => {
   if (tabId === 'prescription') {
-    router.push('/medical-records')
+    router.get('/medical-records')
   } else if (tabId === 'test-results') {
-    router.push('/test-results')
+    router.get('/test-results')
   } else if (tabId === 'imaging') {
-    router.push('/imaging')
+    router.get('/imaging')
   } else if (tabId === 'visit-history') {
-    router.push('/visit-history')
+    router.get('/visit-history')
   }
 }
 
 const handleViewReport = (testResult) => {
   console.log('Viewing report:', testResult)
-  router.push(`/test-results/${testResult.id}`)
+  router.get(`/test-results/${testResult.id}`)
 }
 
 // Lifecycle
 onMounted(() => {
-  if (state.testResults.length === 0) {
-    fetchTestResults()
-  }
+  // Data provided by Inertia Props
 })
 </script>

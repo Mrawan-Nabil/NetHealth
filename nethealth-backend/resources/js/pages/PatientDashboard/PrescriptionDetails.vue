@@ -40,9 +40,9 @@
           <!-- Breadcrumb & Header -->
           <div class="mb-6">
             <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-sm mb-4">
-              <router-link to="/medical-records" class="hover:text-[#14B8A6] transition-colors">Medical Record</router-link>
+              <Link href="/medical-records" class="hover:text-[#14B8A6] transition-colors">Medical Record</Link>
               <span class="mx-2">/</span>
-              <router-link to="/medical-records" class="hover:text-[#14B8A6] transition-colors">Prescription</router-link>
+              <Link href="/medical-records" class="hover:text-[#14B8A6] transition-colors">Prescription</Link>
               <span class="mx-2">/</span>
               <span :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="font-medium">Prescription Details</span>
             </p>
@@ -119,7 +119,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { router, Link } from '@inertiajs/vue3'
 import Sidebar from '../components/dashboard/Sidebar.vue'
 import TopNavbar from '../components/dashboard/TopNavbar.vue'
 import DoctorCard from '../components/prescription/DoctorCard.vue'
@@ -129,8 +129,8 @@ import MedicinesTable from '../components/prescription/MedicinesTable.vue'
 import NotesCard from '../components/prescription/NotesCard.vue'
 import AttachmentsCard from '../components/prescription/AttachmentsCard.vue'
 
-const router = useRouter()
-const route = useRoute()
+// Using Inertia router instead
+// ID from URL parsing or props
 
 // State
 const isDark = ref(false)
@@ -147,7 +147,7 @@ const toggleTheme = (theme) => {
 const handleLogout = () => {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('authToken')
-    router.push('/login')
+    router.get('/logout')
   }
 }
 
@@ -158,7 +158,7 @@ const fetchPrescriptionDetails = async () => {
   try {
     // Uncomment to use real API
     // import { dashboardAPI } from '../services/api.js'
-    // const response = await dashboardAPI.getPrescription(route.params.id)
+    // const response = await dashboardAPI.getPrescription(window.location.pathname.split('/').pop())
     // prescription.value = response.data
     
     // Using dummy data
@@ -174,7 +174,7 @@ const fetchPrescriptionDetails = async () => {
 }
 
 const getDummyPrescription = () => ({
-  id: route.params.id || 1,
+  id: window.location.pathname.split('/').pop() || 1,
   generatedDate: 'October 24, 2025',
   doctor: {
     name: 'Dr. Mohamed Barakat',

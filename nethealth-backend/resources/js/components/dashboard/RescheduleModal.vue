@@ -84,7 +84,11 @@ import { ref, computed } from 'vue'
 
 const props = defineProps({
   isOpen: Boolean,
-  appointment: Object
+  appointment: Object,
+  availableTimes: {
+    type: Array,
+    default: () => []
+  }
 })
 
 const emit = defineEmits(['close', 'confirm'])
@@ -97,12 +101,6 @@ const minDate = computed(() => {
   const today = new Date()
   return today.toISOString().split('T')[0]
 })
-
-const availableTimes = [
-  '09:00 AM', '10:00 AM', '11:00 AM',
-  '02:00 PM', '03:00 PM', '04:00 PM',
-  '05:00 PM', '06:00 PM', '07:00 PM'
-]
 
 const close = () => {
   selectedDate.value = ''

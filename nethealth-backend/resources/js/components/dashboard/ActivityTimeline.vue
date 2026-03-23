@@ -26,9 +26,9 @@ const getActivityColor = (type) => {
         <h3 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="mb-6 text-lg font-semibold">Recent Activity</h3>
 
         <div class="space-y-5">
-            <div v-for="($activities, index) in activities" :key="index" class="flex items-start gap-4" :class="`stagger-${index + 1}`">
+            <div v-for="(activity, index) in activities" :key="index" class="flex items-start gap-4" :class="`stagger-${index + 1}`">
                 <div class="relative">
-                    <div :class="getActivityColor($activities.type)" class="smooth-transition mt-1 h-3 w-3 rounded-full shadow-sm"></div>
+                    <div :class="getActivityColor(activity.type)" class="smooth-transition mt-1 h-3 w-3 rounded-full shadow-sm"></div>
                     <div
                         v-if="index < activities.length - 1"
                         :class="isDark ? 'bg-[#334155]' : 'bg-gray-200'"
@@ -37,8 +37,8 @@ const getActivityColor = (type) => {
                 </div>
 
                 <div class="flex-1 pb-2">
-                    <p :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="mb-1 text-sm font-semibold">{{ activities.title }}</p>
-                    <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-xs">{{ activities.time }}</p>
+                    <p :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="mb-1 text-sm font-semibold">{{ activity.title }}</p>
+                    <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-xs">{{ activity.time }}</p>
                 </div>
             </div>
         </div>

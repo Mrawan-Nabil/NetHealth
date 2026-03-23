@@ -17,7 +17,7 @@
     - `resources/js/app.ts`
 
 ## 2. Vue to Inertia Feature Conversions
-
+    
 - [ ] **Task Name:** Replace vue-router hooks (`useRouter`, `useRoute`)
   - **The Problem:** Multiple components import and use `vue-router` methods like `router.push()` which break the Inertia lifecycle and cause full page reloads or routing failures.
   - **The Solution:** Import `router` and `usePage` from `@inertiajs/vue3` instead. Change `router.push()` to `router.visit()` or `router.get()`. Replace `route.params` with proper Laravel-passed props via `defineProps()`.

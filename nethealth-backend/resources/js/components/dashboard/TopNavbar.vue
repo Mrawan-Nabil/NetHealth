@@ -7,10 +7,6 @@ defineProps({
         type: String,
         default: 'Dashboard',
     },
-    user: {
-        type: Object,
-        required: true,
-    },
     lastViewed: {
         type: String,
         default: '10 mins ago',
@@ -55,11 +51,12 @@ const handleLogout = () => {
         class="flex items-center justify-between border-b px-8 py-4 shadow-sm transition-all duration-300"
     >
         <div class="flex items-center gap-6">
-            <h1 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="text-xl font-semibold">{{ title }}</h1>
+            <h1 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="text-xl font-semibold">
+                {{ $page.props.auth.user.full_name }}
+            </h1>
         </div>
 
         <div class="flex items-center gap-4">
-            <!-- Last Viewed -->
             <div v-if="showLastViewed" :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="flex items-center gap-2 text-xs">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -67,7 +64,6 @@ const handleLogout = () => {
                 <span>Last viewed {{ lastViewed }}</span>
             </div>
 
-            <!-- Share Button -->
             <button
                 v-if="showShare"
                 :class="isDark ? 'bg-[#14B8A6] shadow-lg shadow-teal-500/20 hover:bg-[#2DD4BF]' : 'bg-[#111827] hover:bg-black'"
@@ -76,7 +72,6 @@ const handleLogout = () => {
                 Share
             </button>
 
-            <!-- Notification Dropdown -->
             <NotificationDropdown
                 :is-dark="isDark"
                 :notifications="notifications"
@@ -85,8 +80,7 @@ const handleLogout = () => {
                 @click="handleNotificationClick"
             />
 
-            <!-- User Dropdown -->
-            <UserDropdown :is-dark="isDark" :user="user" @logout="handleLogout" />
+            <UserDropdown :is-dark="isDark" :user="$page.props.auth.user" @logout="handleLogout" />
         </div>
     </nav>
 </template>

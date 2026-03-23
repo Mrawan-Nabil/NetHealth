@@ -4,9 +4,9 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
 import { ref } from 'vue';
 import { z } from 'zod';
-import netHealthLogo from '@/assets/logo.png';
-import AuthLayout from '@/layouts/AuthLayout.vue';
+import netHealthLogo from '../assets/logo.png';
 import BaseInput from '../components/base/BaseInput.vue';
+import AuthLayout from '../layouts/AuthLayout.vue';
 
 // 1. Define your strict frontend rules
 const loginSchema = z.object({
