@@ -42,14 +42,15 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user() ? [
                     'id' => $request->user()->id,
                     'full_name' => $request->user()->full_name,
+                    'email' => $request->user()->email, // Added!
+                    'avatar' => $request->user()->avatar, // Added!
                     'role' => $request->user()->role,
                 ] : null,
-                // You can also share flash messages globally here later!
-                'flash' => [
-                    'success' => fn () => $request->session()->get('success'),
-                    'error' => fn () => $request->session()->get('error'),
-                ],
+            ],
+            // Note: Moved flash outside of 'auth' so it's globally available at $page.props.flash
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
         ];
-    }
-}
+    }}

@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use App\Enums\PharmacyStaffRole;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PharmacyStaff extends Model
 {
+    use HasFactory;
+
+    const UPDATED_AT = null;
+
     protected $fillable = [
         'pharmacy_id',
         'user_id',

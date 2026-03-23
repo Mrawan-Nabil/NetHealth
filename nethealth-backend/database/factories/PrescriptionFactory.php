@@ -21,10 +21,17 @@ class PrescriptionFactory extends Factory
     public function definition(): array
     {
         return [
-            'medical_record_id' => MedicalRecord::inRandomOrder()->value('id') ?? MedicalRecord::factory(),
-            'pharmacy_id' => fake()->boolean(80) ? (Pharmacy::inRandomOrder()->value('id') ?? Pharmacy::factory()) : null,
-            'prescription_status' => fake()->randomElement(PrescriptionStatus::cases())->value,
-            'notes' => fake()->sentence(),
+            'medical_record_id' => MedicalRecord::factory(),
+            'pharmacy_id' => fake()->boolean(80) ? Pharmacy::factory() : null,
+            'prescription_status' => fake()->randomElement([
+                PrescriptionStatus::Pending->value,
+                PrescriptionStatus::Issued->value,
+                PrescriptionStatus::Dispensed->value,
+                PrescriptionStatus::Cancelled->value,
+            ]),
+            'notes' => fake()->randomElement([
+                'Take after meals.', 'Take on an empty stomach.', 'Avoid alcohol while on this medication.', 'Take before sleep.'
+            ]),
         ];
     }
 }

@@ -2,13 +2,16 @@
 
 namespace Database\Factories;
 
+use App\Models\Medicine;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Medicine>
  */
 class MedicineFactory extends Factory
 {
+    protected $model = Medicine::class;
+
     /**
      * Define the model's default state.
      *
@@ -17,9 +20,9 @@ class MedicineFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->randomElement(['Amoxicillin', 'Panadol', 'Lipitor', 'Metformin']),
-            'category' => $this->faker->randomElement(['Antibiotic', 'Analgesic', 'Statin', 'Antidiabetic']),
-            'strength' => $this->faker->randomElement(['500mg', '1000mg', '20mg']),
+            'name' => fake()->randomElement(['Amoxicillin', 'Panadol', 'Lipitor', 'Metformin', 'Ibuprofen', 'Lisinopril', 'Amlodipine', 'Omeprazole']),
+            'category' => fake()->randomElement(['Antibiotic', 'Analgesic', 'Statin', 'Antidiabetic', 'NSAID', 'ACE Inhibitor', 'Calcium Channel Blocker', 'PPI']),
+            'strength' => fake()->randomElement(['10mg', '20mg', '50mg', '100mg', '200mg', '500mg', '1g']),
         ];
     }
 }

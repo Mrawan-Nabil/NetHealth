@@ -1,15 +1,23 @@
 <script setup>
+import { router } from '@inertiajs/vue3'
 import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import CancelledAppointmentCard from '@/components/appointments/CancelledAppointmentCard.vue'
+import CompletedAppointmentCard from '@/components/appointments/CompletedAppointmentCard.vue'
+import ScheduledAppointmentCard from '@/components/appointments/ScheduledAppointmentCard.vue'
+import Sidebar from '@/components/dashboard/Sidebar.vue'
+import TopNavbar from '@/components/dashboard/TopNavbar.vue'
 import { useDashboard } from '@/composables/useDashboard.js'
-import CancelledAppointmentCard from '../components/appointments/CancelledAppointmentCard.vue'
-import CompletedAppointmentCard from '../components/appointments/CompletedAppointmentCard.vue'
-import ScheduledAppointmentCard from '../components/appointments/ScheduledAppointmentCard.vue'
-import Sidebar from '../components/dashboard/Sidebar.vue'
-import TopNavbar from '../components/dashboard/TopNavbar.vue'
 
-const router = useRouter()
-const { state, fetchAppointments, setTheme, cancelAppointment } = useDashboard()
+const { state, setTheme, cancelAppointment } = useDashboard()
+
+// LARAVEL DATA BINDING: Expects Array appointments
+const props = defineProps({
+    appointments: {
+        type: Array,
+        required: true,
+        default: () => []
+    }
+})
 
 // Computed properties
 const isDark = computed(() => state.isDark)
@@ -17,8 +25,7 @@ const activeTab = computed({
     get: () => state.activeAppointmentTab || 'completed',
     set: (value) => { state.activeAppointmentTab = value }
 })
-const appointments = computed(() => state.appointments)
-const loading = computed(() => state.loading.appointments)
+
 
 const filteredAppointments = computed(() => {
     const statusMap = {
@@ -26,7 +33,7 @@ const filteredAppointments = computed(() => {
         'scheduled': 'Scheduled',
         'cancelled': 'Cancelled'
     }
-    return appointments.value.filter(apt => apt.status === statusMap[activeTab.value])
+    return props.appointments.filter(apt => apt.status === statusMap[activeTab.value])
 })
 
 // Methods
@@ -37,17 +44,17 @@ const toggleTheme = (theme) => {
 const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('authToken')
-        router.push('/login')
+        router.get('/logout')
     }
 }
 
 const handleNewAppointment = () => {
-    router.push('/appointments/create')
+    router.get('/appointments/create')
 }
 
 const handleViewPrescription = (appointment) => {
     console.log('View prescription:', appointment)
-    router.push(`/prescription/${appointment.id}`)
+    router.get(`/prescription/${appointment.id}`)
 }
 
 const handleViewReport = (appointment) => {
@@ -79,9 +86,7 @@ const handleCancelAppointment = (appointment) => {
 
 // Lifecycle
 onMounted(() => {
-    if (state.appointments.length === 0) {
-        fetchAppointments()
-    }
+    // Data is provided by Inertia props
 })
 </script>
 
@@ -185,15 +190,8 @@ onMounted(() => {
           </button>
         </div>
 
-        <!-- Loading State -->
-        <div v-if="loading" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div v-for="i in 6" :key="i" class="animate-pulse">
-            <div :class="isDark ? 'bg-[#1E293B]' : 'bg-gray-200'" class="h-96 rounded-xl"></div>
-          </div>
-        </div>
-
         <!-- Appointments Grid -->
-        <div v-else>
+        <div>
           <!-- Completed & Scheduled: 2-column grid -->
           <div v-if="activeTab !== 'cancelled'" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Completed Appointments -->
@@ -234,7 +232,7 @@ onMounted(() => {
         </div>
 
         <!-- Empty State -->
-        <div v-if="!loading && filteredAppointments.length === 0" :class="isDark ? 'bg-[#1E293B] border-[#334155]' : 'bg-white border-[#E5E7EB]'" class="border rounded-lg p-12 text-center">
+        <div v-if="filteredAppointments.length === 0" :class="isDark ? 'bg-[#1E293B] border-[#334155]' : 'bg-white border-[#E5E7EB]'" class="border rounded-lg p-12 text-center">
           <svg class="w-16 h-16 mx-auto mb-4" :class="isDark ? 'text-[#94A3B8]' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>

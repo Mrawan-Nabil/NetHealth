@@ -25,7 +25,7 @@
         <!-- Breadcrumb -->
         <div class="mb-6">
           <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#9CA3AF]'" class="text-sm">
-            <router-link to="/appointments/create" class="hover:text-[#14B8A6] transition-colors">Doctors</router-link>
+            <Link href="/appointments/create" class="hover:text-[#14B8A6] transition-colors">Doctors</Link>
             <span class="mx-2">/</span>
             <span :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="font-medium">Dr. Ayman Fathy</span>
           </p>
@@ -310,14 +310,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { router, Link } from '@inertiajs/vue3'
 import Sidebar from '../components/dashboard/Sidebar.vue'
 import TopNavbar from '../components/dashboard/TopNavbar.vue'
 import ConfirmAppointmentModal from '../components/appointments/ConfirmAppointmentModal.vue'
 import AppointmentSuccessModal from '../components/appointments/AppointmentSuccessModal.vue'
 
-const router = useRouter()
-const route = useRoute()
+// Using Inertia router instead
 
 // State
 const isDark = ref(false)
@@ -392,7 +391,7 @@ const toggleTheme = (theme) => {
 const handleLogout = () => {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('authToken')
-    router.push('/login')
+    router.get('/logout')
   }
 }
 
@@ -417,12 +416,12 @@ const handleModalClose = () => {
 
 const handleViewAppointments = () => {
   showSuccessModal.value = false
-  router.push('/appointments')
+  router.get('/appointments')
 }
 
 const handleBackToDashboard = () => {
   showSuccessModal.value = false
-  router.push('/dashboard')
+  router.get('/dashboard')
 }
 
 // Computed for modal data

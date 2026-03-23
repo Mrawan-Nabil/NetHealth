@@ -134,6 +134,8 @@
       <excludeFolder url="file://$MODULE_DIR$/nethealth-backend/vendor/vlucas/phpdotenv" />
       <excludeFolder url="file://$MODULE_DIR$/nethealth-backend/vendor/voku/portable-ascii" />
       <excludeFolder url="file://$MODULE_DIR$/nethealth-backend/vendor/webmozart/assert" />
+      <excludeFolder url="file://$MODULE_DIR$/nethealth-backend/storage/app" />
+      <excludeFolder url="file://$MODULE_DIR$/nethealth-backend/storage/framework" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

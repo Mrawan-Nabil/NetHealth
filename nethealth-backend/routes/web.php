@@ -6,6 +6,14 @@ use App\Http\Controllers\Auth\DoctorController;
 use App\Http\Controllers\Auth\PatientController;
 use App\Http\Controllers\Auth\PharmacyController;
 use App\Http\Controllers\Auth\SessionController;
+use App\Http\Controllers\Patient\AppointmentController;
+use App\Http\Controllers\Patient\DashboardController;
+use App\Http\Controllers\Patient\ImagingController;
+use App\Http\Controllers\Patient\MedicalRecordController;
+use App\Http\Controllers\Patient\NotificationController;
+use App\Http\Controllers\Patient\ProfileController;
+use App\Http\Controllers\Patient\TestResultController;
+use App\Http\Controllers\Patient\VisitHistoryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -24,8 +32,9 @@ Route::get('/waiting-approval', function () {
     $statusValue = $status instanceof AccountStatus ? $status->value : $status;
 
     if ($statusValue === AccountStatus::Active->value) {
-        // pass the 'role' parameter here!
-        return redirect()->route('dashboard', ['role' => $user->role]);
+        $routeName = 'dashboard.'.strtolower($user->role->value);
+
+        return redirect()->route($routeName);
     }
 
     return Inertia::render('Auth/WaitingApproval');
@@ -41,7 +50,6 @@ Route::middleware('guest')->group(function () {
     })->name('registerRole');
 
     Route::prefix('/register')->group(function () {
-
         Route::get('/patient', [PatientController::class, 'create'])->name('patientRegister');
         Route::post('/patient', [PatientController::class, 'store']);
 
@@ -59,82 +67,73 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/logout', [SessionController::class, 'destroy'])->name('logout');
+
+    // ==========================================
+    // THE TRAFFIC CONTROLLER (Fixes the login redirect crash)
+    // ==========================================
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+
+        $statusValue = $user->account_status instanceof AccountStatus
+            ? $user->account_status->value
+            : $user->account_status;
+
+        if ($statusValue !== AccountStatus::Active->value) {
+            return redirect()->route('waiting.approval');
+        }
+
+        return redirect()->route('dashboard.'.strtolower($user->role->value));
+
+    })->name('dashboard'); // <-- Laravel requires this exact name by default!
 });
 
-Route::middleware(['auth', 'active'])->group(function () {
-//    Route::get('/dashboard/{role}', [PatientController::class, 'index'])->name('profile.show');
-//    Route::get('/dashboard/{role}/profile', [PatientController::class, 'show'])->name('profile.edit');
-//    Route::patch('/dashboard/{role}/profile', [PatientController::class, 'update'])->name('profile.update');
-    // ... all other real features ...
+// Combine all three middleware to perfectly secure the Patient Dashboard
+Route::middleware(['auth', 'active', 'role:patient'])->group(function () {
 
     // ==========================================
     // PATIENT DASHBOARD ROUTES
     // ==========================================
 
-    // Main Dashboard
-    // Note: Make sure PatientController@index returns Inertia::render('PatientDashboard/Dashboard', [...]);
-    Route::get('/dashboard/patient', [PatientController::class, 'index'])->name('dashboard.patient');
+    // Main Dashboard (Name MUST remain 'dashboard.patient' for the login redirect)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.patient');
 
     // Profile Settings
-    Route::get('/profile', [PatientController::class, 'show'])->name('profile.edit');
-    Route::patch('/profile', [PatientController::class, 'update'])->name('profile.update');
-
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.edit');
+    Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
     // Notifications
-    Route::get('/notifications', function () {
-        return Inertia::render('PatientDashboard/Notifications');
-    })->name('notifications.index');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 
     // ==========================================
     // APPOINTMENTS MODULE
     // ==========================================
 
-    Route::get('/appointments', function () {
-        return Inertia::render('PatientDashboard/Appointments');
-    })->name('appointments.index');
+    Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
+    Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
 
-    Route::get('/appointments/create', function () {
-        return Inertia::render('PatientDashboard/CreateAppointment');
-    })->name('appointments.create');
-
+    // Note: Kept as closure until you create a DoctorProfileController
     Route::get('/doctor/{id}', function ($id) {
-        return Inertia::render('PatientDashboard/DoctorProfile');
+        return Inertia::render('PatientDashboard/DoctorProfile', ['id' => $id]);
     })->name('doctor.profile');
 
     // ==========================================
     // MEDICAL RECORDS MODULE
     // ==========================================
 
-    // Main Medical Records Hub
-    Route::get('/medical-records', function () {
-        return Inertia::render('PatientDashboard/MedicalRecords');
-    })->name('records.index');
+    Route::get('/medical-records', [MedicalRecordController::class, 'index'])->name('records.index');
+    Route::get('/visit-history', [VisitHistoryController::class, 'index'])->name('records.visit-history');
 
-    // Visit History
-    Route::get('/visit-history', function () {
-        return Inertia::render('PatientDashboard/VisitHistory');
-    })->name('records.visit-history');
-
-    // Prescriptions
+    // Note: Kept as closure until you create a PrescriptionController
     Route::get('/prescription/{id}', function ($id) {
         return Inertia::render('PatientDashboard/PrescriptionDetails', ['id' => $id]);
     })->name('records.prescription');
 
     // Test Results
-    Route::get('/test-results', function () {
-        return Inertia::render('PatientDashboard/TestResults');
-    })->name('records.test-results.index');
-
-    Route::get('/test-results/{id}', function ($id) {
-        return Inertia::render('PatientDashboard/TestResultDetails', ['id' => $id]);
-    })->name('records.test-results.show');
+    Route::get('/test-results', [TestResultController::class, 'index'])->name('records.test-results.index');
+    Route::get('/test-results/{id}', [TestResultController::class, 'show'])->name('records.test-results.show');
 
     // Imaging Records
-    Route::get('/imaging', function () {
-        return Inertia::render('PatientDashboard/ImagingRecords');
-    })->name('records.imaging.index');
-
-    Route::get('/imaging/{id}', function ($id) {
-        return Inertia::render('PatientDashboard/ImagingDetail', ['id' => $id]);
-    })->name('records.imaging.show');
+    Route::get('/imaging', [ImagingController::class, 'index'])->name('records.imaging.index');
+    Route::get('/imaging/{id}', [ImagingController::class, 'show'])->name('records.imaging.show');
 
 });

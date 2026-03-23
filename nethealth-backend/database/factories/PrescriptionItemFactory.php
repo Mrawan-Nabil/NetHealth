@@ -8,11 +8,12 @@ use App\Models\PrescriptionItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PrescriptionItem>
  */
 class PrescriptionItemFactory extends Factory
 {
     protected $model = PrescriptionItem::class;
+
     /**
      * Define the model's default state.
      *
@@ -21,11 +22,11 @@ class PrescriptionItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'prescription_id' => Prescription::inRandomOrder()->value('id') ?? Prescription::factory(),
-            'medicine_id' => Medicine::inRandomOrder()->value('id') ?? Medicine::factory(),
-            'dosage' => '1 tablet',
-            'frequency' => 'Twice daily',
-            'duration_days' => 7,
+            'prescription_id' => Prescription::factory(),
+            'medicine_id' => Medicine::factory(),
+            'dosage' => fake()->randomElement(['1 tablet', '2 tablets', '1 capsule', '5ml', '10ml']),
+            'frequency' => fake()->randomElement(['Once daily', 'Twice daily', 'Three times a day', 'As needed', 'Every 8 hours']),
+            'duration_days' => fake()->numberBetween(3, 30),
         ];
     }
 }

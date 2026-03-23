@@ -16,11 +16,9 @@
 
       <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
         <h3 class="text-lg font-semibold text-blue-800 mb-2">Quick Links:</h3>
-        <div class="space-y-2">
-          <router-link to="/" class="block text-blue-600 hover:text-blue-700">← Back to Home</router-link>
-          <router-link to="/profile" class="block text-blue-600 hover:text-blue-700">Go to Profile</router-link>
-          <router-link to="/appointments" class="block text-blue-600 hover:text-blue-700">Go to Appointments</router-link>
-        </div>
+          <Link href="/" class="block text-blue-600 hover:text-blue-700">← Back to Home</Link>
+          <Link href="/profile" class="block text-blue-600 hover:text-blue-700">Go to Profile</Link>
+          <Link href="/appointments" class="block text-blue-600 hover:text-blue-700">Go to Appointments</Link>
       </div>
 
       <div class="mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
@@ -37,6 +35,7 @@
 </template>
 
 <script setup>
+import { Link } from '@inertiajs/vue3'
 // Simple test component - no complex logic
 console.log('Dashboard Test component loaded successfully!')
 </script>

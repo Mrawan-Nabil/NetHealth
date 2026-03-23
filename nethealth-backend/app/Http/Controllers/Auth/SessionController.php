@@ -38,7 +38,7 @@ class SessionController extends Controller
         }
 
         // If they are active, send them to the intended protected Dashboard
-        return redirect()->route('dashboard', ['role' => Auth::user()->role])
+        return redirect()->route('/dashboard', ['role' => Auth::user()->role])
             ->with('success', 'Welcome to your dashboard!');
     }
 

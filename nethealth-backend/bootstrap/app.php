@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -15,35 +16,31 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // 1. Append Global Web Middleware (Inertia goes here!)
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // 2. Register Middleware Aliases
         $middleware->alias([
             'active' => EnsureAccountIsActive::class,
+            'role' => CheckRole::class,
         ]);
 
-        $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
-            return route('dashboard', ['role' => $request->user()->role]);
+        // 3. The Login Redirect (Points to our smart Traffic Controller)
+        $middleware->redirectUsersTo(function () {
+            return '/dashboard';
         });
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // We added the full namespace path to the Request object here:
-        $exceptions->renderable(function (PostTooLargeException $e, \Illuminate\Http\Request $request) {
+        $exceptions->renderable(function (PostTooLargeException $e, Request $request) {
             return back()->withErrors([
                 'verification_documents' => 'The total size of the uploaded files exceeds the server limit. Please upload smaller files.',
             ]);
         });
-
-    })
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
-            'active' => \App\Http\Middleware\EnsureAccountIsActive::class,
-        ]);
     })
     ->create();
-
-

@@ -1,7 +1,7 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import netHealthLogo from '@/assets/logo.png';
-import AuthLayout from '@/layouts/AuthLayout.vue';
+import netHealthLogo from '../../assets/logo.png';
+import AuthLayout from '../../layouts/AuthLayout.vue';
 </script>
 
 <template>

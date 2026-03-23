@@ -2,7 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-defineProps({
+const props = defineProps({
     appointment: {
         type: Object,
         default: null,
@@ -11,7 +11,7 @@ defineProps({
 });
 
 const statusClass = computed(() => {
-    const status = appointment?.appointment_status?.toLowerCase();
+    const status = props.appointment?.appointment_status?.toLowerCase() || '';
     const classes = {
         scheduled: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
         pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
@@ -36,16 +36,16 @@ const statusClass = computed(() => {
         <div v-if="appointment" class="space-y-6">
             <div class="flex items-start gap-4">
                 <img
-                    :src="appointment.doctor.user.avatar || 'https://i.pravatar.cc/150?img=47'"
-                    :alt="appointment.doctor.user.full_name"
-                    class="smooth-transition h-14 w-14 flex-shrink-0 rounded-full object-cover ring-2"
+                    :src="appointment?.doctor?.user?.avatar || '/images/default-avatar.png'"
+                    :alt="appointment?.doctor?.user?.full_name || 'Doctor'"
+                    class="smooth-transition h-14 w-14 shrink-0 rounded-full object-cover ring-2"
                     :class="isDark ? 'ring-[#334155]' : 'ring-gray-100'"
                 />
                 <div class="min-w-0 flex-1">
                     <h4 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="mb-1 text-base font-semibold">
-                        {{ appointment.doctor.user.full_name }}
+                        {{ appointment?.doctor?.user?.full_name }}
                     </h4>
-                    <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="mb-3 text-sm">{{ appointment.doctor.specialty }}</p>
+                    <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="mb-3 text-sm">{{ appointment?.doctor?.specialty }}</p>
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
                             <svg
@@ -62,7 +62,7 @@ const statusClass = computed(() => {
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                             </svg>
-                            <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-sm">{{ appointment.appointment_time }}</p>
+                            <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-sm">{{ appointment?.appointment_time }}</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <svg
@@ -80,7 +80,7 @@ const statusClass = computed(() => {
                                 />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-sm">{{ appointment.clinic.clinic_address }}</p>
+                            <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-sm">{{ appointment?.clinic?.clinic_address }}</p>
                         </div>
                     </div>
                 </div>
@@ -88,13 +88,13 @@ const statusClass = computed(() => {
 
             <div class="flex gap-3">
                 <Link
-                    :href="$route('appointments.show', appointment.id)"
-                    class="btn-primary flex-1 rounded-lg bg-[#14B8A6] px-4 py-3 text-sm font-medium text-white hover:bg-[#0F9B8E]"
+                    href="/appointments/create"
+                    class="btn-primary flex-1 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-white hover:bg-[#0F9B8E]"
                 >
                     View Details
                 </Link>
                 <Link
-                    :href="$route('appointments.show', appointment.id)"
+                    href="/appointments/create"
                     :class="[
                         'btn-secondary flex-1 rounded-lg border px-4 py-3 text-sm font-medium',
                         isDark
