@@ -1,12 +1,87 @@
+<script setup>
+import { ref, computed } from 'vue'
+
+const props = defineProps({
+    isOpen: {
+        type: Boolean,
+        required: true
+    },
+    appointment: {
+        type: Object,
+        required: true
+    },
+    isDark: {
+        type: Boolean,
+        default: false
+    }
+})
+
+const emit = defineEmits(['close', 'confirm'])
+
+// State
+const fileInput = ref(null)
+const uploadedFiles = ref([])
+const patientInfo = ref({
+    fullName: '',
+    phone: '',
+    email: '',
+    notes: ''
+})
+
+// Computed
+const isFormValid = computed(() => {
+    return patientInfo.value.fullName &&
+        patientInfo.value.phone &&
+        patientInfo.value.email
+})
+
+// Methods
+const triggerFileUpload = () => {
+    fileInput.value?.click()
+}
+
+const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files)
+    uploadedFiles.value.push(...files)
+}
+
+const handleFileDrop = (event) => {
+    const files = Array.from(event.dataTransfer.files)
+    uploadedFiles.value.push(...files)
+}
+
+const removeFile = (index) => {
+    uploadedFiles.value.splice(index, 1)
+}
+
+const handleConfirm = () => {
+    if (!isFormValid.value) return
+
+    emit('confirm', {
+        patientInfo: patientInfo.value,
+        files: uploadedFiles.value
+    })
+
+    // Reset form
+    patientInfo.value = {
+        fullName: '',
+        phone: '',
+        email: '',
+        notes: ''
+    }
+    uploadedFiles.value = []
+}
+</script>
+
 <template>
   <!-- Modal Overlay -->
-  <div 
+  <div
     v-if="isOpen"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
     @click.self="$emit('close')"
   >
     <!-- Modal Content -->
-    <div 
+    <div
       :class="isDark ? 'bg-[#1E293B]' : 'bg-white'"
       class="rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
     >
@@ -21,7 +96,7 @@
               Review your booking details before proceeding.
             </p>
           </div>
-          <button 
+          <button
             @click="$emit('close')"
             :class="isDark ? 'text-[#94A3B8] hover:text-[#F8FAFC]' : 'text-[#9CA3AF] hover:text-[#111827]'"
             class="transition-colors"
@@ -38,12 +113,12 @@
         <!-- Doctor & Schedule Info -->
         <div class="flex items-start gap-4">
           <!-- Doctor Avatar -->
-          <img 
-            :src="appointment.doctor.avatar" 
+          <img
+            :src="appointment.doctor.avatar"
             alt="Doctor"
             class="w-16 h-16 rounded-xl object-cover"
           />
-          
+
           <!-- Doctor Details -->
           <div class="flex-1">
             <div class="flex items-start justify-between">
@@ -56,7 +131,7 @@
                   {{ appointment.doctor.specialty }}
                 </p>
               </div>
-              
+
               <div class="text-right">
                 <p class="text-[#14B8A6] text-xs font-semibold uppercase mb-1">SCHEDULE</p>
                 <p :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="text-sm font-semibold">
@@ -87,13 +162,13 @@
               <label :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="block text-sm font-medium mb-2">
                 Full Name
               </label>
-              <input 
+              <input
                 v-model="patientInfo.fullName"
                 type="text"
                 placeholder="e.g. John Doe"
                 :class="[
                   'w-full px-4 py-2.5 rounded-lg border transition-colors',
-                  isDark 
+                  isDark
                     ? 'bg-[#334155] border-[#475569] text-[#F8FAFC] placeholder-[#94A3B8]'
                     : 'bg-white border-[#E5E7EB] text-[#111827] placeholder-[#9CA3AF]'
                 ]"
@@ -105,13 +180,13 @@
               <label :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="block text-sm font-medium mb-2">
                 Phone Number
               </label>
-              <input 
+              <input
                 v-model="patientInfo.phone"
                 type="tel"
                 placeholder="(555) 000-0000"
                 :class="[
                   'w-full px-4 py-2.5 rounded-lg border transition-colors',
-                  isDark 
+                  isDark
                     ? 'bg-[#334155] border-[#475569] text-[#F8FAFC] placeholder-[#94A3B8]'
                     : 'bg-white border-[#E5E7EB] text-[#111827] placeholder-[#9CA3AF]'
                 ]"
@@ -123,13 +198,13 @@
               <label :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="block text-sm font-medium mb-2">
                 Email Address
               </label>
-              <input 
+              <input
                 v-model="patientInfo.email"
                 type="email"
                 placeholder="john.doe@example.com"
                 :class="[
                   'w-full px-4 py-2.5 rounded-lg border transition-colors',
-                  isDark 
+                  isDark
                     ? 'bg-[#334155] border-[#475569] text-[#F8FAFC] placeholder-[#94A3B8]'
                     : 'bg-white border-[#E5E7EB] text-[#111827] placeholder-[#9CA3AF]'
                 ]"
@@ -141,13 +216,13 @@
               <label :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="block text-sm font-medium mb-2">
                 Optional Notes
               </label>
-              <textarea 
+              <textarea
                 v-model="patientInfo.notes"
                 rows="3"
                 placeholder="Any specific concerns or history you'd like to mention..."
                 :class="[
                   'w-full px-4 py-2.5 rounded-lg border transition-colors resize-none',
-                  isDark 
+                  isDark
                     ? 'bg-[#334155] border-[#475569] text-[#F8FAFC] placeholder-[#94A3B8]'
                     : 'bg-white border-[#E5E7EB] text-[#111827] placeholder-[#9CA3AF]'
                 ]"
@@ -168,10 +243,10 @@
           </div>
 
           <!-- Upload Area -->
-          <div 
+          <div
             :class="[
               'border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer',
-              isDark 
+              isDark
                 ? 'border-[#475569] hover:border-[#14B8A6] bg-[#334155]/30'
                 : 'border-[#E5E7EB] hover:border-[#14B8A6] bg-[#F9FAFB]'
             ]"
@@ -191,7 +266,7 @@
             <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#9CA3AF]'" class="text-xs mt-1">
               PDF, JPG, or PNG (max. 10MB)
             </p>
-            <input 
+            <input
               ref="fileInput"
               type="file"
               class="hidden"
@@ -203,7 +278,7 @@
 
           <!-- Uploaded Files -->
           <div v-if="uploadedFiles.length > 0" class="mt-3 space-y-2">
-            <div 
+            <div
               v-for="(file, index) in uploadedFiles"
               :key="index"
               :class="[
@@ -219,7 +294,7 @@
                   {{ file.name }}
                 </span>
               </div>
-              <button 
+              <button
                 @click="removeFile(index)"
                 :class="isDark ? 'text-[#94A3B8] hover:text-red-400' : 'text-[#9CA3AF] hover:text-red-600'"
                 class="transition-colors"
@@ -236,18 +311,18 @@
       <!-- Footer -->
       <div class="p-6 border-t" :class="isDark ? 'border-[#334155]' : 'border-[#E5E7EB]'">
         <div class="flex items-center justify-end gap-3">
-          <button 
+          <button
             @click="$emit('close')"
             :class="[
               'px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors',
-              isDark 
+              isDark
                 ? 'bg-[#334155] text-[#F8FAFC] hover:bg-[#475569]'
                 : 'bg-[#F3F4F6] text-[#111827] hover:bg-[#E5E7EB]'
             ]"
           >
             Cancel
           </button>
-          <button 
+          <button
             @click="handleConfirm"
             :disabled="!isFormValid"
             :class="[
@@ -270,77 +345,4 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
 
-const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    required: true
-  },
-  appointment: {
-    type: Object,
-    required: true
-  },
-  isDark: {
-    type: Boolean,
-    default: false
-  }
-})
-
-const emit = defineEmits(['close', 'confirm'])
-
-// State
-const fileInput = ref(null)
-const uploadedFiles = ref([])
-const patientInfo = ref({
-  fullName: '',
-  phone: '',
-  email: '',
-  notes: ''
-})
-
-// Computed
-const isFormValid = computed(() => {
-  return patientInfo.value.fullName && 
-         patientInfo.value.phone && 
-         patientInfo.value.email
-})
-
-// Methods
-const triggerFileUpload = () => {
-  fileInput.value?.click()
-}
-
-const handleFileSelect = (event) => {
-  const files = Array.from(event.target.files)
-  uploadedFiles.value.push(...files)
-}
-
-const handleFileDrop = (event) => {
-  const files = Array.from(event.dataTransfer.files)
-  uploadedFiles.value.push(...files)
-}
-
-const removeFile = (index) => {
-  uploadedFiles.value.splice(index, 1)
-}
-
-const handleConfirm = () => {
-  if (!isFormValid.value) return
-  
-  emit('confirm', {
-    patientInfo: patientInfo.value,
-    files: uploadedFiles.value
-  })
-  
-  // Reset form
-  patientInfo.value = {
-    fullName: '',
-    phone: '',
-    email: '',
-    notes: ''
-  }
-  uploadedFiles.value = []
-}
-</script>

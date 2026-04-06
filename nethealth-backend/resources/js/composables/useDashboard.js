@@ -1,4 +1,4 @@
-import { ref, computed, reactive } from 'vue'
+import { computed, reactive } from 'vue'
 
 // Global state (shared across all components)
 const state = reactive({
@@ -90,7 +90,7 @@ export function useDashboard() {
   const fetchAppointments = async () => {
     state.loading.appointments = true
     state.errors.appointments = null
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       state.appointments = generateMockAppointments()
@@ -105,7 +105,7 @@ export function useDashboard() {
   const fetchPrescriptions = async () => {
     state.loading.prescriptions = true
     state.errors.prescriptions = null
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       state.prescriptions = generateMockPrescriptions()
@@ -120,7 +120,7 @@ export function useDashboard() {
   const fetchTestResults = async () => {
     state.loading.testResults = true
     state.errors.testResults = null
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       state.testResults = generateMockTestResults()
@@ -135,7 +135,7 @@ export function useDashboard() {
   const fetchImagingRecords = async () => {
     state.loading.imagingRecords = true
     state.errors.imagingRecords = null
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       state.imagingRecords = generateMockImagingRecords()
@@ -150,7 +150,7 @@ export function useDashboard() {
   const fetchVisitHistory = async () => {
     state.loading.visitHistory = true
     state.errors.visitHistory = null
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       state.visitHistory = generateMockVisitHistory()
@@ -165,7 +165,7 @@ export function useDashboard() {
   const fetchNotifications = async () => {
     state.loading.notifications = true
     state.errors.notifications = null
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       state.notifications = generateMockNotifications()
@@ -180,7 +180,7 @@ export function useDashboard() {
   const fetchDoctors = async () => {
     state.loading.doctors = true
     state.errors.doctors = null
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       state.doctors = generateMockDoctors()
@@ -245,7 +245,7 @@ export function useDashboard() {
   return {
     // State
     state,
-    
+
     // Computed
     upcomingAppointments,
     completedAppointments,
@@ -254,7 +254,7 @@ export function useDashboard() {
     unreadNotifications,
     todayNotifications,
     yesterdayNotifications,
-    
+
     // Actions
     toggleTheme,
     setTheme,
@@ -279,7 +279,7 @@ export function useDashboard() {
 // Mock Data Generators
 function generateMockAppointments() {
   const appointments = []
-  
+
   // Completed
   for (let i = 1; i <= 6; i++) {
     appointments.push({
@@ -296,7 +296,7 @@ function generateMockAppointments() {
       ]
     })
   }
-  
+
   // Scheduled
   for (let i = 7; i <= 12; i++) {
     appointments.push({
@@ -310,7 +310,7 @@ function generateMockAppointments() {
       visitType: 'FOLLOW-UP VISIT'
     })
   }
-  
+
   // Cancelled
   for (let i = 13; i <= 16; i++) {
     appointments.push({
@@ -325,7 +325,7 @@ function generateMockAppointments() {
       reason: i % 2 === 0 ? 'NO LONGER NEEDED' : 'DOCTOR UNAVAILABLE'
     })
   }
-  
+
   return appointments
 }
 
@@ -677,7 +677,7 @@ function generateMockNotifications() {
 function generateMockDoctors() {
   const doctors = []
   const specialties = ['cardiology', 'gastritis', 'neurology', 'pulmonology', 'dentistry']
-  
+
   for (let i = 1; i <= 12; i++) {
     doctors.push({
       id: i,
@@ -691,6 +691,6 @@ function generateMockDoctors() {
       price: '$115 EXP'
     })
   }
-  
+
   return doctors
 }

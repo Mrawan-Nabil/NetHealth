@@ -32,7 +32,7 @@ class Prescription extends Model
         return $this->belongsTo(Pharmacy::class);
     }
 
-    public function items()
+    public function items(): \Illuminate\Database\Eloquent\Relations\HasMany|Prescription
     {
         return $this->hasMany(PrescriptionItem::class);
     }

@@ -17,12 +17,18 @@ return new class extends Migration
             $table->foreignId('medical_record_id')
                 ->constrained()
                 ->cascadeOnDelete();
-
+            $table->string('attachment_type');
+            $table->string('attachment_name');
             $table->string('file_path');
+            $table->string('mime_type');
             $table->string('test_result_status')->default(testResultStatus::Pending->value);
-            $table->string('file_type');
+            $table->text('notes')->nullable();
+            $table->foreignId('uploaded_by')->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->timestamp('uploaded_at')->useCurrent();
         });
+
     }
 
     /**
