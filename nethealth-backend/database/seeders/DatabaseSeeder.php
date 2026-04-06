@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
         $patients = Patient::factory(20)->create();
         $pharmacies = Pharmacy::factory(5)->create();
         $clinics = Clinic::factory(5)->create();
-        
+
         $medicines = Medicine::factory(20)->create();
 
         foreach ($clinics as $clinic) {
@@ -66,7 +66,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Tier 4 (1-to-1 Nested Records): 
+        // Tier 4 (1-to-1 Nested Records):
         // Avoid Factory Resolution Memory Trap on unique constraints by looping and assigning explicitly.
         foreach ($appointments as $appointment) {
             $medicalRecord = MedicalRecord::factory()->create([
@@ -79,7 +79,10 @@ class DatabaseSeeder extends Seeder
                 'medical_record_id' => $medicalRecord->id,
             ]);
 
-            MedicalAttachment::factory(1)->create([
+            // Attachments (realistic multiple per record)
+            $attachmentsCount = fake()->numberBetween(2, 6);
+
+            MedicalAttachment::factory($attachmentsCount)->create([
                 'medical_record_id' => $medicalRecord->id,
             ]);
 

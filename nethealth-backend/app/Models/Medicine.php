@@ -15,7 +15,7 @@ class Medicine extends Model
     ];
 
     public $timestamps = false;
-    public function prescriptionItems()
+    public function prescriptionItems(): Medicine|\Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PrescriptionItem::class);
     }

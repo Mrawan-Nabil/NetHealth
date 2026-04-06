@@ -11,6 +11,7 @@ use App\Http\Controllers\Patient\DashboardController;
 use App\Http\Controllers\Patient\ImagingController;
 use App\Http\Controllers\Patient\MedicalRecordController;
 use App\Http\Controllers\Patient\NotificationController;
+use App\Http\Controllers\Patient\PrescriptionController;
 use App\Http\Controllers\Patient\ProfileController;
 use App\Http\Controllers\Patient\TestResultController;
 use App\Http\Controllers\Patient\VisitHistoryController;
@@ -95,7 +96,7 @@ Route::middleware(['auth', 'active', 'role:patient'])->group(function () {
     // ==========================================
 
     // Main Dashboard (Name MUST remain 'dashboard.patient' for the login redirect)
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.patient');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profile Settings
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.edit');
@@ -110,23 +111,20 @@ Route::middleware(['auth', 'active', 'role:patient'])->group(function () {
 
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
     Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
-
-    // Note: Kept as closure until you create a DoctorProfileController
-    Route::get('/doctor/{id}', function ($id) {
-        return Inertia::render('PatientDashboard/DoctorProfile', ['id' => $id]);
-    })->name('doctor.profile');
+    // Viewing the doctor's profile to book
+    Route::get('/doctor/{id}', [AppointmentController::class, 'showDoctor'])->name('doctor.show');
+    // Submitting the booking form
+    Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
 
     // ==========================================
     // MEDICAL RECORDS MODULE
     // ==========================================
 
     Route::get('/medical-records', [MedicalRecordController::class, 'index'])->name('records.index');
-    Route::get('/visit-history', [VisitHistoryController::class, 'index'])->name('records.visit-history');
 
     // Note: Kept as closure until you create a PrescriptionController
-    Route::get('/prescription/{id}', function ($id) {
-        return Inertia::render('PatientDashboard/PrescriptionDetails', ['id' => $id]);
-    })->name('records.prescription');
+    Route::get('/prescription', [PrescriptionController::class, 'index'])->name('records.prescription');
+    Route::get('/prescription/{id}', [PrescriptionController::class, 'show'])->name('records.prescription');
 
     // Test Results
     Route::get('/test-results', [TestResultController::class, 'index'])->name('records.test-results.index');
@@ -135,5 +133,7 @@ Route::middleware(['auth', 'active', 'role:patient'])->group(function () {
     // Imaging Records
     Route::get('/imaging', [ImagingController::class, 'index'])->name('records.imaging.index');
     Route::get('/imaging/{id}', [ImagingController::class, 'show'])->name('records.imaging.show');
+
+    Route::get('/visit-history', [VisitHistoryController::class, 'index'])->name('records.visit-history');
 
 });

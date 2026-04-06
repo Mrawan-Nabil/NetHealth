@@ -29,12 +29,12 @@ class MedicalRecord extends Model
 
     public function patient(): BelongsTo
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(Patient::class, 'patient_id', 'user_id');
     }
 
     public function doctor(): BelongsTo
     {
-        return $this->belongsTo(Doctor::class);
+        return $this->belongsTo(Doctor::class, 'doctor_id', 'user_id');
     }
 
     public function diagnoses()

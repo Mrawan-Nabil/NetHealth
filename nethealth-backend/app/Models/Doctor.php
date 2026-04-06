@@ -40,11 +40,13 @@ class Doctor extends Model
 
     public function appointments()
     {
-        return $this->hasMany(Appointment::class);
+        // Explicitly define the foreign key (doctor_id) and local key (user_id)
+        return $this->hasMany(Appointment::class, 'doctor_id', 'user_id');
     }
 
     public function medicalRecords()
     {
-        return $this->hasMany(MedicalRecord::class);
+        // Explicitly define the foreign key and local key here as well
+        return $this->hasMany(MedicalRecord::class, 'doctor_id', 'user_id');
     }
 }

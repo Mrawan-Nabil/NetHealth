@@ -1,11 +1,11 @@
 <script setup>
 import { router, usePage, Link } from '@inertiajs/vue3';
 import { computed, onMounted } from 'vue';
+import Sidebar from '@/components/dashboard/Sidebar.vue';
+import TopNavbar from '@/components/dashboard/TopNavbar.vue';
+import TabsNavigation from '@/components/medical/TabsNavigation.vue';
+import VisitHistoryCard from '@/components/medical/VisitHistoryCard.vue';
 import { useDashboard } from '@/composables/useDashboard';
-import Sidebar from '../components/dashboard/Sidebar.vue';
-import TopNavbar from '../components/dashboard/TopNavbar.vue';
-import TabsNavigation from '../components/medical/TabsNavigation.vue';
-import VisitHistoryCard from '../components/medical/VisitHistoryCard.vue';
 
 const page = usePage();
 const { state, setTheme } = useDashboard();
@@ -15,8 +15,12 @@ const props = defineProps({
     visits: {
         type: Array,
         required: true,
-        default: () => []
-    }
+        default: () => [],
+    },
+    auth: {
+        type: Object,
+        default: () => ({ user: null }),
+    },
 });
 
 // Computed properties
@@ -36,7 +40,7 @@ const handleLogout = () => {
 
 const handleTabChange = (tabId) => {
     if (tabId === 'prescription') {
-        router.get('/medical-records');
+        router.get('/prescription');
     } else if (tabId === 'test-results') {
         router.get('/test-results');
     } else if (tabId === 'imaging') {
@@ -63,7 +67,11 @@ onMounted(() => {
             <TopNavbar
                 title="Visit History"
                 :is-dark="isDark"
-                :user="{ name: 'Ahmed Yahia', username: '@y7ia007', avatar: 'https://i.pravatar.cc/150?img=12' }"
+                :user="{
+                    name: auth?.user?.name || 'Patient',
+                    username: '@' + (auth?.user?.email?.split('@')[0] || 'patient'),
+                    avatar: auth?.user?.avatar || `https://ui-avatars.com/api/?name=${auth?.user?.name || 'Patient'}&background=0D9488&color=fff`,
+                }"
                 :notifications="[]"
                 :show-last-viewed="true"
                 :show-share="true"
