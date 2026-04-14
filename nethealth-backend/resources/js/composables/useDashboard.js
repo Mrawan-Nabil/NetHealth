@@ -39,6 +39,33 @@ const state = reactive({
   }
 })
 
+let themeInitialized = false
+
+const applyThemeToDocument = (isDark) => {
+  if (typeof document === 'undefined') return
+  document.documentElement.classList.toggle('dark', isDark)
+}
+
+const readSavedTheme = () => {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem('theme')
+}
+
+const initializeThemeState = () => {
+  const savedTheme = readSavedTheme()
+  const isDark = savedTheme === 'dark'
+  state.isDark = isDark
+  applyThemeToDocument(isDark)
+  if (savedTheme !== 'dark' && savedTheme !== 'light' && typeof window !== 'undefined') {
+    localStorage.setItem('theme', 'light')
+  }
+  themeInitialized = true
+}
+
+if (!themeInitialized) {
+  initializeThemeState()
+}
+
 export function useDashboard() {
   // Computed properties
   const upcomingAppointments = computed(() => {
@@ -72,19 +99,23 @@ export function useDashboard() {
   // Actions
   const toggleTheme = () => {
     state.isDark = !state.isDark
-    localStorage.setItem('theme', state.isDark ? 'dark' : 'light')
+    const theme = state.isDark ? 'dark' : 'light'
+    localStorage.setItem('theme', theme)
+    applyThemeToDocument(state.isDark)
   }
 
   const setTheme = (theme) => {
     state.isDark = theme === 'dark'
     localStorage.setItem('theme', theme)
+    applyThemeToDocument(state.isDark)
   }
 
   const initializeTheme = () => {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme) {
-      state.isDark = savedTheme === 'dark'
+    if (!themeInitialized) {
+      initializeThemeState()
+      return
     }
+    applyThemeToDocument(state.isDark)
   }
 
   const fetchAppointments = async () => {

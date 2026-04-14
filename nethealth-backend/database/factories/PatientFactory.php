@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Enums\BloodType;
 use App\Enums\UserRole;
-use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -33,10 +32,10 @@ class PatientFactory extends Factory
                 BloodType::ONegative->value,
             ]),
             'allergies' => fake()->randomElements([
-                'Penicillin', 'Peanuts', 'Latex', 'Aspirin', 'Dust Mites', 'Pollen', 'Shellfish', 'Dairy', 'Soy', 'Tree Nuts'
+                'Penicillin', 'Peanuts', 'Latex', 'Aspirin', 'Dust Mites', 'Pollen', 'Shellfish', 'Dairy', 'Soy', 'Tree Nuts',
             ], fake()->numberBetween(0, 3)),
             'chronic_conditions' => fake()->randomElement([
-                'Type 2 Diabetes', 'Hypertension', 'Asthma', 'None', 'Thyroid Disorder', 'Arthritis', 'Chronic Migraine', 'High Cholesterol'
+                'Type 2 Diabetes', 'Hypertension', 'Asthma', 'None', 'Thyroid Disorder', 'Arthritis', 'Chronic Migraine', 'High Cholesterol',
             ]),
             'emergency_contact_name' => fake()->name(),
             'emergency_contact_phone' => fake()->unique()->numerify('01#########'),

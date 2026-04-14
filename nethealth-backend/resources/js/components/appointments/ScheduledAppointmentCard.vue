@@ -87,10 +87,11 @@
       </button>
       <button 
         @click="$emit('cancel', appointment)"
+        :disabled="isCancelling"
         :class="isDark ? 'text-[#94A3B8] hover:text-red-400' : 'text-[#9CA3AF] hover:text-red-600'"
-        class="text-sm font-medium transition-colors"
+        class="text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Cancel Appointment
+        {{ isCancelling ? 'Cancelling...' : 'Cancel Appointment' }}
       </button>
     </div>
   </div>
@@ -103,6 +104,10 @@ defineProps({
     required: true
   },
   isDark: {
+    type: Boolean,
+    default: false
+  },
+  isCancelling: {
     type: Boolean,
     default: false
   }

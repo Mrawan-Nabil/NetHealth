@@ -15,16 +15,18 @@
 
 <script setup>
 // Importing all the landing page pieces
+import { computed } from 'vue'
 import CTASection from '../components/landing/CTASection.vue'
 import FeaturesSection from '../components/landing/FeaturesSection.vue'
 import Footer from '../components/landing/Footer.vue'
 import HeroSection from '../components/landing/HeroSection.vue'
 import Navbar from '../components/landing/Navbar.vue'
 import StatsSection from '../components/landing/StatsSection.vue'
-import { useDarkMode } from '../composables/useScrollAnimations.js'
+import { useDashboard } from '../composables/useDashboard'
 
-// Setup scroll animations and dark mode
-const { isDark } = useDarkMode()
+// Shared global theme state
+const { state } = useDashboard()
+const isDark = computed(() => state.isDark)
 </script>
 
 <style scoped>
