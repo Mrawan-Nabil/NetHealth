@@ -41,7 +41,7 @@ const form = useForm({
     email: props.profileData?.email || '',
     phone: props.profileData?.phone || '',
     national_id: props.profileData?.national_id || '',
-    date_of_birth: props.profileData?.date_of_birth || '',
+    birth_date: props.profileData?.birth_date || '',
     gender: props.profileData?.gender || 'Male',
     governorate: props.profileData?.governorate || '',
 
@@ -322,7 +322,7 @@ onMounted(() => {
                                 Date of Birth
                             </label>
                             <input
-                                v-model="form.date_of_birth"
+                                v-model="form.birth_date"
                                 type="date"
                                 :class="isDark ? 'border-[#334155] bg-[#0F172A] text-[#F8FAFC]' : 'border-[#D1D5DB] bg-white text-[#111827]'"
                                 class="w-full rounded-lg border px-3 py-2 text-sm transition-all duration-300 hover:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6] focus:outline-none"

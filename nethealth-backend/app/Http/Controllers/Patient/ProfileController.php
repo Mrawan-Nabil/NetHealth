@@ -34,7 +34,7 @@ class ProfileController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'national_id' => $user->national_id,
-                'date_of_birth' => $formattedDate,
+                'birth_date' => $formattedDate,
                 'gender' => $user->gender,
                 'governorate' => $user->governorate,
                 'avatar' => $user->avatar,
@@ -63,7 +63,7 @@ class ProfileController extends Controller
             'email' => $data['email'],
             'phone' => $data['phone'],
             'national_id' => $data['national_id'],
-            'date_of_birth' => $data['birth_date'],
+            'birth_date' => $data['birth_date'],
             'gender' => $data['gender'],
             'governorate' => $data['governorate'],
         ]);
