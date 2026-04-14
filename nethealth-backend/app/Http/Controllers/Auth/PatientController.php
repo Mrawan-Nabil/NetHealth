@@ -153,7 +153,7 @@ class PatientController extends Controller
     //            'email' => $data['email'],
     //            'phone' => $data['phone'],
     //            'national_id' => $data['national_id'],
-    //            'date_of_birth' => $data['date_of_birth'],
+    //            'birth_date' => $data['birth_date'],
     //            'gender' => $data['gender'],
     //            'governorate' => $data['governorate'],
     //        ]);

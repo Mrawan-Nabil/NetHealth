@@ -176,7 +176,7 @@ function onSubmit() {
         email: email.value,
         phone: phone.value,
         gender: gender.value,
-        date_of_birth: dateOfBirth.value,
+        birth_date: dateOfBirth.value,
         governorate: governorate.value,
         national_id: nationalId.value,
         password: password.value,
@@ -203,7 +203,7 @@ function onSubmit() {
             if (errors.phone) setFieldError('phone', errors.phone);
             if (errors.password) setFieldError('password', errors.password);
             if (errors.national_id) setFieldError('nationalId', errors.national_id);
-            if (errors.date_of_birth) setFieldError('dateOfBirth', errors.date_of_birth);
+            if (errors.birth_date) setFieldError('dateOfBirth', errors.birth_date);
             if (errors.gender) setFieldError('gender', errors.gender);
             if (errors.governorate) setFieldError('governorate', errors.governorate);
 
@@ -219,7 +219,7 @@ function onSubmit() {
             // Auto-navigate to step
             if (errors.email || errors.password || errors.full_name) {
                 currentStep.value = 0;
-            } else if (errors.phone || errors.date_of_birth || errors.governorate || errors.national_id || errors.gender) {
+            } else if (errors.phone || errors.birth_date || errors.governorate || errors.national_id || errors.gender) {
                 currentStep.value = 1;
             } else if (errors.pharmacy_name || errors.license_number || errors.verification_documents || errors.pharmacy_phone || errors.pharmacy_address || errors.commercial_registration_number || errors.tax_id) {
                 currentStep.value = 2;

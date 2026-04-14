@@ -18,7 +18,7 @@ trait RegistersUsers
             'email' => $data['email'],
             'phone' => $data['phone'],
             'gender' => $data['gender'],
-            'birth_date' => $data['date_of_birth'],
+            'birth_date' => $data['birth_date'],
             'governorate' => $data['governorate'],
             'national_id' => $data['national_id'],
             'password' => Hash::make($data['password']),

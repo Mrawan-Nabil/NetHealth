@@ -63,7 +63,7 @@ class ProfileController extends Controller
             'email' => $data['email'],
             'phone' => $data['phone'],
             'national_id' => $data['national_id'],
-            'birth_date' => $data['date_of_birth'] ?? null,
+            'birth_date' => $data['birth_date'],
             'gender' => $data['gender'],
             'governorate' => $data['governorate'],
         ]);
