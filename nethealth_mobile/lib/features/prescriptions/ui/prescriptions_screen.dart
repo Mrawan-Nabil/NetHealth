@@ -48,7 +48,10 @@ class PrescriptionsScreen extends StatelessWidget {
 
           return GestureDetector(
             onTap: () {
-              context.pushNamed(RouteNames.prescriptionDetails);
+              context.pushNamed(
+                RouteNames.prescriptionDetails,
+                pathParameters: {'id': item['id'].toString()},
+              );
             },
             child: Container(
               margin: const EdgeInsets.only(bottom: 16),
@@ -57,13 +60,13 @@ class PrescriptionsScreen extends StatelessWidget {
                 color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: isActive ? AppColors.primary : (isDark ? AppColors.borderDark : AppColors.borderLight.withOpacity(0.5)),
+                  color: isActive ? AppColors.primary : (isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.5)),
                   width: isActive ? 1.5 : 1.0,
                 ),
                 boxShadow: [
                   if (!isDark)
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     )

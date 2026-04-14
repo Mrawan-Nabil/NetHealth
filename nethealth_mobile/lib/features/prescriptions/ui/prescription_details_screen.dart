@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 
 class PrescriptionDetailsScreen extends StatelessWidget {
-  const PrescriptionDetailsScreen({super.key});
+  final String id;
+  const PrescriptionDetailsScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +36,7 @@ class PrescriptionDetailsScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  CircleAvatar(radius: 20, backgroundColor: Colors.white.withOpacity(0.2), child: const Icon(Icons.qr_code_2_rounded, color: Colors.white)),
+                  CircleAvatar(radius: 20, backgroundColor: Colors.white.withValues(alpha: 0.2), child: const Icon(Icons.qr_code_2_rounded, color: Colors.white)),
                   const SizedBox(width: 16),
                   const Expanded(
                     child: Column(

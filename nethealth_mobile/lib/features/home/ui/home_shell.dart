@@ -28,10 +28,10 @@ class HomeShell extends StatelessWidget {
       route:       RoutePaths.records,
     ),
     _TabItem(
-      icon:        Icons.medication_outlined,
-      activeIcon:  Icons.medication_rounded,
-      label:       'Rx',
-      route:       RoutePaths.prescriptions,
+      icon:        Icons.notifications_outlined,
+      activeIcon:  Icons.notifications_rounded,
+      label:       'Notifications',
+      route:       RoutePaths.notifications,
     ),
     _TabItem(
       icon:        Icons.person_outline_rounded,

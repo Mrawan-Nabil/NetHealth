@@ -52,7 +52,7 @@ class AppTheme {
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 1,
-        shadowColor: colorScheme.outline.withOpacity(0.3),
+        shadowColor: colorScheme.outline.withValues(alpha: 0.3),
         centerTitle: false,
         titleTextStyle: GoogleFonts.outfit(
           fontSize: 18,
@@ -107,7 +107,7 @@ class AppTheme {
         ),
         hintStyle: GoogleFonts.inter(
           fontSize: 14,
-          color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
         ),
       ),
 
