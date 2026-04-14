@@ -34,7 +34,7 @@ class UpdateProfileRequest extends FormRequest
                 'unique:users,national_id',
                 new ValidNationalId,
             ],
-            'date_of_birth' => 'nullable|date',
+            'birth_date' => 'nullable|date',
             'gender' => ['required', new Enum(Gender::class)],
             'governorate' => 'nullable|string|max:100',
 

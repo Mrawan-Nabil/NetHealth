@@ -10,7 +10,7 @@ class ValidNationalId implements DataAwareRule, ValidationRule
 {
     protected $data = [];
 
-    // This allows the rule to see other fields like 'date_of_birth'
+    // This allows the rule to see other fields like 'birth_date'
     public function setData(array $data): self
     {
         $this->data = $data;
@@ -42,9 +42,9 @@ class ValidNationalId implements DataAwareRule, ValidationRule
             return;
         }
 
-        // 4. Cross-verify with the date_of_birth field (Optional but Recommended)
+        // 4. Cross-verify with the birth_date field (Optional but Recommended)
         $idDateString = sprintf('%04d-%02d-%02d', $year, $month, $day);
-        $inputDate = $this->data['date_of_birth'] ?? null;
+        $inputDate = $this->data['birth_date'] ?? null;
 
         if ($inputDate && $idDateString !== date('Y-m-d', strtotime($inputDate))) {
             $fail('The National ID does not match the selected Date of Birth.');
