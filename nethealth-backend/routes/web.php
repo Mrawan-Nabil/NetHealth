@@ -102,6 +102,7 @@ Route::middleware(['auth', 'active', 'role:patient'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.edit');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::delete('/profile/avatar', [ProfileController::class, 'removeAvatar'])->name('profile.avatar.remove');
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 
@@ -115,6 +116,8 @@ Route::middleware(['auth', 'active', 'role:patient'])->group(function () {
     Route::get('/doctor/{id}', [AppointmentController::class, 'showDoctor'])->name('doctor.show');
     // Submitting the booking form
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+    // Cancelling an existing appointment
+    Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 
     // ==========================================
     // MEDICAL RECORDS MODULE

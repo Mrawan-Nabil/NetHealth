@@ -14,7 +14,7 @@ const handleLogout = () => {
 </script>
 
 <template>
-    <Head title="Patient Dashboard" />
+    <Head title="Patient Dashboard"/>
 
     <div class="flex h-screen bg-[#F8FAFC] font-sans text-slate-900">
         <aside class="flex w-64 shrink-0 flex-col justify-between border-r border-slate-200 bg-white md:flex">
@@ -24,8 +24,8 @@ const handleLogout = () => {
                         <img
                             :src="netHealthLogo3"
                             alt="NetHealth Logo"
-                            class="mb-2 h-16 w-16"
-                            style="width: 155px; height: 150px; margin-bottom: -50px; margin-top: -50px"
+                            class="mb-2 h-20 w-16"
+                            style="width: 200px; height: 150px; margin-bottom: -50px; margin-top: -50px"
                         />
                     </Link>
                 </div>

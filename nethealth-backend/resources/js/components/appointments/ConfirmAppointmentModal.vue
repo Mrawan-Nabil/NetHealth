@@ -74,12 +74,13 @@ const handleConfirm = () => {
 </script>
 
 <template>
-  <!-- Modal Overlay -->
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-    @click.self="$emit('close')"
-  >
+  <Teleport to="body">
+    <!-- Modal Overlay -->
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      @click.self="$emit('close')"
+    >
     <!-- Modal Content -->
     <div
       :class="isDark ? 'bg-[#1E293B]' : 'bg-white'"
@@ -343,6 +344,7 @@ const handleConfirm = () => {
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
 
 

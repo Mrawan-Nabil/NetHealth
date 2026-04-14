@@ -35,7 +35,7 @@ class ProfileController extends Controller
                 'phone' => $user->phone,
                 'national_id' => $user->national_id,
                 'date_of_birth' => $formattedDate,
-                'gender' => $user->gender,
+                'gender' => $user->gender?->value ?? $user->gender,
                 'governorate' => $user->governorate,
                 'avatar' => $user->avatar,
                 'id' => $user->id,
@@ -63,7 +63,7 @@ class ProfileController extends Controller
             'email' => $data['email'],
             'phone' => $data['phone'],
             'national_id' => $data['national_id'],
-            'date_of_birth' => $data['birth_date'],
+            'birth_date' => $data['date_of_birth'] ?? null,
             'gender' => $data['gender'],
             'governorate' => $data['governorate'],
         ]);
@@ -83,7 +83,7 @@ class ProfileController extends Controller
             }
 
             $user->update([
-                'password' => Hash::make($request->new_password),
+                'password' => Hash::make($request->password),
             ]);
         }
 
@@ -113,6 +113,20 @@ class ProfileController extends Controller
         }
 
         return back()->with('success', 'Avatar updated successfully.');
+    }
+
+    public function removeAvatar(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+            $user->update([
+                'avatar' => null,
+            ]);
+        }
+
+        return back()->with('success', 'Avatar removed successfully.');
     }
 
 }

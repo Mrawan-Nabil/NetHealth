@@ -1,6 +1,6 @@
 <script setup>
 import { router } from '@inertiajs/vue3'
-import { computed, onMounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import CancelledAppointmentCard from '@/components/appointments/CancelledAppointmentCard.vue'
 import CompletedAppointmentCard from '@/components/appointments/CompletedAppointmentCard.vue'
 import ScheduledAppointmentCard from '@/components/appointments/ScheduledAppointmentCard.vue'
@@ -8,271 +8,254 @@ import Sidebar from '@/components/dashboard/Sidebar.vue'
 import TopNavbar from '@/components/dashboard/TopNavbar.vue'
 import { useDashboard } from '@/composables/useDashboard.js'
 
-const { state, setTheme, cancelAppointment } = useDashboard()
+const { state, setTheme } = useDashboard()
 
-// LARAVEL DATA BINDING: Expects Array appointments
 const props = defineProps({
-    appointments: {
-        type: Array,
-        required: true,
-        default: () => []
-    },
-    auth: {
-        type: Object,
-        default: () => ({ user: null }),
-    },
+    appointments: { type: Array, required: true, default: () => [] },
+    auth:         { type: Object, default: () => ({ user: null }) },
 })
 
-// Computed properties
-const isDark = computed(() => state.isDark)
+const localAppointments = ref([...props.appointments])
+const cancellingAppointmentId = ref(null)
+const cancelError = ref('')
+const cancelSuccess = ref('')
+
+watch(() => props.appointments, (appointments) => {
+    localAppointments.value = [...appointments]
+}, { deep: true })
+
+const isDark    = computed(() => state.isDark)
 const activeTab = computed({
     get: () => state.activeAppointmentTab || 'completed',
-    set: (value) => { state.activeAppointmentTab = value }
+    set: (v) => { state.activeAppointmentTab = v }
 })
 
+const normalizeStatus = (status) => String(status ?? '').trim().toLowerCase()
 
 const filteredAppointments = computed(() => {
-    const statusMap = {
-        'completed': 'Completed',
-        'scheduled': 'Scheduled',
-        'cancelled': 'Cancelled'
-    }
-    return props.appointments.filter(apt => apt.status === statusMap[activeTab.value])
+    return localAppointments.value.filter((apt) => normalizeStatus(apt.status) === activeTab.value)
 })
 
-// Methods
-const toggleTheme = (theme) => {
-    setTheme(theme)
-}
+const tabCounts = computed(() => ({
+    completed: localAppointments.value.filter(a => normalizeStatus(a.status) === 'completed').length,
+    scheduled: localAppointments.value.filter(a => normalizeStatus(a.status) === 'scheduled').length,
+    cancelled: localAppointments.value.filter(a => normalizeStatus(a.status) === 'cancelled').length,
+}))
 
-const handleLogout = () => {
-    if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('authToken')
-        router.get('/logout')
+const toggleTheme           = (theme) => setTheme(theme)
+const handleLogout          = ()      => { if (confirm('Are you sure you want to logout?')) { localStorage.removeItem('authToken'); router.get('/logout') } }
+const handleNewAppointment  = ()      => router.get('/appointments/create')
+const handleViewPrescription= (apt)   => router.get(`/prescription/${apt.id}`)
+const handleReschedule      = (apt)   => alert('Reschedule appointment with ' + apt.doctorName)
+const handleCancelAppointment = (apt) => {
+    cancelError.value = ''
+    cancelSuccess.value = ''
+
+    if (normalizeStatus(apt.status) === 'cancelled') {
+        cancelError.value = 'This appointment is already cancelled.'
+        return
     }
+    if (!confirm('Are you sure you want to cancel this appointment?')) return
+    if (cancellingAppointmentId.value === apt.id) return
+
+    cancellingAppointmentId.value = apt.id
+
+    router.delete(`/appointments/${apt.id}`, {
+        preserveScroll: true,
+        onSuccess: () => {
+            localAppointments.value = localAppointments.value.map((item) => {
+                if (item.id !== apt.id) return item
+                return {
+                    ...item,
+                    status: 'Cancelled',
+                    cancelledBy: item.cancelledBy || 'Patient',
+                    reason: item.reason || 'Patient Request',
+                }
+            })
+            cancelSuccess.value = 'Appointment cancelled successfully.'
+        },
+        onError: (errors) => {
+            const firstError = Object.values(errors || {})[0]
+            cancelError.value = firstError
+                ? (Array.isArray(firstError) ? firstError[0] : firstError)
+                : 'Failed to cancel appointment. Please try again.'
+        },
+        onFinish: () => {
+            cancellingAppointmentId.value = null
+        },
+    })
 }
 
-const handleNewAppointment = () => {
-    router.get('/appointments/create')
-}
-
-const handleViewPrescription = (appointment) => {
-    console.log('View prescription:', appointment)
-    router.get(`/prescription/${appointment.id}`)
-}
-
-const handleViewReport = (appointment) => {
-    console.log('View report:', appointment)
-    alert('Viewing report for ' + appointment.doctorName)
-}
-
-const handleUploadTestResults = (appointment) => {
-    console.log('Upload test results:', appointment)
-    alert('Upload test results for ' + appointment.doctorName)
-}
-
-const handleUploadImaging = (appointment) => {
-    console.log('Upload imaging:', appointment)
-    alert('Upload imaging for ' + appointment.doctorName)
-}
-
-const handleReschedule = (appointment) => {
-    console.log('Reschedule:', appointment)
-    alert('Reschedule appointment with ' + appointment.doctorName)
-}
-
-const handleCancelAppointment = (appointment) => {
-    if (confirm('Are you sure you want to cancel this appointment?')) {
-        cancelAppointment(appointment.id, 'Patient requested cancellation')
-        alert('Appointment cancelled')
-    }
-}
-
-// Lifecycle
-onMounted(() => {
-    // Data is provided by Inertia props
-})
+const tabs = [
+    { id: 'completed', label: 'Completed'  },
+    { id: 'scheduled', label: 'Upcoming'   },
+    { id: 'cancelled', label: 'Cancelled'  },
+]
 </script>
 
 <template>
     <div :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'" class="min-h-screen transition-colors duration-300">
-        <!-- Sidebar -->
         <Sidebar :is-dark="isDark" @toggle-theme="toggleTheme" @logout="handleLogout" />
 
-        <!-- Main Content -->
         <div class="ml-64">
-            <!-- Top Navbar -->
             <TopNavbar
-                :title="'Your Page Title Here'"
+                title="Appointments"
                 :is-dark="isDark"
-                :user="{
-        name: auth?.user?.name || 'Patient',
-        username: '@' + (auth?.user?.email?.split('@')[0] || 'patient'),
-        avatar: auth?.user?.avatar || `https://ui-avatars.com/api/?name=${auth?.user?.name || 'Patient'}&background=0D9488&color=fff`,
-    }"
                 :notifications="[]"
-                :show-last-viewed="true"
-                :show-share="true"
+                :show-last-viewed="false"
+                :show-share="false"
                 @logout="handleLogout"
             />
 
-            <!-- Page Content -->
-            <main class="p-6">
-                <!-- Breadcrumb -->
-                <div class="mb-6">
-                    <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#9CA3AF]'" class="text-sm">
-                        <span class="text-gray-400">Appointments</span>
-                        <span class="mx-2">/</span>
-                        <span :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="font-medium">{{
-                            activeTab === 'completed' ? 'Completed' : activeTab === 'scheduled' ? 'Scheduled' : 'Cancelled'
-                        }}</span>
-                    </p>
-                </div>
+            <main class="p-7 animate-fadeInUp">
 
-                <!-- Tabs -->
-                <div :class="isDark ? 'border-[#334155]' : 'border-[#E5E7EB]'" class="mb-6 border-b">
-                    <div class="flex gap-8">
-                        <button
-                            @click="activeTab = 'completed'"
-                            :class="[
-                                'border-b-2 px-2 pb-4 text-sm font-medium transition-all duration-300',
-                                activeTab === 'completed'
-                                    ? 'border-[#14B8A6] text-[#14B8A6]'
-                                    : isDark
-                                      ? 'border-transparent text-[#94A3B8] hover:text-[#F8FAFC]'
-                                      : 'border-transparent text-[#6B7280] hover:text-[#111827]',
-                            ]"
-                        >
-                            Completed
-                        </button>
-                        <button
-                            @click="activeTab = 'scheduled'"
-                            :class="[
-                                'border-b-2 px-2 pb-4 text-sm font-medium transition-all duration-300',
-                                activeTab === 'scheduled'
-                                    ? 'border-[#14B8A6] text-[#14B8A6]'
-                                    : isDark
-                                      ? 'border-transparent text-[#94A3B8] hover:text-[#F8FAFC]'
-                                      : 'border-transparent text-[#6B7280] hover:text-[#111827]',
-                            ]"
-                        >
-                            Scheduled
-                        </button>
-                        <button
-                            @click="activeTab = 'cancelled'"
-                            :class="[
-                                'border-b-2 px-2 pb-4 text-sm font-medium transition-all duration-300',
-                                activeTab === 'cancelled'
-                                    ? 'border-[#14B8A6] text-[#14B8A6]'
-                                    : isDark
-                                      ? 'border-transparent text-[#94A3B8] hover:text-[#F8FAFC]'
-                                      : 'border-transparent text-[#6B7280] hover:text-[#111827]',
-                            ]"
-                        >
-                            Cancelled
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Page Header -->
-                <div class="mb-6 flex items-start justify-between">
+                <!-- Page header -->
+                <div class="mb-7 flex items-start justify-between gap-4">
                     <div>
-                        <h1 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="mb-1 text-2xl font-bold">
+                        <!-- Breadcrumb -->
+                        <p :class="isDark ? 'text-[#475569]' : 'text-[#9CA3AF]'" class="mb-2 text-xs font-medium">
+                            Dashboard
+                            <span class="mx-1.5 text-[#D1D5DB]">/</span>
+                            <span :class="isDark ? 'text-[#94A3B8]' : 'text-[#64748B]'">Appointments</span>
+                        </p>
+
+                        <h1 :class="isDark ? 'text-[#F1F5F9]' : 'text-[#0F172A]'" class="mb-1 text-2xl font-bold tracking-tight">
                             {{
-                                activeTab === 'completed'
-                                    ? 'Completed Appointments'
-                                    : activeTab === 'scheduled'
-                                      ? 'Scheduled Appointments'
-                                      : 'Cancelled Appointments'
+                                activeTab === 'completed' ? 'Completed Appointments'
+                                : activeTab === 'scheduled' ? 'Upcoming Appointments'
+                                : 'Cancelled Appointments'
                             }}
                         </h1>
-                        <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-sm">
+                        <p :class="isDark ? 'text-[#64748B]' : 'text-[#94A3B8]'" class="text-sm">
                             {{
-                                activeTab === 'completed'
-                                    ? 'Review details from your past visits and download medical documentation.'
-                                    : activeTab === 'scheduled'
-                                      ? 'View and manage your upcoming appointments.'
-                                      : 'Review cancelled appointments.'
+                                activeTab === 'completed' ? 'Review details from your past visits and download medical documentation.'
+                                : activeTab === 'scheduled' ? 'View and manage your upcoming scheduled appointments.'
+                                : 'Review your cancelled appointments and rebook if needed.'
                             }}
                         </p>
                     </div>
 
                     <button
                         @click="handleNewAppointment"
-                        class="flex items-center gap-2 rounded-lg bg-[#14B8A6] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#0F9B8E]"
+                        class="btn-primary shrink-0"
                     >
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                         </svg>
                         New Appointment
                     </button>
                 </div>
 
-                <!-- Appointments Grid -->
-                <div>
-                    <!-- Completed & Scheduled: 2-column grid -->
-                    <div v-if="activeTab !== 'cancelled'" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <!-- Completed Appointments -->
+                <!-- Tabs bar -->
+                <div
+                    :class="isDark ? 'border-[#1E293B] bg-[#1E293B]' : 'border-[#F1F5F9] bg-white'"
+                    class="mb-7 flex items-center gap-1 rounded-2xl border p-1.5"
+                    style="box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
+                >
+                    <button
+                        v-for="tab in tabs"
+                        :key="tab.id"
+                        @click="activeTab = tab.id"
+                        :class="[
+                            'flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200',
+                            activeTab === tab.id
+                                ? isDark
+                                    ? 'bg-[#14B8A6] text-white shadow-sm shadow-teal-500/30'
+                                    : 'bg-[#14B8A6] text-white shadow-sm shadow-teal-500/20'
+                                : isDark
+                                  ? 'text-[#64748B] hover:bg-[#334155]/50 hover:text-[#94A3B8]'
+                                  : 'text-[#94A3B8] hover:bg-[#F8FAFC] hover:text-[#64748B]',
+                        ]"
+                    >
+                        {{ tab.label }}
+                        <span
+                            :class="[
+                                'rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums',
+                                activeTab === tab.id
+                                    ? 'bg-white/20 text-white'
+                                    : isDark ? 'bg-[#334155] text-[#64748B]' : 'bg-[#F1F5F9] text-[#9CA3AF]'
+                            ]"
+                        >
+                            {{ tabCounts[tab.id] }}
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Appointment grid -->
+                <div v-if="cancelSuccess" class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
+                    {{ cancelSuccess }}
+                </div>
+                <div v-if="cancelError" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700">
+                    {{ cancelError }}
+                </div>
+
+                <div v-if="filteredAppointments.length > 0">
+                    <div v-if="activeTab !== 'cancelled'" class="grid grid-cols-1 gap-5 lg:grid-cols-2">
                         <CompletedAppointmentCard
-                            :v-if="activeTab === 'completed'"
-                            v-for="appointment in filteredAppointments"
-                            :key="appointment.id"
-                            :appointment="appointment"
+                            v-if="activeTab === 'completed'"
+                            v-for="apt in filteredAppointments"
+                            :key="apt.id"
+                            :appointment="apt"
                             :is-dark="isDark"
                             @view-prescription="handleViewPrescription"
-                            @view-report="handleViewReport"
                         />
-
-                        <!-- Scheduled Appointments -->
                         <ScheduledAppointmentCard
-                            :v-if="activeTab === 'scheduled'"
-                            v-for="appointment in filteredAppointments"
-                            :key="appointment.id"
-                            :appointment="appointment"
+                            v-if="activeTab === 'scheduled'"
+                            v-for="apt in filteredAppointments"
+                            :key="apt.id"
+                            :appointment="apt"
                             :is-dark="isDark"
-                            @upload-test-results="handleUploadTestResults"
-                            @upload-imaging="handleUploadImaging"
+                            :is-cancelling="cancellingAppointmentId === apt.id"
                             @reschedule="handleReschedule"
                             @cancel="handleCancelAppointment"
                         />
                     </div>
 
-                    <!-- Cancelled: Single column -->
                     <div v-else class="space-y-4">
                         <CancelledAppointmentCard
-                            v-for="appointment in filteredAppointments"
-                            :key="appointment.id"
-                            :appointment="appointment"
+                            v-for="apt in filteredAppointments"
+                            :key="apt.id"
+                            :appointment="apt"
                             :is-dark="isDark"
                             @reschedule="handleReschedule"
                         />
                     </div>
                 </div>
 
-                <!-- Empty State -->
+                <!-- Empty state -->
                 <div
-                    v-if="filteredAppointments.length === 0"
-                    :class="isDark ? 'border-[#334155] bg-[#1E293B]' : 'border-[#E5E7EB] bg-white'"
-                    class="rounded-lg border p-12 text-center"
+                    v-else
+                    :class="isDark ? 'border-[#1E293B] bg-[#1E293B]' : 'border-[#F1F5F9] bg-white'"
+                    class="rounded-2xl border p-16 text-center"
+                    style="box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
                 >
-                    <svg
-                        class="mx-auto mb-4 h-16 w-16"
-                        :class="isDark ? 'text-[#94A3B8]' : 'text-gray-400'"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                    <div
+                        :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'"
+                        class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                    </svg>
-                    <h3 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="mb-2 text-lg font-semibold">No Appointments Found</h3>
-                    <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-sm">You don't have any {{ activeTab }} appointments yet.</p>
+                        <svg :class="isDark ? 'text-[#334155]' : 'text-[#CBD5E1]'" class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 :class="isDark ? 'text-[#F1F5F9]' : 'text-[#0F172A]'" class="mb-2 text-base font-semibold">No {{ activeTab }} appointments</h3>
+                    <p :class="isDark ? 'text-[#475569]' : 'text-[#9CA3AF]'" class="mb-6 text-sm">
+                        {{ activeTab === 'scheduled' ? 'Book your first appointment to get started.' : 'Nothing to show here.' }}
+                    </p>
+                    <button v-if="activeTab === 'scheduled'" @click="handleNewAppointment" class="btn-primary mx-auto inline-flex">
+                        Book Appointment
+                    </button>
                 </div>
             </main>
         </div>
     </div>
 </template>
+
+<style scoped>
+.animate-fadeInUp {
+    animation: fadeInUp 0.4s ease-out both;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+</style>

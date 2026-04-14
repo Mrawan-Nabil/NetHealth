@@ -1,6 +1,6 @@
 <script setup>
 import { router, Link } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue';
+import { ref, computed } from 'vue';
 import ActivityTimeline from '@/components/dashboard/ActivityTimeline.vue';
 import AppointmentCard from '@/components/dashboard/AppointmentCard.vue';
 import AppointmentDetailsModal from '@/components/dashboard/AppointmentDetailsModal.vue';
@@ -11,125 +11,63 @@ import RescheduleModal from '@/components/dashboard/RescheduleModal.vue';
 import Sidebar from '@/components/dashboard/Sidebar.vue';
 import StatsCard from '@/components/dashboard/StatsCard.vue';
 import TopNavbar from '@/components/dashboard/TopNavbar.vue';
+import { useDashboard } from '@/composables/useDashboard';
 
-// LARAVEL DATA BINDING: Real data coming straight from Patient/DashboardController
 const props = defineProps({
-    healthOverview: {
-        type: Object,
-        default: () => ({})
-    },
-    upcomingAppointments: {
-        type: Number,
-        default: 0
-    },
-    latestPrescriptionCount: {
-        type: Number,
-        default: 0
-    },
-    pendingTests: {
-        type: Number,
-        default: 0
-    },
-    nextAppointment: {
-        type: Object,
-        default: null
-    },
-    recentRecords: {
-        type: Array,
-        default: () => []
-    },
-    activities: {
-        type: Array,
-        default: () => []
-    },
-    notifications: {
-        type: Array,
-        default: () => [],
-    },
+    healthOverview:          { type: Object,  default: () => ({}) },
+    upcomingAppointments:    { type: Number,  default: 0 },
+    latestPrescriptionCount: { type: Number,  default: 0 },
+    pendingTests:            { type: Number,  default: 0 },
+    nextAppointment:         { type: Object,  default: null },
+    recentRecords:           { type: Array,   default: () => [] },
+    activities:              { type: Array,   default: () => [] },
+    notifications:           { type: Array,   default: () => [] },
 });
 
-// State
-const isDark = ref(false);
+/* ── state ── */
+const { state, setTheme }   = useDashboard();
+const isDark                = computed(() => state.isDark);
 const showAppointmentDetails = ref(false);
-const showRescheduleModal = ref(false);
-const showChatWidget = ref(false);
-const selectedAppointment = ref(null);
+const showRescheduleModal   = ref(false);
+const showChatWidget        = ref(false);
+const selectedAppointment   = ref(null);
 
-// Methods
+/* ── theme ── */
 const toggleTheme = (theme) => {
-    isDark.value = theme === 'dark';
-    localStorage.setItem('theme', theme);
+    setTheme(theme);
 };
 
-const handleBookAppointment = () => {
-    router.get('/appointments/create');
+/* ── navigation ── */
+const handleBookAppointment = ()       => router.get('/appointments/create');
+const handleStatsClick      = (data)  => {
+    if (data.label.includes('Appointment')) router.get('/appointments');
+    else if (data.label.includes('Prescription')) router.get('/medical-records');
+    else if (data.label.includes('Test')) router.get('/test-results');
 };
 
-const handleStatsClick = (data) => {
-    console.log('Stats clicked:', data);
-    if (data.label.includes('Appointments')) {
-        router.get('/appointments');
-    } else if (data.label.includes('Prescription')) {
-        router.get('/medical-records');
-    } else if (data.label.includes('Test')) {
-        router.get('/test-results');
-    }
-};
-
-const openAppointmentDetails = (appointment) => {
-    selectedAppointment.value = appointment;
-    showAppointmentDetails.value = true;
-};
-
-const openRescheduleModal = (appointment) => {
-    selectedAppointment.value = appointment || props.nextAppointment;
-    showAppointmentDetails.value = false;
-    showRescheduleModal.value = true;
-};
-
-const handleRescheduleConfirm = (rescheduleData) => {
-    console.log('Rescheduling appointment:', rescheduleData);
-    alert(`Appointment rescheduled to ${rescheduleData.date} at ${rescheduleData.time}`);
-};
-
-const handleCancelAppointment = () => {
+/* ── appointment actions ── */
+const openAppointmentDetails = (apt) => { selectedAppointment.value = apt; showAppointmentDetails.value = true; };
+const openRescheduleModal    = (apt) => { selectedAppointment.value = apt || props.nextAppointment; showAppointmentDetails.value = false; showRescheduleModal.value = true; };
+const handleRescheduleConfirm = (d)  => alert(`Appointment rescheduled to ${d.date} at ${d.time}`);
+const handleCancelAppointment = ()   => {
     if (confirm('Are you sure you want to cancel this appointment?')) {
         router.delete(`/appointments/${selectedAppointment.value.id}`, {
             preserveScroll: true,
-            onSuccess: () => {
-                showAppointmentDetails.value = false;
-            },
+            onSuccess: () => { showAppointmentDetails.value = false; },
         });
     }
 };
 
-const openChatWidget = () => {
-    showChatWidget.value = true;
+/* ── notifications ── */
+const markNotificationAsRead  = (id) => { const n = props.notifications.find(n => n.id === id); if (n) n.read = true; };
+const markAllNotificationsAsRead = () => props.notifications.forEach(n => (n.read = true));
+const handleNotificationClick = (n)  => {
+    if (n.type === 'appointment') router.get('/appointments');
+    else if (n.type === 'test') router.get('/test-results');
+    else if (n.type === 'prescription') router.get('/medical-records');
 };
 
-const markNotificationAsRead = (id) => {
-    // Note: If you want to persist this, you'll need a router.post('/notifications/mark-read') later!
-    const notification = props.notifications.find((n) => n.id === id);
-    if (notification) {
-        notification.read = true;
-    }
-};
-
-const markAllNotificationsAsRead = () => {
-    props.notifications.forEach((n) => (n.read = true));
-};
-
-const handleNotificationClick = (notification) => {
-    console.log('Notification clicked:', notification);
-    if (notification.type === 'appointment') {
-        router.get('/appointments');
-    } else if (notification.type === 'test') {
-        router.get('/test-results');
-    } else if (notification.type === 'prescription') {
-        router.get('/medical-records');
-    }
-};
-
+/* ── logout ── */
 const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('authToken');
@@ -137,26 +75,13 @@ const handleLogout = () => {
     }
 };
 
-// Lifecycle
-onMounted(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        isDark.value = savedTheme === 'dark';
-    }
-});
-
-// Watch for theme changes
-watch(isDark, (newVal) => {
-    if (newVal) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-});
 </script>
 
 <template>
-    <div :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'" class="dashboard-layout min-h-screen transition-colors duration-300">
+    <div
+        :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'"
+        class="min-h-screen transition-colors duration-300"
+    >
         <Sidebar :is-dark="isDark" @toggle-theme="toggleTheme" @logout="handleLogout" />
 
         <div class="ml-64">
@@ -170,130 +95,145 @@ watch(isDark, (newVal) => {
                 @logout="handleLogout"
             />
 
-            <main class="space-y-4 p-6">
+            <main class="p-7 space-y-6 animate-fadeInUp">
+
+                <!-- ── Welcome banner ── -->
                 <div
-                    :class="isDark ? 'border-[#334155] bg-[#1E293B] shadow-lg shadow-black/20' : 'border-[#E5E7EB] bg-white shadow-sm'"
-                    class="rounded-lg border p-5 transition-all duration-300"
+                    :class="isDark ? 'border-[#1E293B] bg-[#1E293B]' : 'border-[#F1F5F9] bg-white'"
+                    class="flex items-center justify-between rounded-2xl border px-6 py-5"
+                    style="box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
                 >
-                    <h2 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="mb-1 text-xl font-bold">
-                        Welcome back, {{ $page.props.auth.user.full_name }} 👋
-                    </h2>
-                    <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#6B7280]'" class="text-sm">Here's your health overview for today</p>
+                    <div>
+                        <h2 :class="isDark ? 'text-[#F1F5F9]' : 'text-[#0F172A]'" class="mb-0.5 text-xl font-bold">
+                            Welcome back, {{ $page.props.auth.user.full_name }} 👋
+                        </h2>
+                        <p :class="isDark ? 'text-[#64748B]' : 'text-[#94A3B8]'" class="text-sm">
+                            Here's your health overview for today.
+                        </p>
+                    </div>
+                    <!-- Today's date pill -->
+                    <div
+                        :class="isDark ? 'bg-[#0F172A] text-[#64748B]' : 'bg-[#F8FAFC] text-[#94A3B8]'"
+                        class="hidden items-center gap-2 rounded-xl px-4 py-2 text-xs font-medium sm:flex"
+                    >
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        {{ new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' }) }}
+                    </div>
                 </div>
 
-                <div
-                    class="relative overflow-hidden rounded-lg bg-gradient-to-r from-[#14B8A6] to-[#0D9488] p-6 text-white shadow-lg transition-all duration-300 hover:shadow-xl"
-                >
-                    <div class="relative z-10 flex items-center justify-between">
+                <!-- ── Book appointment CTA ── -->
+                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0D9488] via-[#14B8A6] to-[#0891B2] p-6 text-white shadow-lg shadow-teal-500/15">
+                    <!-- Background decoration -->
+                    <div class="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/5" />
+                    <div class="pointer-events-none absolute right-20 bottom-0 h-24 w-24 rounded-full bg-white/5" />
+
+                    <div class="relative z-10 flex items-center justify-between gap-6">
                         <div class="flex-1">
+                            <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-white/70">Quick Action</p>
                             <h3 class="mb-2 text-xl font-bold">Book a New Appointment</h3>
-                            <p class="mb-3 max-w-md text-sm text-white/90">
-                                Schedule a consultation with your preferred doctor in just a few steps. Get instant confirmation and digital
-                                prescriptions.
+                            <p class="mb-4 max-w-sm text-sm leading-relaxed text-white/85">
+                                Schedule a consultation with your preferred doctor. Get instant confirmation and digital prescriptions.
                             </p>
-                            <div class="flex items-center gap-4 text-xs">
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
+                            <div class="flex flex-wrap items-center gap-4 text-xs text-white/80">
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
-                                    <span>Available 24/7</span>
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
+                                    Available 24/7
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
-                                    <span>Verified Doctors</span>
-                                </div>
+                                    Verified Doctors
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    Secure &amp; Private
+                                </span>
                             </div>
                         </div>
-                        <div class="flex flex-col items-end">
+
+                        <div class="flex shrink-0 flex-col items-end gap-2">
                             <button
                                 @click="handleBookAppointment"
-                                class="flex items-center gap-2 rounded-lg bg-white px-5 py-2 text-sm font-semibold text-[#14B8A6] shadow-md transition-all duration-300 hover:bg-gray-50"
+                                class="flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-[#0D9488] shadow-lg shadow-black/10 transition-all duration-200 hover:bg-gray-50 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                             >
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                                 </svg>
                                 Book Now
                             </button>
-                            <p class="mt-1.5 text-xs tracking-wide text-white/80 uppercase">Takes less than 2 minutes</p>
+                            <p class="text-[10px] uppercase tracking-widest text-white/60">Takes less than 2 minutes</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                        <StatsCard
-                            :value="upcomingAppointments"
-                            label="Upcoming Appointments"
-                            icon="calendar"
-                            :is-dark="isDark"
-                            @click="handleStatsClick"
-                        />
-                    </div>
-                    <div>
-                        <StatsCard
-                            :value="latestPrescriptionCount"
-                            label="Latest Prescription"
-                            icon="prescription"
-                            :is-dark="isDark"
-                            @click="handleStatsClick"
-                        />
-                    </div>
-                    <div>
-                        <StatsCard
-                            :value="pendingTests"
-                            label="Pending Test Results"
-                            icon="test"
-                            :is-dark="isDark"
-                            @click="handleStatsClick" />
-                    </div>
+                <!-- ── Stats row ── -->
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <StatsCard
+                        :value="upcomingAppointments"
+                        label="Upcoming Appointments"
+                        icon="calendar"
+                        :is-dark="isDark"
+                        class="animate-fadeInUp stagger-1"
+                        @click="handleStatsClick"
+                    />
+                    <StatsCard
+                        :value="latestPrescriptionCount"
+                        label="Active Prescriptions"
+                        icon="prescription"
+                        :is-dark="isDark"
+                        class="animate-fadeInUp stagger-2"
+                        @click="handleStatsClick"
+                    />
+                    <StatsCard
+                        :value="pendingTests"
+                        label="Pending Test Results"
+                        icon="test"
+                        :is-dark="isDark"
+                        class="animate-fadeInUp stagger-3"
+                        @click="handleStatsClick"
+                    />
 
-                    <div>
-                        <div
-                            @click="openChatWidget"
-                            class="cursor-pointer rounded-lg bg-gradient-to-br from-[#14B8A6] to-[#0D9488] p-4 text-white shadow-md transition-all duration-300 hover:shadow-lg"
-                        >
-                            <div class="mb-2 flex items-center gap-2">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
-                                    />
+                    <!-- AI Assistant card -->
+                    <div
+                        @click="showChatWidget = true"
+                        class="animate-fadeInUp stagger-4 group cursor-pointer rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 p-5 shadow-lg shadow-violet-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5"
+                    >
+                        <div class="mb-3 flex items-center gap-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
+                                <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m1.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                                 </svg>
-                                <h3 class="text-sm font-semibold">Need Help?</h3>
                             </div>
-                            <p class="mb-3 text-xs leading-relaxed text-white/90">
-                                Ask our AI Medical Assistant for quick answers about your health.
-                            </p>
-                            <button
-                                class="w-full rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-[#14B8A6] transition-colors duration-300 hover:bg-gray-50"
-                            >
-                                Ask Now
-                            </button>
+                            <p class="text-xs font-semibold text-white/90">AI Assistant</p>
+                        </div>
+                        <h3 class="mb-1 text-sm font-bold text-white">Need Help?</h3>
+                        <p class="mb-3 text-xs leading-relaxed text-white/75">
+                            Ask our AI Medical Assistant for quick answers.
+                        </p>
+                        <div class="flex items-center gap-1.5 text-xs font-semibold text-white/90">
+                            <span>Ask Now</span>
+                            <svg class="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                            </svg>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div class="col-span-2 space-y-4">
+                <!-- ── Main grid ── -->
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+                    <!-- Left 2/3 -->
+                    <div class="space-y-6 lg:col-span-2">
+
+                        <!-- Next appointment -->
                         <AppointmentCard
                             :appointment="nextAppointment"
                             :is-dark="isDark"
@@ -301,35 +241,58 @@ watch(isDark, (newVal) => {
                             @reschedule="openRescheduleModal"
                         />
 
+                        <!-- Recent medical records -->
                         <div
-                            :class="isDark ? 'border-[#334155] bg-[#1E293B] shadow-lg shadow-black/20' : 'border-[#E5E7EB] bg-white shadow-sm'"
-                            class="rounded-lg border p-5 transition-all duration-300"
+                            :class="isDark ? 'border-[#1E293B] bg-[#1E293B]' : 'border-[#F1F5F9] bg-white'"
+                            class="rounded-2xl border p-6"
+                            style="box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
                         >
-                            <div class="mb-4 flex items-center justify-between">
-                                <h3 :class="isDark ? 'text-[#F8FAFC]' : 'text-[#111827]'" class="text-sm font-semibold">Recent Medical Records</h3>
+                            <div class="mb-5 flex items-center justify-between">
+                                <h3
+                                    :class="isDark ? 'text-[#F1F5F9]' : 'text-[#0F172A]'"
+                                    class="text-sm font-semibold"
+                                >
+                                    Recent Medical Records
+                                </h3>
                                 <Link
                                     href="/medical-records"
                                     :class="isDark ? 'text-[#2DD4BF] hover:text-[#14B8A6]' : 'text-[#14B8A6] hover:text-[#0D9488]'"
-                                    class="text-xs font-medium transition-colors"
+                                    class="flex items-center gap-1 text-xs font-semibold transition-colors"
                                 >
-                                    View Full Records
+                                    View All
+                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
                                 </Link>
                             </div>
-                            <div class="space-y-2">
-                                <MedicalRecordItem v-for="(record, index) in props.recentRecords" :key="index" :record="record" :is-dark="isDark" />
+
+                            <div v-if="props.recentRecords.length > 0" class="space-y-2">
+                                <MedicalRecordItem
+                                    v-for="(record, index) in props.recentRecords"
+                                    :key="index"
+                                    :record="record"
+                                    :is-dark="isDark"
+                                />
+                            </div>
+
+                            <div v-else class="py-8 text-center">
+                                <p :class="isDark ? 'text-[#475569]' : 'text-[#94A3B8]'" class="text-sm">
+                                    No recent records to display.
+                                </p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="space-y-4">
+                    <!-- Right 1/3 -->
+                    <div class="space-y-6">
                         <HealthOverview :patient="healthOverview" :is-dark="isDark" />
-
                         <ActivityTimeline :activities="activities" :is-dark="isDark" />
                     </div>
                 </div>
             </main>
         </div>
 
+        <!-- Modals -->
         <AppointmentDetailsModal
             :is-open="showAppointmentDetails"
             :appointment="selectedAppointment"
@@ -338,90 +301,22 @@ watch(isDark, (newVal) => {
             @reschedule="openRescheduleModal"
             @cancel="handleCancelAppointment"
         />
-
         <RescheduleModal
             :is-open="showRescheduleModal"
             :appointment="selectedAppointment"
             @close="showRescheduleModal = false"
             @confirm="handleRescheduleConfirm"
         />
-
         <ChatWidget :is-open="showChatWidget" @close="showChatWidget = false" />
     </div>
 </template>
 
 <style scoped>
-@import '@/assets/dashboard-animations.css';
-
-/* Dashboard-specific animations */
-.dashboard-layout {
-    animation: dashboardFadeIn 0.4s ease-out;
+main {
+    animation: fadeInUp 0.4s ease-out both;
 }
-
-@keyframes dashboardFadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Apply dashboard animations to child elements */
-.dashboard-layout :deep(.animate-fade-in-up) {
-    animation: dashboardCardSlideUp 0.5s ease-out backwards;
-}
-
-.dashboard-layout :deep(.stagger-1) {
-    animation-delay: 0.1s;
-}
-
-.dashboard-layout :deep(.stagger-2) {
-    animation-delay: 0.2s;
-}
-
-.dashboard-layout :deep(.stagger-3) {
-    animation-delay: 0.3s;
-}
-
-.dashboard-layout :deep(.stagger-4) {
-    animation-delay: 0.4s;
-}
-
-/* Dashboard card hover effects */
-.dashboard-layout :deep(.hover\:-translate-y-1:hover) {
-    transform: translateY(-4px);
-}
-
-.dashboard-layout :deep(.hover\:scale-105:hover) {
-    transform: scale(1.05);
-}
-
-.dashboard-layout :deep(.active\:scale-95:active) {
-    transform: scale(0.95);
-}
-
-/* Enhanced dashboard card styling */
-.dashboard-layout :deep(.bg-white),
-.dashboard-layout :deep(.bg-\[#1E293B\]) {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dashboard-layout :deep(.bg-white:hover),
-.dashboard-layout :deep(.bg-\[#1E293B\]:hover) {
-    transform: translateY(-2px);
-}
-
-/* Dashboard button enhancements */
-.dashboard-layout :deep(button) {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dashboard-layout :deep(button:hover) {
-    transform: translateY(-1px);
-}
-
-.dashboard-layout :deep(button:active) {
-    transform: translateY(0);
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 </style>

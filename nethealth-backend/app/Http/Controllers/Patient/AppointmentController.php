@@ -14,6 +14,25 @@ use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
+    private function resolveAvatarUrl(?string $avatar, string $name, string $background = '0D9488'): string
+    {
+        $fallback = 'https://ui-avatars.com/api/?name='.urlencode($name).'&background='.$background.'&color=fff';
+
+        if (! $avatar) {
+            return $fallback;
+        }
+
+        if (str_starts_with($avatar, 'http://') || str_starts_with($avatar, 'https://')) {
+            if (str_contains($avatar, 'via.placeholder.com') || str_contains($avatar, 'placehold.co')) {
+                return $fallback;
+            }
+
+            return $avatar;
+        }
+
+        return asset('storage/'.$avatar);
+    }
+
     /**
      * Display the user's appointments (Scheduled, Completed, Cancelled)
      */
@@ -50,9 +69,11 @@ class AppointmentController extends Controller
                 'id' => $apt->id,
                 'status' => $status,
                 'doctorName' => 'Dr. '.($apt->doctor?->user?->full_name ?? 'Unknown Doctor'),
-                'doctorAvatar' => $apt->doctor?->user?->avatar
-                    ? asset('storage/'.$apt->doctor->user->avatar)
-                    : 'https://ui-avatars.com/api/?name='.urlencode($apt->doctor?->user?->full_name ?? 'Doctor').'&background=0F172A&color=fff',
+                'doctorAvatar' => $this->resolveAvatarUrl(
+                    $apt->doctor?->user?->avatar,
+                    $apt->doctor?->user?->full_name ?? 'Doctor',
+                    '0F172A'
+                ),
                 'specialty' => $apt->doctor?->specialty ?? 'General Practice',
                 'dateTime' => $dateTime,
                 'clinicAddress' => $apt->clinic?->clinic_name.' - '.$apt->clinic?->clinic_address,
@@ -115,9 +136,11 @@ class AppointmentController extends Controller
             return [
                 'id' => $doc->user_id,
                 'name' => 'Dr. '.($doc->user?->full_name ?? 'Unknown'),
-                'avatar' => $doc->user?->avatar
-                    ? asset('storage/'.$doc->user->avatar)
-                    : 'https://ui-avatars.com/api/?name='.urlencode($doc->user?->full_name ?? 'Doctor').'&background=14B8A6&color=fff',
+                'avatar' => $this->resolveAvatarUrl(
+                    $doc->user?->avatar,
+                    $doc->user?->full_name ?? 'Doctor',
+                    '14B8A6'
+                ),
                 'specialty' => $doc->specialty ?? 'General Practice',
                 'specialtyId' => $specialtyId,
                 'hospital' => $clinicName,
@@ -156,9 +179,11 @@ class AppointmentController extends Controller
         $doctorProfile = [
             'id' => $doc->user_id,
             'name' => 'Dr. '.($doc->user?->full_name ?? 'Unknown'),
-            'avatar' => $doc->user?->avatar
-                ? asset('storage/'.$doc->user->avatar)
-                : 'https://ui-avatars.com/api/?name='.urlencode($doc->user?->full_name ?? 'Doctor').'&background=14B8A6&color=fff',
+            'avatar' => $this->resolveAvatarUrl(
+                $doc->user?->avatar,
+                $doc->user?->full_name ?? 'Doctor',
+                '14B8A6'
+            ),
             'specialty' => $doc->specialty ?? 'General Practice',
             'hospital' => $clinicName,
             'rating' => '4.'.rand(5, 9), // Placeholder
@@ -214,5 +239,31 @@ class AppointmentController extends Controller
 
         // 4. Redirect back so Vue knows it was successful
         return redirect()->back()->with('success', 'Appointment booked successfully!');
+    }
+
+    /**
+     * Cancel appointment for current patient.
+     */
+    public function destroy(Request $request, int $id)
+    {
+        $user = $request->user();
+        $appointment = Appointment::findOrFail($id);
+
+        $ownsAppointment = (int) $appointment->patient_id === (int) $user->id
+            || (int) $appointment->patient_id === (int) ($user->patient?->user_id ?? 0);
+
+        if (! $ownsAppointment) {
+            abort(403, 'You are not allowed to cancel this appointment.');
+        }
+
+        if ($appointment->appointment_status === AppointmentStatus::Cancelled) {
+            return back()->with('info', 'Appointment is already cancelled.');
+        }
+
+        $appointment->update([
+            'appointment_status' => AppointmentStatus::Cancelled->value,
+        ]);
+
+        return back()->with('success', 'Appointment cancelled successfully.');
     }
 }
