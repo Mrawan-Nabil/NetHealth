@@ -44,6 +44,8 @@ let themeInitialized = false
 const applyThemeToDocument = (isDark) => {
   if (typeof document === 'undefined') return
   document.documentElement.classList.toggle('dark', isDark)
+  // Also set a data attribute as a fallback for any CSS that uses it
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 }
 
 const readSavedTheme = () => {

@@ -5,6 +5,9 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/* ─── Dark mode: class-based (toggled via JS on <html>) ─────────── */
+@variant dark (&:where(.dark, .dark *));
+
 /* ─── Design Tokens ──────────────────────────────────────────────── */
 @theme {
   /* Brand */
@@ -81,6 +84,13 @@ body {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: 6px;
+}
+
+/* Inputs handle focus via border-color change — no outline needed */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
 }
 
 /* ─── Selection ─────────────────────────────────────────────────── */

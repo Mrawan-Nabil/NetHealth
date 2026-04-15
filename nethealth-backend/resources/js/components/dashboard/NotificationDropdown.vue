@@ -5,6 +5,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 const props = defineProps({
     notifications: { type: Array, default: () => [] },
     isDark: Boolean,
+    allHref: { type: String, default: '/notifications' },
 });
 
 const emit = defineEmits(['mark-read', 'mark-all-read', 'click']);
@@ -150,7 +151,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside));
                     class="border-t px-5 py-3 text-center"
                 >
                     <Link
-                        href="/notifications"
+                        :href="allHref"
                         @click="isOpen = false"
                         class="text-xs font-semibold text-[#14B8A6] transition-colors duration-200 hover:text-[#0D9488]"
                     >
