@@ -26,6 +26,39 @@ Route::get('/home', function () {
     return Inertia::render('Home');
 })->name('home');
 
+Route::get('/doctor/dashboard', function () {
+    return Inertia::render('Dashboards/DoctorDashboard');
+});
+
+Route::get('/doctor/profile', function () {
+    return Inertia::render('Dashboards/DoctorProfileDashboard');
+});
+
+Route::get('/doctor/appointments', function () {
+    return Inertia::render('Dashboards/DoctorAppointmentsDashboard');
+});
+
+Route::get('/doctor/notifications', function () {
+    return Inertia::render('Dashboards/DoctorNotificationsDashboard');
+});
+
+Route::get('/doctor/reviews', function () {
+    return Inertia::render('Dashboards/DoctorReviewsDashboard');
+});
+
+Route::get('/doctor/reviews/files', function () {
+    return Inertia::render('Dashboards/DoctorReviewFilesDashboard');
+});
+
+Route::get('/doctor/reviews/view-full-file', function () {
+    return Inertia::render('Dashboards/DoctorViewFullFileDashboard');
+});
+
+Route::get('/doctor/reviews/medical-record', function () {
+    return Inertia::render('Dashboards/DoctorMedicalRecordDashboard');
+});
+
+
 Route::get('/waiting-approval', function () {
     $user = auth()->user();
 
