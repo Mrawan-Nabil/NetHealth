@@ -41,7 +41,7 @@ const toggleTheme = (theme) => {
 const handleBookAppointment = ()       => router.get('/appointments/create');
 const handleStatsClick      = (data)  => {
     if (data.label.includes('Appointment')) router.get('/appointments');
-    else if (data.label.includes('Prescription')) router.get('/medical-records');
+    else if (data.label.includes('Prescription')) router.get('/prescription');
     else if (data.label.includes('Test')) router.get('/test-results');
 };
 
