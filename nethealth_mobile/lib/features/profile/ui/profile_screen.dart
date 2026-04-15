@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -100,6 +101,9 @@ class ProfileScreen extends ConsumerWidget {
             _buildSection(context, isDark, 'Preferences', [
               _buildTile(isDark, Icons.notifications_outlined, 'Notifications'),
               ListTile(
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, '/notifications/ui/notifications_screen.dart');
+                },
                 leading: Icon(
                   Icons.dark_mode_outlined,
                   color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,

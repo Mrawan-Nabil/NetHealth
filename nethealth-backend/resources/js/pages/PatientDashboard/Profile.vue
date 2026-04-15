@@ -25,7 +25,7 @@ const form = useForm({
     email:        props.profileData?.email        || '',
     phone:        props.profileData?.phone        || '',
     national_id:  props.profileData?.national_id  || '',
-    date_of_birth:props.profileData?.date_of_birth|| '',
+    birth_date:props.profileData?.birth_date|| '',
     gender:       props.profileData?.gender       || 'Male',
     governorate:  props.profileData?.governorate  || '',
     emergency_contact_name:         props.emergencyContact?.name         || '',
@@ -250,7 +250,7 @@ const subheadingClass = computed(() => isDark.value ? 'text-[#64748B]' : 'text-[
                             </div>
                             <div>
                                 <label :class="labelClass" class="mb-1.5 block text-xs font-semibold">Date of Birth</label>
-                                <input v-model="form.date_of_birth" type="date" :class="inputClass"
+                                <input v-model="form.birth_date" type="date" :class="inputClass"
                                     class="w-full rounded-xl border px-3.5 py-2.5 text-sm transition-all duration-200 focus:ring-2 focus:ring-[#14B8A6]/15 focus:outline-none"/>
                             </div>
                             <div>
