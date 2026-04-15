@@ -148,7 +148,7 @@ function onSubmit() {
         email: email.value,
         phone: phone.value,
         gender: gender.value,
-        date_of_birth: dateOfBirth.value, // Key matched to Laravel update
+        birth_date: dateOfBirth.value, // Key matched to Laravel update
         governorate: governorate.value,
         national_id: nationalId.value,
         password: password.value,
@@ -172,7 +172,7 @@ function onSubmit() {
             // Auto-navigate to step with error
             if (errors.email || errors.password || errors.full_name) {
                 currentStep.value = 0;
-            } else if (errors.phone || errors.national_id || errors.date_of_birth) {
+            } else if (errors.phone || errors.national_id || errors.birth_date) {
                 currentStep.value = 1;
             }
         },

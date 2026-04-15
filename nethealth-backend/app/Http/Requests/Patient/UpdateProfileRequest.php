@@ -36,7 +36,7 @@ class UpdateProfileRequest extends FormRequest
                 Rule::unique('users', 'national_id')->ignore($this->user()?->id),
                 new ValidNationalId,
             ],
-            'date_of_birth' => 'nullable|date',
+            'birth_date' => 'nullable|date',
             'gender' => ['required', new Enum(Gender::class)],
             'governorate' => 'nullable|string|max:100',
             'current_password' => 'nullable|string',

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use App\Enums\Gender;
 use App\Rules\ValidNationalId;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
@@ -20,7 +21,7 @@ class RegisterRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
@@ -35,7 +36,7 @@ class RegisterRequest extends FormRequest
             'phone' => ['required', 'regex:/^\+?[0-9]{10,15}$/', 'unique:users,phone'],
             'password' => 'required|string|min:8|confirmed',
             'gender' => ['required', new Enum(Gender::class)],
-            'date_of_birth' => 'nullable|date|before:today',
+            'birth_date' => 'nullable|date|before:today',
             'governorate' => 'nullable|string|max:255',
         ];
     }
