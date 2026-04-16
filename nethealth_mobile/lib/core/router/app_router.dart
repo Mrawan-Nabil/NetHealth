@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../constants/app_constants.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../../shared/models/enums.dart';
 
 // ── Auth Screens ──────────────────────────────────────────────────────────────
 import '../../features/auth/ui/splash_screen.dart';
@@ -27,6 +28,8 @@ import '../../features/appointments/ui/appointments_screen.dart';
 import '../../features/appointments/ui/appointment_detail_screen.dart';
 import '../../features/appointments/ui/find_specialist_screen.dart';
 import '../../features/appointments/ui/doctor_details_screen.dart';
+import '../../features/appointments/ui/doctor_selection_screen.dart';
+import '../../features/appointments/ui/booking_form_screen.dart';
 
 // ── Records ───────────────────────────────────────────────────────────────────
 import '../../features/records/ui/records_screen.dart';
@@ -75,7 +78,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc == RoutePaths.accountSuspended;
 
       if (!isAuthenticated && !isPublicRoute) return RoutePaths.onboarding;
-      if (isAuthenticated && loc == RoutePaths.login)      return RoutePaths.dashboard;
+      
+      if (isAuthenticated) {
+        if (user.accountStatus == AccountStatus.pending) {
+          if (loc != RoutePaths.pendingApproval) return RoutePaths.pendingApproval;
+        } else if (user.accountStatus == AccountStatus.suspended) {
+          if (loc != RoutePaths.accountSuspended) return RoutePaths.accountSuspended;
+        } else {
+          // If active and on a public auth route, redirect to dashboard
+          if (loc == RoutePaths.login || loc == RoutePaths.onboarding || loc == RoutePaths.splash || loc == RoutePaths.pendingApproval || loc == RoutePaths.accountSuspended || loc == RoutePaths.selectRole || loc.startsWith('/register')) {
+            return RoutePaths.dashboard;
+          }
+        }
+      }
 
       return null;
     },

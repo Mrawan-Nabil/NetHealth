@@ -38,6 +38,12 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<Result<AuthUser, AppError>> getMe() async {
+    final user = AuthUser.mock();
+    return Success(user);
+  }
+
+  @override
   Future<AuthUser?> getStoredUser() async {
     final json = await _storage.readUser();
     if (json == null) return null;

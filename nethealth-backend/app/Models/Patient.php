@@ -41,11 +41,11 @@ class Patient extends Model
 
     public function appointments(): HasMany
     {
-        return $this->hasMany(Appointment::class);
+        return $this->hasMany(Appointment::class, 'patient_id');
     }
 
     public function medicalRecords(): HasMany
     {
-        return $this->hasMany(MedicalRecord::class);
+        return $this->hasMany(MedicalRecord::class, 'patient_id');
     }
 }

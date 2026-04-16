@@ -29,15 +29,26 @@ class AuthUser {
     return fullName.isNotEmpty ? fullName[0].toUpperCase() : '?';
   }
 
-  factory AuthUser.fromJson(Map<String, dynamic> json) => AuthUser(
-        id:            json['id'] as int,
-        fullName:      json['full_name'] as String,
-        email:         json['email'] as String,
-        phone:         json['phone'] as String? ?? '',
-        role:          UserRole.fromString(json['role'] as String? ?? 'patient'),
-        accountStatus: AccountStatus.fromString(json['account_status'] as String? ?? 'active'),
-        avatar:        json['avatar'] as String?,
-      );
+  factory AuthUser.fromJson(Map<String, dynamic> json) {
+    int parsedId = 0;
+    if (json['id'] != null) {
+      if (json['id'] is int) {
+        parsedId = json['id'];
+      } else if (json['id'] is String) {
+        parsedId = int.tryParse(json['id']) ?? 0;
+      }
+    }
+
+    return AuthUser(
+      id:            parsedId,
+      fullName:      json['full_name']?.toString() ?? 'Unknown',
+      email:         json['email']?.toString() ?? '',
+      phone:         json['phone']?.toString() ?? '',
+      role:          UserRole.fromString(json['role']?.toString() ?? 'patient'),
+      accountStatus: AccountStatus.fromString(json['account_status']?.toString() ?? 'active'),
+      avatar:        json['avatar']?.toString(),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id':             id,

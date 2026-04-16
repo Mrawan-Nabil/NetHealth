@@ -39,26 +39,37 @@ class FindSpecialistScreen extends StatefulWidget {
 }
 
 class _FindSpecialistScreenState extends State<FindSpecialistScreen> {
-  final _searchCtrl     = TextEditingController();
-  int    _selectedIndex = 0;   // 0 = "All Specialties"
-  String _query         = '';
+  final _searchCtrl = TextEditingController();
+  String _selectedSpecialty = 'All Specialties';
+  String _query = '';
 
-  // Filtered list: runs synchronously every rebuild — no async needed.
-  List<_DoctorMock> get _filtered {
-    final List<_DoctorMock> list = _selectedIndex == 0
-        ? List<_DoctorMock>.from(_mockDoctors)
-        : _mockDoctors
-            .where((d) => d.specialty == _specialties[_selectedIndex].label)
-            .toList();
+  late List<_DoctorMock> _allDoctors;
+  late List<_DoctorMock> _filteredDoctors;
 
-    if (_query.isEmpty) return list;
-    final q = _query.toLowerCase();
-    return list
-        .where((d) =>
-            d.name.toLowerCase().contains(q) ||
-            d.specialty.toLowerCase().contains(q) ||
-            d.clinic.toLowerCase().contains(q))
-        .toList();
+  @override
+  void initState() {
+    super.initState();
+    // Maintain two lists: allDoctors (master mock data) and filteredDoctors.
+    _allDoctors = List<_DoctorMock>.from(_mockDoctors);
+    _filteredDoctors = List<_DoctorMock>.from(_allDoctors);
+  }
+
+  void _filterDoctors() {
+    setState(() {
+      final q = _query.toLowerCase();
+      _filteredDoctors = _allDoctors.where((doctor) {
+        // Combine BOTH the text search and the specialty chip selection
+        final matchesSpecialty = _selectedSpecialty == 'All Specialties' ||
+            doctor.specialty == _selectedSpecialty;
+
+        final matchesSearch = q.isEmpty ||
+            doctor.name.toLowerCase().contains(q) ||
+            doctor.specialty.toLowerCase().contains(q) ||
+            doctor.clinic.toLowerCase().contains(q);
+
+        return matchesSpecialty && matchesSearch;
+      }).toList();
+    });
   }
 
   @override
@@ -70,7 +81,7 @@ class _FindSpecialistScreenState extends State<FindSpecialistScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark   = Theme.of(context).brightness == Brightness.dark;
-    final doctors  = _filtered;   // evaluated once per build
+    final doctors  = _filteredDoctors; // Using the filtered list from state
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
@@ -93,7 +104,10 @@ class _FindSpecialistScreenState extends State<FindSpecialistScreen> {
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
             child: TextField(
               controller: _searchCtrl,
-              onChanged: (v) => setState(() => _query = v),
+              onChanged: (v) {
+                _query = v;
+                _filterDoctors();
+              },
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 14,
@@ -105,10 +119,11 @@ class _FindSpecialistScreenState extends State<FindSpecialistScreen> {
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear_rounded, size: 18),
-                        onPressed: () => setState(() {
+                        onPressed: () {
                           _query = '';
                           _searchCtrl.clear();
-                        }),
+                          _filterDoctors();
+                        },
                       )
                     : Container(
                         margin: const EdgeInsets.all(8),
@@ -131,11 +146,14 @@ class _FindSpecialistScreenState extends State<FindSpecialistScreen> {
               itemCount: _specialties.length,
               itemBuilder: (_, i) {
                 final sp         = _specialties[i];
-                final isSelected = _selectedIndex == i;
+                final isSelected = _selectedSpecialty == sp.label;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: GestureDetector(
-                    onTap: () => setState(() => _selectedIndex = i),
+                    onTap: () {
+                      _selectedSpecialty = sp.label;
+                      _filterDoctors();
+                    },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
@@ -400,22 +418,24 @@ class _DoctorSearchCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () => context.pushNamed(
-                    RouteNames.doctorDetails,
-                    pathParameters: {'id': doctor.id},
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    textStyle: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                const SizedBox(width: 24),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => context.pushNamed(
+                      RouteNames.doctorDetails,
+                      pathParameters: {'id': doctor.id},
                     ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                    child: const Text('Book Appointment'),
                   ),
-                  child: const Text('Book Appointment'),
                 ),
               ],
             ),

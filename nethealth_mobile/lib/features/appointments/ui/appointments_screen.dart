@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/route_names.dart';
+import '../../../shared/models/doctor_booking_model.dart';
+import '../../../shared/models/enums.dart';
+import '../../../shared/widgets/doctor_avatar.dart';
 import '../../../shared/widgets/status_badge.dart';
-import 'booking_modals.dart';
+import '../providers/appointments_provider.dart';
+import 'doctor_selection_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AppointmentsScreen
 // ─────────────────────────────────────────────────────────────────────────────
 
-class AppointmentsScreen extends StatefulWidget {
+class AppointmentsScreen extends ConsumerStatefulWidget {
   const AppointmentsScreen({super.key});
 
   @override
-  State<AppointmentsScreen> createState() => _AppointmentsScreenState();
+  ConsumerState<AppointmentsScreen> createState() => _AppointmentsScreenState();
 }
 
-class _AppointmentsScreenState extends State<AppointmentsScreen>
+class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tab;
 
@@ -32,26 +38,10 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
     super.dispose();
   }
 
-  // ── Mock data ───────────────────────────────────────────────────────────────
-  static const _scheduled = [
-    _Appointment(id: '1', doctor: 'Dr. Ayman Fathy',   specialty: 'Cardiologist',      clinic: 'City Heart Institute',   date: 'Feb 27, 2025', time: '11:00 AM', avatar: 'https://i.pravatar.cc/150?img=8',  status: 'scheduled', type: 'physical'),
-    _Appointment(id: '2', doctor: 'Dr. Nadia Karim',   specialty: 'Dermatologist',     clinic: 'Nile Skin Clinic',       date: 'Mar 05, 2025', time: '02:30 PM', avatar: 'https://i.pravatar.cc/150?img=25', status: 'scheduled', type: 'remote'),
-  ];
-
-  static const _completed = [
-    _Appointment(id: '3', doctor: 'Dr. Sara Ahmed',    specialty: 'General Practitioner', clinic: 'City General Hospital', date: 'Oct 15, 2025', time: '09:00 AM', avatar: 'https://i.pravatar.cc/150?img=5',  status: 'completed', type: 'physical'),
-    _Appointment(id: '4', doctor: 'Dr. Ayman Fathy',  specialty: 'Cardiologist',          clinic: 'City Heart Institute',  date: 'Sep 02, 2025', time: '11:00 AM', avatar: 'https://i.pravatar.cc/150?img=8',  status: 'completed', type: 'physical'),
-    _Appointment(id: '5', doctor: 'Dr. Ali Hassan',   specialty: 'Neurologist',           clinic: 'NeuroMed Institute',    date: 'Jun 28, 2025', time: '03:00 PM', avatar: 'https://i.pravatar.cc/150?img=12', status: 'completed', type: 'remote'),
-  ];
-
-  static const _cancelled = [
-    _Appointment(id: '6', doctor: 'Dr. Ali Hassan',   specialty: 'Neurologist',      clinic: 'NeuroMed Institute',   date: 'Jan 10, 2025', time: '10:00 AM', avatar: 'https://i.pravatar.cc/150?img=12', status: 'cancelled', type: 'physical', cancelledBy: 'Doctor',  cancelReason: 'Doctor Unavailable'),
-    _Appointment(id: '7', doctor: 'Dr. Sara Ahmed',   specialty: 'General Practitioner', clinic: 'City General Hospital', date: 'Nov 20, 2024', time: '09:30 AM', avatar: 'https://i.pravatar.cc/150?img=5',  status: 'cancelled', type: 'physical', cancelledBy: 'Patient', cancelReason: 'No Longer Needed'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final asyncAppts = ref.watch(appointmentsProvider);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
@@ -61,18 +51,64 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
         bottom: _NhTabBar(controller: _tab, isDark: isDark),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.pushNamed(RouteNames.findSpecialist),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const DoctorSelectionScreen()),
+        ),
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
         label: const Text('New Appointment', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, color: Colors.white)),
       ),
-      body: TabBarView(
-        controller: _tab,
-        children: [
-          _AppointmentList(appointments: _completed, isDark: isDark),
-          _AppointmentList(appointments: _scheduled, isDark: isDark),
-          _AppointmentList(appointments: _cancelled, isDark: isDark),
-        ],
+      body: asyncAppts.when(
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        error: (err, stack) => Center(
+          child: Text('Error loading appointments:\n$err',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+          ),
+        ),
+        data: (appts) {
+          final mappedAppts = appts.map((a) {
+            DateTime? dt;
+            try { dt = DateTime.parse(a.appointmentTime); } catch (_) {}
+
+            // Build a lightweight DoctorModel for the avatar widget
+            final doctorModel = DoctorModel(
+              id:                a.doctor?.id ?? 0,
+              fullName:          a.doctor?.fullName ?? 'Unknown Doctor',
+              specialty:         a.doctor?.specialty ?? 'Specialist',
+              professionalTitle: a.doctor?.professionalTitle ?? ProfessionalTitle.specialist,
+              avatarUrl:         a.doctor?.avatarUrl,
+            );
+
+            return _Appointment(
+              id: a.id.toString(),
+              doctor: a.doctor?.fullName ?? 'Unknown Doctor',
+              specialty: a.doctor?.specialty ?? 'Specialist',
+              clinic: a.clinic?.clinicName ?? 'Main Clinic',
+              date: dt != null ? DateFormat('MMM dd, yyyy').format(dt) : 'TBD',
+              time: dt != null ? DateFormat('hh:mm a').format(dt) : 'TBD',
+              doctorModel: doctorModel,
+              status: a.status.value.toString(),
+              type: a.appointmentType.value.toString(),
+              cancelledBy: a.cancelledBy,
+              cancelReason: a.cancellationReason,
+            );
+          }).toList();
+
+          final scheduled = mappedAppts.where((a) => a.status == 'scheduled').toList();
+          final completed = mappedAppts.where((a) => a.status == 'completed').toList();
+          final cancelled = mappedAppts.where((a) => a.status == 'cancelled').toList();
+
+          return TabBarView(
+            controller: _tab,
+            children: [
+              _AppointmentList(appointments: completed, isDark: isDark),
+              _AppointmentList(appointments: scheduled, isDark: isDark),
+              _AppointmentList(appointments: cancelled, isDark: isDark),
+            ],
+          );
+        },
       ),
     );
   }
@@ -140,13 +176,13 @@ class _AppointmentList extends StatelessWidget {
 // Appointment Card
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _AppointmentCard extends StatelessWidget {
+class _AppointmentCard extends ConsumerWidget {
   final _Appointment appt;
   final bool isDark;
   const _AppointmentCard({required this.appt, required this.isDark});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -174,11 +210,7 @@ class _AppointmentCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 26,
-                  backgroundImage: NetworkImage(appt.avatar),
-                  backgroundColor: AppColors.primaryFaint,
-                ),
+                DoctorAvatar(doctor: appt.doctorModel, radius: 26),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -261,13 +293,13 @@ class _AppointmentCard extends StatelessWidget {
 
 // ── Scheduled content ─────────────────────────────────────────────────────────
 
-class _ScheduledContent extends StatelessWidget {
+class _ScheduledContent extends ConsumerWidget {
   final _Appointment appt;
   final bool isDark;
   const _ScheduledContent({required this.appt, required this.isDark});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -314,7 +346,7 @@ class _ScheduledContent extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => _showCancelDialog(context),
+                onPressed: () => _showCancelDialog(context, ref),
                 icon: const Icon(Icons.cancel_outlined, size: 16, color: AppColors.error),
                 label: const Text('Cancel', style: TextStyle(color: AppColors.error)),
                 style: OutlinedButton.styleFrom(
@@ -331,7 +363,7 @@ class _ScheduledContent extends StatelessWidget {
     );
   }
 
-  void _showCancelDialog(BuildContext context) {
+  void _showCancelDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -341,7 +373,23 @@ class _ScheduledContent extends StatelessWidget {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Keep Appointment')),
           ElevatedButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                final repo = ref.read(appointmentsRepositoryProvider);
+                await repo.cancelAppointment(appt.id);
+                ref.invalidate(appointmentsProvider);
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Could not cancel: $e'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              }
+            },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error, foregroundColor: Colors.white),
             child: const Text('Yes, Cancel'),
           ),
@@ -591,7 +639,7 @@ class _Appointment {
   final String clinic;
   final String date;
   final String time;
-  final String avatar;
+  final DoctorModel doctorModel;
   final String status;
   final String type;
   final String? cancelledBy;
@@ -604,7 +652,7 @@ class _Appointment {
     required this.clinic,
     required this.date,
     required this.time,
-    required this.avatar,
+    required this.doctorModel,
     required this.status,
     required this.type,
     this.cancelledBy,

@@ -5,7 +5,7 @@ import '../utils/secure_storage_service.dart';
 class ApiClient {
   ApiClient._();
 
-  static Dio create() {
+  static Dio create(void Function() onUnauthenticated) {
     final dio = Dio(
       BaseOptions(
         baseUrl:        AppConstants.baseUrl,
@@ -20,7 +20,7 @@ class ApiClient {
 
     dio.interceptors.addAll([
       _AuthInterceptor(),
-      _ErrorInterceptor(),
+      _ErrorInterceptor(onUnauthenticated),
       if (AppConstants.useMock) _LogInterceptor(),
     ]);
 
@@ -47,11 +47,16 @@ class _AuthInterceptor extends Interceptor {
 
 /// Maps HTTP errors to structured AppError types
 class _ErrorInterceptor extends Interceptor {
+  final void Function() onUnauthenticated;
+
+  _ErrorInterceptor(this.onUnauthenticated);
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     // Auto-clear token on 401
     if (err.response?.statusCode == 401) {
       SecureStorageService.instance.clearAll();
+      onUnauthenticated();
     }
     handler.next(err);
   }
