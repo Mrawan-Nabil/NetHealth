@@ -17,5 +17,6 @@ class LoginCredentials {
 abstract interface class AuthRepository {
   Future<Result<AuthUser, AppError>> login(LoginCredentials credentials);
   Future<Result<void, AppError>> logout();
+  Future<Result<AuthUser, AppError>> getMe();
   Future<AuthUser?> getStoredUser();
 }

@@ -25,6 +25,8 @@ class RouteNames {
   static const appointmentDetail = 'appointment-detail';
   static const findSpecialist    = 'find-specialist';
   static const doctorDetails     = 'doctor-details';
+  static const doctorSelection   = 'doctor-selection';
+  static const bookingForm       = 'booking-form';
 
   // ── Records ───────────────────────────────────────────────────────────────
   static const records           = 'records';
@@ -79,7 +81,8 @@ class RoutePaths {
   static const appointmentDetail = '/home/appointments/detail/:id';
   static const findSpecialist    = '/home/appointments/find-specialist';
   static const doctorDetails     = '/home/appointments/doctor-details/:id';
-
+  static const doctorSelection   = '/home/appointments/doctor-selection';
+  static const bookingForm       = '/home/appointments/booking-form';
   // ── Records ───────────────────────────────────────────────────────────────
   static const records           = '/home/records';
   static const medicalRecordDetail = '/home/records/detail/:id';

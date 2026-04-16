@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Auth\DoctorRegistrationController;
 use App\Http\Controllers\Api\Auth\PatientRegistrationController;
 use App\Http\Controllers\Api\Auth\PharmacyRegistrationController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Patient\DashboardApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,13 +42,23 @@ Route::prefix('v1')->group(function () {
         });
 
         // ---------------------------------------------
+        // DOCTORS — available to any authenticated user (for booking flow)
+        // ---------------------------------------------
+        Route::get('/doctors', [\App\Http\Controllers\Api\DoctorApiController::class, 'index']);
+
+        // ---------------------------------------------
         // PATIENT ROUTES
         // ---------------------------------------------
         // We add a role middleware check to ensure only patients can access these!
         Route::middleware(['role:patient', 'active'])->prefix('patient')->group(function () {
 
-            // We will add the Dashboard, Appointments, and Medical Records routes here next!
+            // Dashboard
             Route::get('/dashboard', [DashboardApiController::class, 'index']);
+
+            // Appointments — index, store, destroy
+            Route::get('/appointments',         [\App\Http\Controllers\Api\Patient\PatientAppointmentApiController::class, 'index']);
+            Route::post('/appointments',        [\App\Http\Controllers\Api\Patient\PatientAppointmentApiController::class, 'store']);
+            Route::delete('/appointments/{id}', [\App\Http\Controllers\Api\Patient\PatientAppointmentApiController::class, 'destroy']);
 
         });
 

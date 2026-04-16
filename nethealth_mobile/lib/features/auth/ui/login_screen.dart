@@ -48,12 +48,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = authState.isLoading;
     final isDark    = Theme.of(context).brightness == Brightness.dark;
 
-    // Extract error message
-    String? errorMsg;
-    if (authState.hasError) {
-      final err = authState.error;
-      errorMsg = err is AppError ? err.message : 'Login failed. Please try again.';
-    }
+    // Listen for auth errors to show as a SnackBar
+    ref.listen<AsyncValue>(authProvider, (previous, next) {
+      if (next.hasError && !next.isLoading) {
+        final err = next.error;
+        final msg = err is AppError ? err.message : 'Login failed. Please try again.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
@@ -116,36 +124,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
 
                 const SizedBox(height: 36),
-
-                // ── Error banner ──────────────────────────────────────────
-                if (errorMsg != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.errorFaint,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.error.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error_outline_rounded,
-                            color: AppColors.error, size: 18),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            errorMsg,
-                            style: const TextStyle(
-                              color: AppColors.error,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
 
                 // ── Email ─────────────────────────────────────────────────
                 NhTextField(

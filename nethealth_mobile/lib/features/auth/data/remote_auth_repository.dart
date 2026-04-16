@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../shared/models/auth_user.dart';
 import '../../../core/utils/result.dart';
@@ -24,8 +25,22 @@ class RemoteAuthRepository implements AuthRepository {
         },
       );
 
-      final token = response.data['token'] as String;
-      final user  = AuthUser.fromJson(response.data['user'] as Map<String, dynamic>);
+      print('LOGIN RESPONSE: ${response.data}');
+      
+      final Map<String, dynamic> dataMap;
+      if (response.data is Map) {
+         dataMap = response.data as Map<String, dynamic>;
+      } else if (response.data is String) {
+         dataMap = jsonDecode(response.data) as Map<String, dynamic>;
+      } else {
+         throw Exception('Unexpected response type: ${response.data.runtimeType}');
+      }
+
+      // Check if the response is wrapped in a "data" object (Standard Response Envelope)
+      final payload = dataMap.containsKey('data') ? dataMap['data'] as Map<String, dynamic> : dataMap;
+
+      final token = payload['token'] as String;
+      final user  = AuthUser.fromJson(payload['user'] as Map<String, dynamic>);
 
       await _storage.writeToken(token);
       await _storage.writeUser(user.toJsonString());
@@ -48,6 +63,21 @@ class RemoteAuthRepository implements AuthRepository {
       // Clear local storage even if API call fails
       await _storage.clearAll();
       return Failure(_mapDioError(e));
+    }
+  }
+
+  @override
+  Future<Result<AuthUser, AppError>> getMe() async {
+    try {
+      final response = await _dio.get(ApiEndpoints.me);
+      // The API blueprint defines a Standard Response Envelope wraps all calls.
+      final user = AuthUser.fromJson(response.data['data'] as Map<String, dynamic>);
+      await _storage.writeUser(user.toJsonString()); // Update stored cache
+      return Success(user);
+    } on DioException catch (e) {
+      return Failure(_mapDioError(e));
+    } catch (e) {
+      return Failure(UnknownError(e.toString()));
     }
   }
 

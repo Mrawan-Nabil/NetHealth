@@ -5,6 +5,29 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/route_names.dart';
 import '../../../shared/widgets/status_badge.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/dashboard_provider.dart';
+import '../../../shared/models/dashboard_model.dart';
+
+String _formatDateTime(String isoDate) {
+  try {
+    final date = DateTime.parse(isoDate).toLocal();
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final month = months[date.month - 1];
+    final day = date.day.toString().padLeft(2, '0');
+    final year = date.year;
+    
+    int hour = date.hour;
+    final amPm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    if (hour == 0) hour = 12;
+    
+    final minute = date.minute.toString().padLeft(2, '0');
+    
+    return '$month $day, $year - $hour:$minute $amPm';
+  } catch (e) {
+    return isoDate;
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DashboardScreen
@@ -18,60 +41,70 @@ class DashboardScreen extends ConsumerWidget {
     final user   = ref.watch(authProvider).valueOrNull;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final firstName = (user?.fullName ?? 'Ahmed').split(' ').first;
+    
+    final dashboardAsync = ref.watch(dashboardProvider);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            // ── App Bar ───────────────────────────────────────────────────────
-            SliverToBoxAdapter(child: _TopBar(firstName: firstName, isDark: isDark, user: user)),
+        child: dashboardAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          error: (error, stack) => Center(
+            child: Text('Failed to load dashboard: $error', style: const TextStyle(color: AppColors.error)),
+          ),
+          data: (dashboardData) {
+            return CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                // ── App Bar ───────────────────────────────────────────────────────
+                SliverToBoxAdapter(child: _TopBar(firstName: firstName, isDark: isDark, user: user)),
 
-            // ── Hero Banner ───────────────────────────────────────────────────
-            SliverToBoxAdapter(child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-              child: _HeroBanner(isDark: isDark),
-            )),
+                // ── Hero Banner ───────────────────────────────────────────────────
+                SliverToBoxAdapter(child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                  child: _HeroBanner(isDark: isDark),
+                )),
 
-            // ── Stats Row ─────────────────────────────────────────────────────
-            SliverToBoxAdapter(child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-              child: _StatsRow(isDark: isDark),
-            )),
+                // ── Stats Row ─────────────────────────────────────────────────────
+                SliverToBoxAdapter(child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                  child: _StatsRow(isDark: isDark, stats: dashboardData!.stats),
+                )),
 
-            // ── Responsive body ───────────────────────────────────────────────
-            SliverToBoxAdapter(child: LayoutBuilder(
-              builder: (context, constraints) {
-                // Wide layout ≥ 720 dp — 2-column side by side
-                if (constraints.maxWidth >= 720) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _LeftColumn(isDark: isDark)),
-                        const SizedBox(width: 16),
-                        Expanded(child: _RightColumn(isDark: isDark)),
-                      ],
-                    ),
-                  );
-                }
-                // Mobile layout — single column
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      _LeftColumn(isDark: isDark),
-                      const SizedBox(height: 20),
-                      _RightColumn(isDark: isDark),
-                      const SizedBox(height: 32),
-                    ],
-                  ),
-                );
-              },
-            )),
-          ],
+                // ── Responsive body ───────────────────────────────────────────────
+                SliverToBoxAdapter(child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Wide layout ≥ 720 dp — 2-column side by side
+                    if (constraints.maxWidth >= 720) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _LeftColumn(isDark: isDark, data: dashboardData!)),
+                            const SizedBox(width: 16),
+                            Expanded(child: _RightColumn(isDark: isDark, data: dashboardData!)),
+                          ],
+                        ),
+                      );
+                    }
+                    // Mobile layout — single column
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: [
+                          _LeftColumn(isDark: isDark, data: dashboardData!),
+                          const SizedBox(height: 20),
+                          _RightColumn(isDark: isDark, data: dashboardData!),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                    );
+                  },
+                )),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -319,7 +352,8 @@ class _HeroBanner extends StatelessWidget {
 
 class _StatsRow extends StatelessWidget {
   final bool isDark;
-  const _StatsRow({required this.isDark});
+  final DashboardStats stats;
+  const _StatsRow({required this.isDark, required this.stats});
 
   @override
   Widget build(BuildContext context) {
@@ -328,7 +362,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             isDark: isDark,
-            count: '3',
+            count: stats.upcomingAppointments.toString(),
             label: 'Upcoming\nAppointments',
             icon: Icons.calendar_today_rounded,
             iconColor: AppColors.primary,
@@ -339,7 +373,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             isDark: isDark,
-            count: '1',
+            count: stats.activePrescriptions.toString(),
             label: 'Active\nPrescriptions',
             icon: Icons.medication_rounded,
             iconColor: AppColors.warning,
@@ -350,7 +384,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             isDark: isDark,
-            count: '2',
+            count: stats.pendingTests.toString(),
             label: 'Pending\nTest Results',
             icon: Icons.science_rounded,
             iconColor: AppColors.info,
@@ -438,15 +472,16 @@ class _StatCard extends StatelessWidget {
 
 class _LeftColumn extends StatelessWidget {
   final bool isDark;
-  const _LeftColumn({required this.isDark});
+  final DashboardModel data;
+  const _LeftColumn({required this.isDark, required this.data});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _NextAppointmentCard(isDark: isDark),
+        _NextAppointmentCard(isDark: isDark, appointment: data.nextAppointment),
         const SizedBox(height: 20),
-        _RecentRecordsSection(isDark: isDark),
+        _RecentRecordsSection(isDark: isDark, records: data.recentRecords),
       ],
     );
   }
@@ -454,7 +489,8 @@ class _LeftColumn extends StatelessWidget {
 
 class _NextAppointmentCard extends StatelessWidget {
   final bool isDark;
-  const _NextAppointmentCard({required this.isDark});
+  final dynamic appointment;
+  const _NextAppointmentCard({required this.isDark, this.appointment});
 
   @override
   Widget build(BuildContext context) {
@@ -468,127 +504,169 @@ class _NextAppointmentCard extends StatelessWidget {
           onAction: () => context.goNamed(RouteNames.appointments),
         ),
         const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.25),
+        if (appointment == null)
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.25),
+              ),
+              boxShadow: [
+                if (!isDark)
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+              ],
             ),
-            boxShadow: [
-              if (!isDark)
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                Icon(Icons.event_available_rounded, size: 48, color: AppColors.primary.withValues(alpha: 0.5)),
+                const SizedBox(height: 12),
+                Text(
+                  'No upcoming appointments',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  ),
                 ),
-            ],
-          ),
-          child: Column(
-            children: [
-              // Doctor row
-              Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 26,
-                    backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=5'),
-                    backgroundColor: AppColors.primaryFaint,
+                const SizedBox(height: 6),
+                Text(
+                  'You\'re all caught up with your schedule!',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 13,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Dr. Sarah Johnson',
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          )
+        else
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.25),
+              ),
+              boxShadow: [
+                if (!isDark)
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // Doctor row
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 26,
+                      backgroundImage: appointment.doctor?.avatarUrl != null 
+                          ? NetworkImage(appointment.doctor!.avatarUrl!)
+                          : const NetworkImage('https://i.pravatar.cc/150?img=5'),
+                      backgroundColor: AppColors.primaryFaint,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            appointment.doctor?.fullName ?? 'Unknown Doctor',
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Cardiologist',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                          const SizedBox(height: 2),
+                          Text(
+                            appointment.doctor?.specialty ?? 'General',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 13,
+                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            ),
                           ),
+                        ],
+                      ),
+                    ),
+                    StatusBadge(status: appointment.status.value.toString()),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                const SizedBox(height: 14),
+
+                // Details row
+                Row(
+                  children: [
+                    _AppointInfoChip(
+                      icon: Icons.calendar_today_rounded,
+                      label: _formatDateTime(appointment.appointmentTime),
+                      isDark: isDark,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                _AppointInfoChip(
+                  icon: Icons.location_on_outlined,
+                  label: appointment.clinic?.clinicName ?? 'Main Clinic',
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 16),
+
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => context.pushNamed(
+                          RouteNames.doctorDetails,
+                          pathParameters: {'id': appointment.id.toString()},
                         ),
-                      ],
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
+                        ),
+                        child: const Text('Reschedule'),
+                      ),
                     ),
-                  ),
-                  const StatusBadge(status: 'scheduled'),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
-              const SizedBox(height: 14),
-
-              // Details row
-              Row(
-                children: [
-                  _AppointInfoChip(
-                    icon: Icons.calendar_today_rounded,
-                    label: 'Feb 27, 2025',
-                    isDark: isDark,
-                  ),
-                  const SizedBox(width: 12),
-                  _AppointInfoChip(
-                    icon: Icons.access_time_rounded,
-                    label: '11:00 AM',
-                    isDark: isDark,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              _AppointInfoChip(
-                icon: Icons.location_on_outlined,
-                label: 'City Heart Institute, Floor 3',
-                isDark: isDark,
-              ),
-              const SizedBox(height: 16),
-
-              // Action buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => context.pushNamed(
-                        RouteNames.doctorDetails,
-                        pathParameters: {'id': '1'},
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => context.pushNamed(
+                          RouteNames.appointmentDetail,
+                          pathParameters: {'id': appointment.id.toString()},
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
+                        ),
+                        child: const Text('View Details'),
                       ),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
-                      ),
-                      child: const Text('Reschedule'),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => context.pushNamed(
-                        RouteNames.appointmentDetail,
-                        pathParameters: {'id': '1'},
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
-                      ),
-                      child: const Text('View Details'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }
@@ -622,37 +700,8 @@ class _AppointInfoChip extends StatelessWidget {
 
 class _RecentRecordsSection extends StatelessWidget {
   final bool isDark;
-  const _RecentRecordsSection({required this.isDark});
-
-  static const _items = [
-    _RecordItem(
-      icon: Icons.medication_rounded,
-      iconColor: AppColors.warning,
-      iconBg: AppColors.warningFaint,
-      title: 'Latest Prescription',
-      doctor: 'Dr. Sara Ahmed',
-      date: 'Oct 15, 2025',
-      status: 'active',
-    ),
-    _RecordItem(
-      icon: Icons.science_rounded,
-      iconColor: AppColors.info,
-      iconBg: AppColors.infoFaint,
-      title: 'Blood Test Results',
-      doctor: 'Nile Lab Diagnostics',
-      date: 'Oct 10, 2025',
-      status: 'reviewed',
-    ),
-    _RecordItem(
-      icon: Icons.local_hospital_rounded,
-      iconColor: AppColors.primary,
-      iconBg: AppColors.primaryFaint,
-      title: 'General Checkup Visit',
-      doctor: 'Dr. Sara Ahmed',
-      date: 'Sep 28, 2025',
-      status: 'completed',
-    ),
-  ];
+  final List<dynamic> records;
+  const _RecentRecordsSection({required this.isDark, required this.records});
 
   @override
   Widget build(BuildContext context) {
@@ -666,40 +715,89 @@ class _RecentRecordsSection extends StatelessWidget {
           onAction: () => context.goNamed(RouteNames.records),
         ),
         const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+        if (records.isEmpty) 
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+              ),
             ),
-            boxShadow: [
-              if (!isDark)
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                Icon(Icons.folder_open_rounded, size: 48, color: AppColors.info.withValues(alpha: 0.5)),
+                const SizedBox(height: 12),
+                Text(
+                  'No recent records',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  ),
                 ),
-            ],
-          ),
-          child: Column(
-            children: _items.asMap().entries.map((entry) {
-              final i = entry.key;
-              final item = entry.value;
-              return Column(
-                children: [
-                  _RecordTile(item: item, isDark: isDark),
-                  if (i < _items.length - 1)
-                    Divider(
-                      height: 1,
-                      indent: 64,
-                      color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.5),
+                const SizedBox(height: 6),
+                Text(
+                  'Your recent health records will appear here.',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 13,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          )
+        else
+          Container(
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+              ),
+              boxShadow: [
+                if (!isDark)
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+              ],
+            ),
+            child: Column(
+              children: records.asMap().entries.map((entry) {
+                final i = entry.key;
+                final item = entry.value;
+                return Column(
+                  children: [
+                    _RecordTile(
+                      item: _RecordItem(
+                        icon: Icons.local_hospital_rounded,
+                        iconColor: AppColors.primary,
+                        iconBg: AppColors.primaryFaint,
+                        title: 'Medical Record #${item.appointmentId}',
+                        doctor: item.doctorFullName,
+                        date: _formatDateTime(item.appointmentTime),
+                        status: item.status,
+                      ),
+                      isDark: isDark
                     ),
-                ],
-              );
-            }).toList(),
+                    if (i < records.length - 1)
+                      Divider(
+                        height: 1,
+                        indent: 64,
+                        color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.5),
+                      ),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -762,13 +860,14 @@ class _RecordTile extends StatelessWidget {
 
 class _RightColumn extends StatelessWidget {
   final bool isDark;
-  const _RightColumn({required this.isDark});
+  final DashboardModel data;
+  const _RightColumn({required this.isDark, required this.data});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _HealthOverviewCard(isDark: isDark),
+        _HealthOverviewCard(isDark: isDark, healthOverview: data.healthOverview),
         const SizedBox(height: 20),
         _RecentActivitySection(isDark: isDark),
       ],
@@ -778,7 +877,8 @@ class _RightColumn extends StatelessWidget {
 
 class _HealthOverviewCard extends StatelessWidget {
   final bool isDark;
-  const _HealthOverviewCard({required this.isDark});
+  final HealthOverview healthOverview;
+  const _HealthOverviewCard({required this.isDark, required this.healthOverview});
 
   @override
   Widget build(BuildContext context) {
@@ -816,7 +916,7 @@ class _HealthOverviewCard extends StatelessWidget {
                   Expanded(
                     child: _HealthPill(
                       label: 'Blood Type',
-                      value: 'O+',
+                      value: healthOverview.bloodType?.label ?? 'Unknown',
                       icon: Icons.water_drop_rounded,
                       color: AppColors.error,
                       bg: AppColors.errorFaint,
@@ -827,7 +927,7 @@ class _HealthOverviewCard extends StatelessWidget {
                   Expanded(
                     child: _HealthPill(
                       label: 'Allergies',
-                      value: '2 Known',
+                      value: '${healthOverview.allergies.length} Known',
                       icon: Icons.warning_amber_rounded,
                       color: AppColors.warning,
                       bg: AppColors.warningFaint,
@@ -839,7 +939,7 @@ class _HealthOverviewCard extends StatelessWidget {
               const SizedBox(height: 10),
               _HealthPill(
                 label: 'Chronic Conditions',
-                value: 'Hypertension, Type 2 Diabetes',
+                value: healthOverview.chronicConditions ?? 'None',
                 icon: Icons.favorite_border_rounded,
                 color: AppColors.info,
                 bg: AppColors.infoFaint,
@@ -862,48 +962,86 @@ class _HealthOverviewCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 20,
-                    backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=5'),
-                    backgroundColor: AppColors.primaryFaint,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Dr. Sara Ahmed',
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-                          ),
-                        ),
-                        Text(
-                          'General Practitioner',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                          ),
-                        ),
-                      ],
+              if (healthOverview.primaryDoctor == null)
+                Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 20,
+                      backgroundColor: AppColors.primaryFaint,
+                      child: Icon(Icons.person_add_alt_1_rounded, color: AppColors.primary, size: 20),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primaryFaint,
-                      shape: BoxShape.circle,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'No Primary Doctor',
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                            ),
+                          ),
+                          const Text(
+                            'Tap to assign one',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 12,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: const Icon(Icons.phone_rounded, color: AppColors.primary, size: 16),
-                  ),
-                ],
-              ),
+                  ],
+                )
+              else
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: healthOverview.primaryDoctor?.avatarUrl != null 
+                          ? NetworkImage(healthOverview.primaryDoctor!.avatarUrl!)
+                          : const NetworkImage('https://i.pravatar.cc/150?img=5'),
+                      backgroundColor: AppColors.primaryFaint,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            healthOverview.primaryDoctor!.fullName,
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                            ),
+                          ),
+                          Text(
+                            healthOverview.primaryDoctor!.specialty,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 12,
+                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryFaint,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.phone_rounded, color: AppColors.primary, size: 16),
+                    ),
+                  ],
+                ),
             ],
           ),
         ),

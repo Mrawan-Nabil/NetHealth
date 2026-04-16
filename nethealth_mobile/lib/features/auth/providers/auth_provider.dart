@@ -1,20 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
 import '../../../shared/models/auth_user.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/network/api_client.dart';
 import '../../../core/utils/app_error.dart';
 import '../../../core/utils/result.dart';
 import '../data/auth_repository.dart';
-import '../data/mock_auth_repository.dart';
 import '../data/remote_auth_repository.dart';
-
-// ── Dio provider ──────────────────────────────────────────────────────────────
-final dioProvider = Provider<Dio>((ref) => ApiClient.create());
+import '../../../core/network/dio_provider.dart';
 
 // ── Repository provider ───────────────────────────────────────────────────────
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  if (AppConstants.useMock) return MockAuthRepository();
   return RemoteAuthRepository(ref.watch(dioProvider));
 });
 
@@ -39,6 +32,21 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
     state = const AsyncData(null);
+  }
+
+  void forceLogout() {
+    state = const AsyncData(null);
+  }
+
+  Future<void> checkAuthStatus() async {
+    final result = await ref.read(authRepositoryProvider).getMe();
+    if (result is Success<AuthUser, AppError>) {
+      state = AsyncData(result.data);
+    } else {
+      if (result is Failure<AuthUser, AppError> && result.error is UnauthorizedError) {
+        state = const AsyncData(null);
+      }
+    }
   }
 
   AppError? get lastError => state.hasError ? state.error as AppError? : null;

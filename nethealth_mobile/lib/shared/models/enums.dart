@@ -1,11 +1,14 @@
 // Mirrors Laravel PHP enums exactly
 
 enum UserRole {
-  patient,
-  doctor,
-  clinicAdmin,
-  pharmacyAdmin,
-  admin;
+  patient('patient'),
+  doctor('doctor'),
+  clinicAdmin('clinic_admin'),
+  pharmacyAdmin('pharmacy_admin'),
+  admin('admin');
+
+  final String value;
+  const UserRole(this.value);
 
   String get label => switch (this) {
         UserRole.patient      => 'Patient',
@@ -15,104 +18,92 @@ enum UserRole {
         UserRole.admin        => 'Admin',
       };
 
-  static UserRole fromString(String value) => switch (value.toLowerCase()) {
-        'patient'       => UserRole.patient,
-        'doctor'        => UserRole.doctor,
-        'clinic_admin'  => UserRole.clinicAdmin,
-        'pharmacy_admin'=> UserRole.pharmacyAdmin,
-        'admin'         => UserRole.admin,
-        _               => UserRole.patient,
-      };
+  static UserRole fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => UserRole.patient,
+      );
 }
 
 enum AccountStatus {
-  active,
-  suspended,
-  pending;
+  active('active'),
+  suspended('suspended'),
+  pending('pending');
 
-  static AccountStatus fromString(String value) => switch (value.toLowerCase()) {
-        'active'    => AccountStatus.active,
-        'suspended' => AccountStatus.suspended,
-        'pending'   => AccountStatus.pending,
-        _           => AccountStatus.pending,
-      };
+  final String value;
+  const AccountStatus(this.value);
+
+  static AccountStatus fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => AccountStatus.pending,
+      );
 }
 
 enum Gender {
-  male,
-  female,
-  other;
+  male('male'),
+  female('female');
+
+  final String value;
+  const Gender(this.value);
 
   String get label => switch (this) {
         Gender.male   => 'Male',
         Gender.female => 'Female',
-        Gender.other  => 'Other',
       };
 
-  static Gender fromString(String value) => switch (value.toLowerCase()) {
-        'male'   => Gender.male,
-        'female' => Gender.female,
-        _        => Gender.other,
-      };
+  static Gender fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => Gender.male, // Default fallback per requirement avoiding other
+      );
 }
 
 enum BloodType {
-  aPositive,
-  aNegative,
-  bPositive,
-  bNegative,
-  abPositive,
-  abNegative,
-  oPositive,
-  oNegative;
+  aPositive('A+'),
+  aNegative('A-'),
+  bPositive('B+'),
+  bNegative('B-'),
+  abPositive('AB+'),
+  abNegative('AB-'),
+  oPositive('O+'),
+  oNegative('O-');
 
-  String get label => switch (this) {
-        BloodType.aPositive  => 'A+',
-        BloodType.aNegative  => 'A-',
-        BloodType.bPositive  => 'B+',
-        BloodType.bNegative  => 'B-',
-        BloodType.abPositive => 'AB+',
-        BloodType.abNegative => 'AB-',
-        BloodType.oPositive  => 'O+',
-        BloodType.oNegative  => 'O-',
-      };
+  final String value;
+  const BloodType(this.value);
 
-  static BloodType? fromString(String? value) {
-    if (value == null) return null;
-    return switch (value.toLowerCase().replaceAll(' ', '')) {
-      'a+'  => BloodType.aPositive,
-      'a-'  => BloodType.aNegative,
-      'b+'  => BloodType.bPositive,
-      'b-'  => BloodType.bNegative,
-      'ab+' => BloodType.abPositive,
-      'ab-' => BloodType.abNegative,
-      'o+'  => BloodType.oPositive,
-      'o-'  => BloodType.oNegative,
-      _     => null,
-    };
+  String get label => value;
+
+  static BloodType? fromString(String? val) {
+    if (val == null) return null;
+    try {
+      return values.firstWhere((e) => e.value.toLowerCase() == val.toLowerCase().replaceAll(' ', ''));
+    } catch (_) {
+      return null;
+    }
   }
 }
 
 enum AttachmentType {
-  imaging,
-  labResult,
-  clinicalDocument,
-  prescription;
+  imaging('imaging'),
+  labResult('lab_result'),
+  clinicalDocument('clinical_document'),
+  prescription('prescription');
 
-  static AttachmentType fromString(String value) => switch (value.toLowerCase()) {
-        'imaging'           => AttachmentType.imaging,
-        'lab_result'        => AttachmentType.labResult,
-        'clinical_document' => AttachmentType.clinicalDocument,
-        'prescription'      => AttachmentType.prescription,
-        _                   => AttachmentType.clinicalDocument,
-      };
+  final String value;
+  const AttachmentType(this.value);
+
+  static AttachmentType fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => AttachmentType.clinicalDocument,
+      );
 }
 
 enum PrescriptionStatus {
-  pending,
-  issued,
-  dispensed,
-  cancelled;
+  pending('pending'),
+  issued('issued'),
+  dispensed('dispensed'),
+  cancelled('cancelled');
+
+  final String value;
+  const PrescriptionStatus(this.value);
 
   String get label => switch (this) {
         PrescriptionStatus.pending   => 'Pending',
@@ -121,34 +112,37 @@ enum PrescriptionStatus {
         PrescriptionStatus.cancelled => 'Cancelled',
       };
 
-  static PrescriptionStatus fromString(String value) => switch (value.toLowerCase()) {
-        'pending'   => PrescriptionStatus.pending,
-        'issued'    => PrescriptionStatus.issued,
-        'dispensed' => PrescriptionStatus.dispensed,
-        'cancelled' => PrescriptionStatus.cancelled,
-        _           => PrescriptionStatus.pending,
-      };
+  static PrescriptionStatus fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => PrescriptionStatus.pending,
+      );
 }
 
 enum TestResultStatus {
-  pending,
-  reviewed;
+  pending('pending'),
+  reviewed('reviewed');
+
+  final String value;
+  const TestResultStatus(this.value);
 
   String get label => switch (this) {
         TestResultStatus.pending  => 'Pending',
         TestResultStatus.reviewed => 'Reviewed',
       };
 
-  static TestResultStatus fromString(String value) => switch (value.toLowerCase()) {
-        'reviewed' => TestResultStatus.reviewed,
-        _          => TestResultStatus.pending,
-      };
+  static TestResultStatus fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => TestResultStatus.pending,
+      );
 }
 
 enum AppointmentStatus {
-  scheduled,
-  completed,
-  cancelled;
+  scheduled('scheduled'),
+  completed('completed'),
+  cancelled('cancelled');
+
+  final String value;
+  const AppointmentStatus(this.value);
 
   String get label => switch (this) {
         AppointmentStatus.scheduled => 'Scheduled',
@@ -156,9 +150,68 @@ enum AppointmentStatus {
         AppointmentStatus.cancelled => 'Cancelled',
       };
 
-  static AppointmentStatus fromString(String value) => switch (value.toLowerCase()) {
-        'completed' => AppointmentStatus.completed,
-        'cancelled' => AppointmentStatus.cancelled,
-        _           => AppointmentStatus.scheduled,
+  static AppointmentStatus fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => AppointmentStatus.scheduled,
+      );
+}
+
+enum AppointmentType {
+  physical('physical'),
+  remote('remote'),
+  emergency('emergency');
+
+  final String value;
+  const AppointmentType(this.value);
+
+  String get label => switch (this) {
+        AppointmentType.physical  => 'Physical',
+        AppointmentType.remote    => 'Remote',
+        AppointmentType.emergency => 'Emergency',
       };
+
+  static AppointmentType fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => AppointmentType.physical,
+      );
+}
+
+enum RecordStatus {
+  active('active'),
+  closed('closed');
+
+  final String value;
+  const RecordStatus(this.value);
+
+  String get label => switch (this) {
+        RecordStatus.active => 'Active',
+        RecordStatus.closed => 'Closed',
+      };
+
+  static RecordStatus fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => RecordStatus.active,
+      );
+}
+
+enum ProfessionalTitle {
+  professor('professor'),
+  consultant('consultant'),
+  specialist('specialist'),
+  resident('resident');
+
+  final String value;
+  const ProfessionalTitle(this.value);
+
+  String get label => switch (this) {
+        ProfessionalTitle.professor  => 'Professor',
+        ProfessionalTitle.consultant => 'Consultant',
+        ProfessionalTitle.specialist => 'Specialist',
+        ProfessionalTitle.resident   => 'Resident',
+      };
+
+  static ProfessionalTitle fromString(String val) => values.firstWhere(
+        (e) => e.value == val.toLowerCase(),
+        orElse: () => ProfessionalTitle.specialist,
+      );
 }
