@@ -77,14 +77,15 @@ class _InitialsCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: bg.withValues(alpha: 0.18),
+      backgroundColor: bg,
       child: Text(
         initials,
         style: TextStyle(
-          fontSize: radius * 0.48,
+          fontSize: radius * 0.55,
           fontWeight: FontWeight.bold,
-          color: bg,
+          color: Colors.white,
           fontFamily: 'Outfit',
+          letterSpacing: 0.5,
         ),
       ),
     );

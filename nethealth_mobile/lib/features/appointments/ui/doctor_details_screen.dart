@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/models/doctor_booking_model.dart';
 import 'booking_modals.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -10,8 +11,8 @@ import 'booking_modals.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 
 class DoctorDetailsScreen extends StatefulWidget {
-  final String id;
-  const DoctorDetailsScreen({super.key, required this.id});
+  final DoctorModel doctor;
+  const DoctorDetailsScreen({super.key, required this.doctor});
 
   @override
   State<DoctorDetailsScreen> createState() => _DoctorDetailsScreenState();
@@ -22,15 +23,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
   int    _selectedDayIndex  = 2;
   String _selectedTime      = '10:00 AM';
   int    _selectedTypeIndex = 0;
-
-  // ── Mock doctor data (keyed by ID) ──────────────────────────────────────────
-  static const _doctors = {
-    '1': _DoctorProfile(name: 'Dr. Ayman Fathy',   specialty: 'Cardiologist',         clinic: 'City Heart Institute',   rating: 4.9, reviews: 127, experience: '12 Years', bio: 'Dr. Fathy is a board-certified cardiologist with 12 years of experience treating complex cardiovascular conditions. He has performed over 2,000 cardiac procedures and conducted research published in leading international medical journals.', avatar: 'https://i.pravatar.cc/150?img=8',  fee: '\$100', nextAvailable: 'In 2 Days'),
-    '2': _DoctorProfile(name: 'Dr. Sara Ahmed',     specialty: 'General Practitioner', clinic: 'City General Hospital',  rating: 4.7, reviews: 89,  experience: '8 Years',  bio: 'Dr. Ahmed provides comprehensive primary care with a patient-centered approach. She specialises in preventative medicine and chronic condition management, ensuring every patient receives personalised attention.', avatar: 'https://i.pravatar.cc/150?img=5',  fee: '\$80',  nextAvailable: 'Tomorrow'),
-    '3': _DoctorProfile(name: 'Dr. Nadia Karim',   specialty: 'Dermatologist',        clinic: 'Nile Skin Clinic',       rating: 4.8, reviews: 54,  experience: '6 Years',  bio: 'Dr. Karim combines the latest evidence-based dermatological treatments with an empathetic care philosophy. She is a specialist in skin conditions, laser treatments, and aesthetic dermatology.', avatar: 'https://i.pravatar.cc/150?img=25', fee: '\$90',  nextAvailable: 'In 4 Days'),
-  };
-
-  static const _fallbackDoctor = _DoctorProfile(name: 'Dr. Unknown', specialty: 'Specialist', clinic: 'NetHealth Clinic', rating: 4.5, reviews: 0, experience: '—', bio: 'Doctor profile not found.', avatar: 'https://i.pravatar.cc/150?img=1', fee: '—', nextAvailable: '—');
 
   static const _days = [
     _DaySlot(day: 'Mon', date: '24'),
@@ -55,7 +47,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
     _ApptType(icon: Icons.refresh_rounded,           title: 'Follow-up Visit',               subtitle: 'Review of your ongoing treatment',      badge: 'physical'),
   ];
 
-  _DoctorProfile get _doctor => _doctors[widget.id] ?? _fallbackDoctor;
   _DaySlot       get _day    => _days[_selectedDayIndex];
   _ApptType      get _type   => _appointmentTypes[_selectedTypeIndex];
 
@@ -64,14 +55,14 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final doc    = _doctor;
+    final doc    = widget.doctor;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // ── Sliver App Bar with doctor avatar ─────────────────────────────
+          // ── Sliver App Bar with doctor avatar (Step 2) ───────────────────
           _DoctorSliverAppBar(doctor: doc, isDark: isDark),
 
           SliverToBoxAdapter(
@@ -80,18 +71,55 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Stats row ─────────────────────────────────────────────
+                  // ── Stats row (Step 3) ────────────────────────────────────
                   _StatsRow(doctor: doc, isDark: isDark),
                   const SizedBox(height: 24),
 
-                  // ── About ─────────────────────────────────────────────────
-                  _SectionTitle('About', isDark),
+                  // ── About (Bio from model if available, else static) ──────
+                  _sectionTitle('About', isDark),
                   const SizedBox(height: 10),
-                  _ExpandableAbout(bio: doc.bio, isDark: isDark),
+                  _ExpandableAbout(
+                    bio: (doc.experience != null && doc.experience!.length > 20) 
+                        ? doc.experience! 
+                        : 'Compassionate physician experienced in treating patients with complex medical conditions. Emphasizes preventive care and clear communication with patients.', 
+                    isDark: isDark
+                  ),
                   const SizedBox(height: 24),
 
-                  // ── Day selector ─────────────────────────────────────────
-                  _SectionTitle('Available Days', isDark),
+                  // ── Qualifications (Dynamic Field) ────────────────────────
+                  if (doc.qualifications != null && doc.qualifications!.isNotEmpty) ...[
+                    _sectionTitle('Qualifications', isDark),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.school_outlined, color: AppColors.primary, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              doc.qualifications!,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 13,
+                                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // ── Day selector (Static as requested in Step 4) ──────────
+                  _sectionTitle('Available Days', isDark),
                   const SizedBox(height: 12),
                   SizedBox(
                     height: 70,
@@ -104,7 +132,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                         return GestureDetector(
                           onTap: () => setState(() {
                             _selectedDayIndex = i;
-                            // Reset time if currently unavailable slot
                             if (_unavailableTimes.contains(_selectedTime)) {
                               _selectedTime = '10:00 AM';
                             }
@@ -151,8 +178,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Time slots ────────────────────────────────────────────
-                  _SectionTitle('Available Time Slots', isDark),
+                  // ── Time slots (Static as requested in Step 4) ───────────
+                  _sectionTitle('Available Time Slots', isDark),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 10,
@@ -200,8 +227,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Appointment type ──────────────────────────────────────
-                  _SectionTitle('Appointment Type', isDark),
+                  // ── Appointment type (Static as requested in Step 4) ────────
+                  _sectionTitle('Appointment Type', isDark),
                   const SizedBox(height: 12),
                   ..._appointmentTypes.asMap().entries.map((e) {
                     final i          = e.key;
@@ -287,14 +314,14 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
         ],
       ),
 
-      // ── Sticky bottom bar ────────────────────────────────────────────────────
+      // ── Sticky bottom bar ───────────────────────────────────────────────
       bottomNavigationBar: _BottomBar(
-        doctor: _doctor,
+        doctor: doc,
         day: _day,
         time: _selectedTime,
         typeName: _type.title,
         typeBadge: _type.badge,
-        clinic: _doctor.clinic,
+        clinic: 'NetHealth Medical Center', 
         isDark: isDark,
       ),
     );
@@ -305,8 +332,18 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
 // Sub-widgets
 // ─────────────────────────────────────────────────────────────────────────────
 
+Widget _sectionTitle(String title, bool isDark) => Text(
+  title,
+  style: TextStyle(
+    fontFamily: 'Outfit',
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+  ),
+);
+
 class _DoctorSliverAppBar extends StatelessWidget {
-  final _DoctorProfile doctor;
+  final DoctorModel doctor;
   final bool isDark;
   const _DoctorSliverAppBar({required this.doctor, required this.isDark});
 
@@ -340,10 +377,27 @@ class _DoctorSliverAppBar extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                 child: Row(
                   children: [
+                    // Step 2: Initials Avatar Logic
                     CircleAvatar(
                       radius: 48,
-                      backgroundImage: NetworkImage(doctor.avatar),
                       backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      child: doctor.avatarUrl != null && doctor.avatarUrl!.isNotEmpty
+                        ? ClipOval(
+                            child: Image.network(
+                              doctor.avatarUrl!,
+                              fit: BoxFit.cover,
+                              width: 96,
+                              height: 96,
+                              errorBuilder: (_, __, ___) => Text(
+                                doctor.initials,
+                                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                            ),
+                          )
+                        : Text(
+                            doctor.initials,
+                            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -351,26 +405,26 @@ class _DoctorSliverAppBar extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            doctor.name,
+                            doctor.displayName,
                             style: const TextStyle(fontFamily: 'Outfit', fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                           const SizedBox(height: 4),
                           Text(doctor.specialty, style: const TextStyle(fontFamily: 'Inter', fontSize: 14, color: Colors.white70)),
                           const SizedBox(height: 4),
-                          Row(
+                          const Row(
                             children: [
-                              const Icon(Icons.location_on_outlined, size: 13, color: Colors.white70),
-                              const SizedBox(width: 4),
-                              Expanded(child: Text(doctor.clinic, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: Colors.white70), overflow: TextOverflow.ellipsis)),
+                              Icon(Icons.location_on_outlined, size: 13, color: Colors.white70),
+                              SizedBox(width: 4),
+                              Expanded(child: Text('NetHealth Medical Center', style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: Colors.white70), overflow: TextOverflow.ellipsis)),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Row(
+                          const Row(
                             children: [
-                              const Icon(Icons.star_rounded, color: AppColors.warning, size: 16),
-                              const SizedBox(width: 4),
-                              Text('${doctor.rating}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                              Text(' (${doctor.reviews} reviews)', style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                              Icon(Icons.star_rounded, color: AppColors.warning, size: 16),
+                              SizedBox(width: 4),
+                              Text('4.9', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                              Text(' (127 reviews)', style: TextStyle(color: Colors.white60, fontSize: 12)),
                             ],
                           ),
                         ],
@@ -388,7 +442,7 @@ class _DoctorSliverAppBar extends StatelessWidget {
 }
 
 class _StatsRow extends StatelessWidget {
-  final _DoctorProfile doctor;
+  final DoctorModel doctor;
   final bool isDark;
   const _StatsRow({required this.doctor, required this.isDark});
 
@@ -396,13 +450,13 @@ class _StatsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _StatTile(icon: Icons.event_available_rounded, color: AppColors.primary,    bg: AppColors.primaryFaint,  label: 'Next Available',    value: doctor.nextAvailable, isDark: isDark)),
+        Expanded(child: _StatTile(icon: Icons.event_available_rounded, color: AppColors.primary,    bg: AppColors.primaryFaint,  label: 'Next Available',    value: 'In 2 Days', isDark: isDark)),
         const SizedBox(width: 10),
-        Expanded(child: _StatTile(icon: Icons.payments_outlined,        color: AppColors.success,    bg: AppColors.successFaint,  label: 'Consultation Fee',  value: doctor.fee,           isDark: isDark)),
+        Expanded(child: _StatTile(icon: Icons.payments_outlined,        color: AppColors.success,    bg: AppColors.successFaint,  label: 'Consultation Fee',  value: doctor.consultationFee != null ? '\$${doctor.consultationFee}' : '\$100', isDark: isDark)),
         const SizedBox(width: 10),
-        Expanded(child: _StatTile(icon: Icons.workspace_premium_rounded, color: AppColors.warning,   bg: AppColors.warningFaint,  label: 'Experience',        value: doctor.experience,    isDark: isDark)),
+        Expanded(child: _StatTile(icon: Icons.workspace_premium_rounded, color: AppColors.warning,   bg: AppColors.warningFaint,  label: 'Experience',        value: doctor.experience ?? '10 Years', isDark: isDark)),
         const SizedBox(width: 10),
-        Expanded(child: _StatTile(icon: Icons.star_rounded,              color: AppColors.error,     bg: AppColors.errorFaint,    label: 'Rating',            value: '${doctor.rating}★',  isDark: isDark)),
+        Expanded(child: _StatTile(icon: Icons.star_rounded,              color: AppColors.error,     bg: AppColors.errorFaint,    label: 'Rating',            value: '4.9★',  isDark: isDark)),
       ],
     );
   }
@@ -505,7 +559,7 @@ class _ExpandableAboutState extends State<_ExpandableAbout> {
 }
 
 class _BottomBar extends StatelessWidget {
-  final _DoctorProfile doctor;
+  final DoctorModel doctor;
   final _DaySlot day;
   final String time;
   final String typeName;
@@ -557,13 +611,13 @@ class _BottomBar extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => showConfirmAppointmentSheet(
                   context,
-                  doctorName: doctor.name,
+                  doctorName: doctor.fullName,
                   specialty:  doctor.specialty,
                   day:        day.day,
                   date:       day.date,
                   time:       time,
                   type:       typeName,
-                  clinic:     doctor.clinic,
+                  clinic:     clinic,
                 ),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -580,45 +634,6 @@ class _BottomBar extends StatelessWidget {
   }
 }
 
-Widget _SectionTitle(String title, bool isDark) => Text(
-  title,
-  style: TextStyle(
-    fontFamily: 'Outfit',
-    fontSize: 18,
-    fontWeight: FontWeight.bold,
-    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-  ),
-);
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Mock data models
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _DoctorProfile {
-  final String name;
-  final String specialty;
-  final String clinic;
-  final double rating;
-  final int reviews;
-  final String experience;
-  final String bio;
-  final String avatar;
-  final String fee;
-  final String nextAvailable;
-
-  const _DoctorProfile({
-    required this.name,
-    required this.specialty,
-    required this.clinic,
-    required this.rating,
-    required this.reviews,
-    required this.experience,
-    required this.bio,
-    required this.avatar,
-    required this.fee,
-    required this.nextAvailable,
-  });
-}
 
 class _DaySlot {
   final String day;

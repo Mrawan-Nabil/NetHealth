@@ -46,13 +46,17 @@ class DoctorModel {
   /// "Dr. John Doe" → skips honorific prefixes → "JD"
   String get initials {
     if (fullName.trim().isEmpty) return '?';
-    // Strip common honorifics so "Dr. John Doe" → "John Doe"
+    // Strip common honorifics
     final clean = fullName
         .replaceAll(RegExp(r'^(Dr\.?|Prof\.?|Mr\.?|Ms\.?|Mrs\.?)\s+', caseSensitive: false), '')
         .trim();
     final parts = clean.split(RegExp(r'\s+'));
     if (parts.length >= 2) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    // If only one name, take first 2 letters
+    if (clean.length >= 2) {
+      return clean.substring(0, 2).toUpperCase();
     }
     return clean.isNotEmpty ? clean[0].toUpperCase() : '?';
   }

@@ -24,17 +24,44 @@ class DoctorSummaryModel {
   });
 
   factory DoctorSummaryModel.fromJson(Map<String, dynamic> json) {
+    // Check if full_name is at top level or inside nested user object (Laravel relation)
+    final topFullName = json['full_name']?.toString();
+    final nestedFullName = json['user'] is Map<String, dynamic> 
+        ? json['user']['full_name']?.toString() 
+        : null;
+    
+    // Check if avatar_url is at top level or inside nested user object
+    final topAvatar = json['avatar_url']?.toString();
+    final nestedAvatar = json['user'] is Map<String, dynamic> 
+        ? (json['user']['avatar'] ?? json['user']['avatar_url'])?.toString()
+        : null;
+
     return DoctorSummaryModel(
-      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
-      fullName: json['full_name']?.toString() ?? '',
-      specialty: json['specialty']?.toString() ?? '',
+      id: int.tryParse((json['id'] ?? json['user_id'])?.toString() ?? '0') ?? 0,
+      fullName: topFullName ?? nestedFullName ?? 'Unknown Doctor',
+      specialty: json['specialty']?.toString() ?? 'General Physician',
       professionalTitle: ProfessionalTitle.fromString(json['professional_title']?.toString() ?? ''),
-      avatarUrl: json['avatar_url']?.toString(),
+      avatarUrl: topAvatar ?? nestedAvatar,
       consultationFee: json['consultation_fee']?.toString(),
-      clinicName: json['clinic_name']?.toString(),
+      clinicName: json['clinic_name']?.toString() ?? (json['clinic'] is Map<String, dynamic> ? json['clinic']['name']?.toString() : null),
       experience: json['experience']?.toString(),
       qualifications: json['qualifications']?.toString(),
     );
+  }
+
+  String get initials {
+    if (fullName.trim().isEmpty) return '?';
+    final clean = fullName
+        .replaceAll(RegExp(r'^(Dr\.?|Prof\.?|Mr\.?|Ms\.?|Mrs\.?)\s+', caseSensitive: false), '')
+        .trim();
+    final parts = clean.split(RegExp(r'\s+'));
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    if (clean.length >= 2) {
+      return clean.substring(0, 2).toUpperCase();
+    }
+    return clean.isNotEmpty ? clean[0].toUpperCase() : '?';
   }
 }
 
@@ -57,14 +84,26 @@ class DoctorDetailModel extends DoctorSummaryModel {
   });
 
   factory DoctorDetailModel.fromJson(Map<String, dynamic> json) {
+    // Check if full_name is at top level or inside nested user object (Laravel relation)
+    final topFullName = json['full_name']?.toString();
+    final nestedFullName = json['user'] is Map<String, dynamic> 
+        ? json['user']['full_name']?.toString() 
+        : null;
+    
+    // Check if avatar_url is at top level or inside nested user object
+    final topAvatar = json['avatar_url']?.toString();
+    final nestedAvatar = json['user'] is Map<String, dynamic> 
+        ? (json['user']['avatar'] ?? json['user']['avatar_url'])?.toString()
+        : null;
+
     return DoctorDetailModel(
-      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
-      fullName: json['full_name']?.toString() ?? '',
-      specialty: json['specialty']?.toString() ?? '',
+      id: int.tryParse((json['id'] ?? json['user_id'])?.toString() ?? '0') ?? 0,
+      fullName: topFullName ?? nestedFullName ?? 'Unknown Doctor',
+      specialty: json['specialty']?.toString() ?? 'General Physician',
       professionalTitle: ProfessionalTitle.fromString(json['professional_title']?.toString() ?? ''),
-      avatarUrl: json['avatar_url']?.toString(),
+      avatarUrl: topAvatar ?? nestedAvatar,
       consultationFee: json['consultation_fee']?.toString(),
-      clinicName: json['clinic_name']?.toString(),
+      clinicName: json['clinic_name']?.toString() ?? (json['clinic'] is Map<String, dynamic> ? json['clinic']['name']?.toString() : null),
       experience: json['experience']?.toString(),
       qualifications: json['qualifications']?.toString(),
       medicalLicense: json['medical_license']?.toString(),
