@@ -1,4 +1,5 @@
 import 'enums.dart';
+import 'clinic_model.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DoctorModel — returned by GET /v1/doctors (top-level, for booking flow).
@@ -15,6 +16,7 @@ class DoctorModel {
   final String? experience;
   final String? qualifications;
   final String? medicalLicense;
+  final ClinicModel? clinic;
 
   DoctorModel({
     required this.id,
@@ -26,6 +28,7 @@ class DoctorModel {
     this.experience,
     this.qualifications,
     this.medicalLicense,
+    this.clinic,
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) {
@@ -39,6 +42,7 @@ class DoctorModel {
       experience:         json['experience']?.toString(),
       qualifications:     json['qualifications']?.toString(),
       medicalLicense:     json['medical_license']?.toString(),
+      clinic:             (json['clinic'] != null && json['clinic'] is Map<String, dynamic>) ? ClinicModel.fromJson(json['clinic']) : null,
     );
   }
 

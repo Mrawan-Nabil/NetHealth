@@ -1,4 +1,6 @@
 import 'enums.dart';
+import 'clinic_model.dart';
+
 
 class DoctorSummaryModel {
   final int id;
@@ -10,6 +12,7 @@ class DoctorSummaryModel {
   final String? clinicName;
   final String? experience;
   final String? qualifications;
+  final ClinicModel? clinic;
 
   DoctorSummaryModel({
     required this.id,
@@ -21,6 +24,7 @@ class DoctorSummaryModel {
     this.clinicName,
     this.experience,
     this.qualifications,
+    this.clinic,
   });
 
   factory DoctorSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +50,7 @@ class DoctorSummaryModel {
       clinicName: json['clinic_name']?.toString() ?? (json['clinic'] is Map<String, dynamic> ? json['clinic']['name']?.toString() : null),
       experience: json['experience']?.toString(),
       qualifications: json['qualifications']?.toString(),
+      clinic: json['clinic'] != null ? ClinicModel.fromJson(json['clinic'] as Map<String, dynamic>) : null,
     );
   }
 
@@ -79,6 +84,7 @@ class DoctorDetailModel extends DoctorSummaryModel {
     super.clinicName,
     super.experience,
     super.qualifications,
+    super.clinic,
     this.medicalLicense,
     this.syndicateId,
   });
@@ -108,6 +114,7 @@ class DoctorDetailModel extends DoctorSummaryModel {
       qualifications: json['qualifications']?.toString(),
       medicalLicense: json['medical_license']?.toString(),
       syndicateId: json['syndicate_id']?.toString(),
+      clinic: json['clinic'] != null ? ClinicModel.fromJson(json['clinic'] as Map<String, dynamic>) : null,
     );
   }
 }

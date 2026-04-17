@@ -35,6 +35,7 @@ class User extends Authenticatable
         'role',
         'avatar',
         'birth_date',
+        'clinic_id',
     ];
 
     protected $hidden = [
@@ -75,5 +76,10 @@ class User extends Authenticatable
     public function pharmacyStaff()
     {
         return $this->hasMany(PharmacyStaff::class);
+    }
+
+    public function clinic()
+    {
+        return $this->belongsTo(Clinic::class);
     }
 }

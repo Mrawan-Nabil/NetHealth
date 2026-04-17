@@ -13,18 +13,20 @@ class DoctorApiController extends ApiController
      */
     public function index(): JsonResponse
     {
-        $doctors = Doctor::with(['user:id,full_name,avatar'])
+        $doctors = \App\Models\User::where('role', \App\Enums\UserRole::Doctor)
+            ->with(['clinic', 'doctor'])
             ->get()
-            ->map(function ($doctor) {
+            ->map(function ($user) {
                 return [
-                    'id' => $doctor->user_id,
-                    'full_name' => $doctor->user->full_name,
-                    'specialty' => $doctor->specialty,
-                    'avatar_url' => $doctor->user->avatar_url,
-                    'professional_title' => $doctor->professional_title,
-                    'consultation_fee' => $doctor->consultation_fee,
-                    'experience' => $doctor->experience,
-                    'qualifications' => $doctor->qualifications,
+                    'id' => $user->id,
+                    'full_name' => $user->full_name,
+                    'specialty' => $user->doctor?->specialty,
+                    'avatar_url' => $user->avatar_url,
+                    'professional_title' => $user->doctor?->professional_title,
+                    'consultation_fee' => $user->doctor?->consultation_fee,
+                    'experience' => $user->doctor?->experience,
+                    'qualifications' => $user->doctor?->qualifications,
+                    'clinic' => $user->clinic,
                 ];
             });
 

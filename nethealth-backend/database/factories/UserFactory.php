@@ -71,4 +71,12 @@ class UserFactory extends Factory
 
         ];
     }
+
+    public function doctor(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'role' => UserRole::Doctor->value,
+            'clinic_id' => \App\Models\Clinic::inRandomOrder()->first()?->id ?? \App\Models\Clinic::factory(),
+        ]);
+    }
 }

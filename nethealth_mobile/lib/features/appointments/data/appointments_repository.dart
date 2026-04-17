@@ -71,17 +71,30 @@ class AppointmentsRepository {
     }
   }
 
-  Future<AppointmentModel> bookAppointment(Map<String, dynamic> data) async {
+  Future<void> bookAppointment({
+    required String doctorId,
+    required String clinicId,
+    required String appointmentType,
+    required String appointmentTime, // format: "YYYY-MM-DD HH:MM:SS"
+    String? visitReason,
+    String? patientName,
+    String? patientPhone,
+    String? patientEmail,
+  }) async {
     try {
-      final response = await _dio.post(
+      await _dio.post(
         ApiEndpoints.patientAppointments,
-        data: data,
+        data: {
+          'doctor_id': doctorId,
+          'clinic_id': clinicId,
+          'appointment_type': appointmentType,
+          'appointment_time': appointmentTime,
+          if (visitReason  != null && visitReason.isNotEmpty)  'visit_reason':  visitReason,
+          if (patientName  != null && patientName.isNotEmpty)  'patient_name':  patientName,
+          if (patientPhone != null && patientPhone.isNotEmpty) 'patient_phone': patientPhone,
+          if (patientEmail != null && patientEmail.isNotEmpty) 'patient_email': patientEmail,
+        },
       );
-      final wrapper = StandardResponse<AppointmentModel>.fromJson(
-        response.data,
-        (json) => AppointmentModel.fromJson(json),
-      );
-      return wrapper.data;
     } on DioException catch (e) {
       throw _mapDioError(e);
     }
