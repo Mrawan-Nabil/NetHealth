@@ -6,7 +6,12 @@ import '../../../core/constants/route_names.dart';
 import '../../../shared/widgets/status_badge.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/dashboard_provider.dart';
+import '../../appointments/providers/appointments_provider.dart';
 import '../../../shared/models/dashboard_model.dart';
+import '../../../shared/models/doctor_booking_model.dart';
+import '../../../shared/widgets/doctor_avatar.dart';
+import '../../../shared/models/enums.dart';
+import '../../appointments/ui/doctor_selection_screen.dart';
 
 String _formatDateTime(String isoDate) {
   try {
@@ -81,9 +86,9 @@ class DashboardScreen extends ConsumerWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: _LeftColumn(isDark: isDark, data: dashboardData!)),
+                            Expanded(child: _LeftColumn(isDark: isDark, data: dashboardData)),
                             const SizedBox(width: 16),
-                            Expanded(child: _RightColumn(isDark: isDark, data: dashboardData!)),
+                            Expanded(child: _RightColumn(isDark: isDark, data: dashboardData)),
                           ],
                         ),
                       );
@@ -93,9 +98,9 @@ class DashboardScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Column(
                         children: [
-                          _LeftColumn(isDark: isDark, data: dashboardData!),
+                          _LeftColumn(isDark: isDark, data: dashboardData),
                           const SizedBox(height: 20),
-                          _RightColumn(isDark: isDark, data: dashboardData!),
+                          _RightColumn(isDark: isDark, data: dashboardData),
                           const SizedBox(height: 32),
                         ],
                       ),
@@ -305,7 +310,10 @@ class _HeroBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 GestureDetector(
-                  onTap: () => context.pushNamed(RouteNames.findSpecialist),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const DoctorSelectionScreen()),
+                  ),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
@@ -479,7 +487,7 @@ class _LeftColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _NextAppointmentCard(isDark: isDark, appointment: data.nextAppointment),
+        _NextAppointmentCard(isDark: isDark),
         const SizedBox(height: 20),
         _RecentRecordsSection(isDark: isDark, records: data.recentRecords),
       ],
@@ -487,13 +495,14 @@ class _LeftColumn extends StatelessWidget {
   }
 }
 
-class _NextAppointmentCard extends StatelessWidget {
+class _NextAppointmentCard extends ConsumerWidget {
   final bool isDark;
-  final dynamic appointment;
-  const _NextAppointmentCard({required this.isDark, this.appointment});
+  const _NextAppointmentCard({required this.isDark});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appointmentsAsync = ref.watch(appointmentsProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -504,170 +513,270 @@ class _NextAppointmentCard extends StatelessWidget {
           onAction: () => context.goNamed(RouteNames.appointments),
         ),
         const SizedBox(height: 12),
-        if (appointment == null)
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.25),
-              ),
-              boxShadow: [
-                if (!isDark)
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-              ],
-            ),
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Icon(Icons.event_available_rounded, size: 48, color: AppColors.primary.withValues(alpha: 0.5)),
-                const SizedBox(height: 12),
-                Text(
-                  'No upcoming appointments',
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'You\'re all caught up with your schedule!',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          )
-        else
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.25),
-              ),
-              boxShadow: [
-                if (!isDark)
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-              ],
-            ),
-            child: Column(
-              children: [
-                // Doctor row
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 26,
-                      backgroundImage: appointment.doctor?.avatarUrl != null 
-                          ? NetworkImage(appointment.doctor!.avatarUrl!)
-                          : const NetworkImage('https://i.pravatar.cc/150?img=5'),
-                      backgroundColor: AppColors.primaryFaint,
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            appointment.doctor?.fullName ?? 'Unknown Doctor',
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            appointment.doctor?.specialty ?? 'General',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 13,
-                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    StatusBadge(status: appointment.status.value.toString()),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
-                const SizedBox(height: 14),
+        appointmentsAsync.when(
+          loading: () => _LoadingPlaceholder(isDark: isDark),
+          error: (err, stack) => _ErrorPlaceholder(isDark: isDark, message: err.toString()),
+          data: (appointments) {
+            final now = DateTime.now();
+            final upcoming = appointments.where((a) {
+              try {
+                final dt = DateTime.parse(a.appointmentTime);
+                return dt.isAfter(now) && a.status == AppointmentStatus.scheduled;
+              } catch (_) {
+                return false;
+              }
+            }).toList();
 
-                // Details row
-                Row(
-                  children: [
-                    _AppointInfoChip(
-                      icon: Icons.calendar_today_rounded,
-                      label: _formatDateTime(appointment.appointmentTime),
-                      isDark: isDark,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                _AppointInfoChip(
-                  icon: Icons.location_on_outlined,
-                  label: appointment.clinic?.clinicName ?? 'Main Clinic',
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 16),
+            if (upcoming.isEmpty) {
+              return _EmptyNextPlaceholder(isDark: isDark);
+            }
 
-                // Action buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => context.pushNamed(
-                          RouteNames.doctorDetails,
-                          pathParameters: {'id': appointment.id.toString()},
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
-                        ),
-                        child: const Text('Reschedule'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => context.pushNamed(
-                          RouteNames.appointmentDetail,
-                          pathParameters: {'id': appointment.id.toString()},
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
-                        ),
-                        child: const Text('View Details'),
-                      ),
-                    ),
-                  ],
+            // Sort ascending to get the closest one
+            upcoming.sort((a, b) => a.appointmentTime.compareTo(b.appointmentTime));
+            final appointment = upcoming.first;
+
+            // Map DoctorSummaryModel to DoctorModel for the avatar
+            final doctorModel = DoctorModel(
+              id: appointment.doctor?.id ?? 0,
+              fullName: appointment.doctor?.fullName ?? 'Unknown Doctor',
+              specialty: appointment.doctor?.specialty ?? 'General',
+              professionalTitle: appointment.doctor?.professionalTitle ?? ProfessionalTitle.specialist,
+              avatarUrl: appointment.doctor?.avatarUrl,
+            );
+
+            return Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.25),
                 ),
-              ],
+                boxShadow: [
+                  if (!isDark)
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Doctor row
+                  Row(
+                    children: [
+                      DoctorAvatar(doctor: doctorModel, radius: 26),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              doctorModel.fullName,
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              doctorModel.specialty,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 13,
+                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      StatusBadge(status: appointment.status.value.toString()),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                  const SizedBox(height: 14),
+
+                  // Details row
+                  Row(
+                    children: [
+                      _AppointInfoChip(
+                        icon: Icons.calendar_today_rounded,
+                        label: _formatDateTime(appointment.appointmentTime),
+                        isDark: isDark,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  _AppointInfoChip(
+                    icon: Icons.location_on_outlined,
+                    label: appointment.clinic?.clinicName ?? 'Main Clinic',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Action buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            if (appointment.doctor != null) {
+                              context.pushNamed(
+                                RouteNames.doctorDetails,
+                                pathParameters: {'id': doctorModel.id.toString()},
+                                extra: doctorModel,
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Doctor details not available.')),
+                              );
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
+                          ),
+                          child: const Text('Reschedule'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => context.pushNamed(
+                            RouteNames.appointmentDetail,
+                            pathParameters: {'id': appointment.id.toString()},
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
+                          ),
+                          child: const Text('View Details'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _EmptyNextPlaceholder extends StatelessWidget {
+  final bool isDark;
+  const _EmptyNextPlaceholder({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+        ),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Icon(Icons.event_available_rounded, size: 48, color: AppColors.primary.withValues(alpha: 0.5)),
+          const SizedBox(height: 12),
+          Text(
+            'No upcoming appointments',
+            style: TextStyle(
+              fontFamily: 'Outfit',
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
             ),
           ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            'You\'re all caught up with your schedule!',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 13,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoadingPlaceholder extends StatelessWidget {
+  final bool isDark;
+  const _LoadingPlaceholder({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 180,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+      ),
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class _ErrorPlaceholder extends StatelessWidget {
+  final bool isDark;
+  final String message;
+  const _ErrorPlaceholder({required this.isDark, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.errorFaint,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 32),
+          const SizedBox(height: 12),
+          Text(
+            'Failed to load appointment',
+            style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.error),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            message,
+            style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: isDark ? Colors.white70 : AppColors.error.withValues(alpha: 0.8)),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -25,15 +25,15 @@ class NhCard extends StatelessWidget {
     final bg = backgroundColor ??
         (useGlass
             ? (isDark
-                ? Colors.white.withOpacity(0.05)
-                : Colors.white.withOpacity(0.7))
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.white.withValues(alpha: 0.7))
             : Theme.of(context).colorScheme.surface);
 
     final border = useGlass
         ? Border.all(
             color: isDark
-                ? Colors.white.withOpacity(0.1)
-                : AppColors.primary.withOpacity(0.15),
+                ? Colors.white.withValues(alpha: 0.1)
+                : AppColors.primary.withValues(alpha: 0.15),
           )
         : Border.all(color: Theme.of(context).colorScheme.outline);
 
@@ -48,7 +48,7 @@ class NhCard extends StatelessWidget {
               ? null
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),

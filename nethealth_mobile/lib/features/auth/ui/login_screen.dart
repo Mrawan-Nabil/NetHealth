@@ -85,28 +85,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // ── Logo ──────────────────────────────────────────────────
                 Center(
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primaryLight, AppColors.primaryDark],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    height: 200,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryFaint,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.favorite_rounded,
-                      color: Colors.white,
-                      size: 36,
+                      child: const Icon(Icons.favorite_rounded, color: AppColors.primary, size: 40),
                     ),
                   ),
                 ),
@@ -222,35 +211,62 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
                 ),
 
+                const SizedBox(height: 32),
+
+                // ── Register Link ──────────────────────────────────────────
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account? ",
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => context.pushNamed(RouteNames.selectRole),
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
                 const SizedBox(height: 24),
 
                 // ── Mock hint (dev only) ──────────────────────────────────
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryFaint,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: AppColors.primary.withOpacity(0.2)),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline_rounded,
-                          color: AppColors.primary, size: 16),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Mock mode: patient@test.com / password',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.primaryDark,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Container(
+                //   padding: const EdgeInsets.all(12),
+                //   decoration: BoxDecoration(
+                //     color: AppColors.primaryFaint,
+                //     borderRadius: BorderRadius.circular(10),
+                //     border: Border.all(
+                //         color: AppColors.primary.withOpacity(0.2)),
+                //   ),
+                //   child: const Row(
+                //     children: [
+                //       Icon(Icons.info_outline_rounded,
+                //           color: AppColors.primary, size: 16),
+                //       SizedBox(width: 8),
+                //       Expanded(
+                //         child: Text(
+                //           'Mock mode: patient@test.com / password',
+                //           style: TextStyle(
+                //             fontSize: 12,
+                //             color: AppColors.primaryDark,
+                //             fontWeight: FontWeight.w500,
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
 
                 const SizedBox(height: 32),
               ],

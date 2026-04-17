@@ -28,16 +28,13 @@ import '../../features/appointments/ui/appointments_screen.dart';
 import '../../features/appointments/ui/appointment_detail_screen.dart';
 import '../../features/appointments/ui/find_specialist_screen.dart';
 import '../../features/appointments/ui/doctor_details_screen.dart';
-import '../../features/appointments/ui/doctor_selection_screen.dart';
-import '../../features/appointments/ui/booking_form_screen.dart';
-
+import '../../shared/models/doctor_booking_model.dart';
 // ── Records ───────────────────────────────────────────────────────────────────
 import '../../features/records/ui/records_screen.dart';
 import '../../features/records/ui/medical_record_detail_screen.dart';
 import '../../features/records/ui/visit_history_screen.dart';
 
 // ── Prescriptions ─────────────────────────────────────────────────────────────
-import '../../features/prescriptions/ui/prescriptions_screen.dart';
 import '../../features/prescriptions/ui/prescription_details_screen.dart';
 
 // ── Tests & Imaging ───────────────────────────────────────────────────────────
@@ -187,12 +184,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                   builder: (_, __) => const FindSpecialistScreen(),
                 ),
 
-                // Doctor Details — requires :id
+                // Doctor Details — requires DoctorModel in extra
                 GoRoute(
                   path:    'doctor-details/:id',
                   name:    RouteNames.doctorDetails,
                   builder: (_, state) => DoctorDetailsScreen(
-                    id: state.pathParameters['id']!,
+                    doctor: state.extra as DoctorModel,
                   ),
                 ),
 

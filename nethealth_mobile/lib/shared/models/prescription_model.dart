@@ -21,8 +21,8 @@ class PrescriptionModel {
   }) : _expiresAtApi = expiresAtApi;
 
   String get expiresAt {
-    if (_expiresAtApi != null && _expiresAtApi!.isNotEmpty) {
-      return _expiresAtApi!;
+    if (_expiresAtApi != null && _expiresAtApi.isNotEmpty) {
+      return _expiresAtApi;
     }
     try {
       final createdDate = DateTime.parse(createdAt);

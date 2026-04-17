@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\Auth\PatientRegistrationController;
 use App\Http\Controllers\Api\Auth\PharmacyRegistrationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Patient\DashboardApiController;
+use App\Http\Controllers\Api\Patient\DoctorApiController;
+use App\Http\Controllers\Api\Patient\PatientAppointmentApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,10 +43,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
         });
 
-        // ---------------------------------------------
-        // DOCTORS — available to any authenticated user (for booking flow)
-        // ---------------------------------------------
-        Route::get('/doctors', [\App\Http\Controllers\Api\DoctorApiController::class, 'index']);
+        // Common / Shared routes
+        Route::get('/doctors', [DoctorApiController::class, 'index']);
 
         // ---------------------------------------------
         // PATIENT ROUTES
@@ -52,13 +52,11 @@ Route::prefix('v1')->group(function () {
         // We add a role middleware check to ensure only patients can access these!
         Route::middleware(['role:patient', 'active'])->prefix('patient')->group(function () {
 
-            // Dashboard
+            // We will add the Dashboard, Appointments, and Medical Records routes here next!
             Route::get('/dashboard', [DashboardApiController::class, 'index']);
-
-            // Appointments — index, store, destroy
-            Route::get('/appointments',         [\App\Http\Controllers\Api\Patient\PatientAppointmentApiController::class, 'index']);
-            Route::post('/appointments',        [\App\Http\Controllers\Api\Patient\PatientAppointmentApiController::class, 'store']);
-            Route::delete('/appointments/{id}', [\App\Http\Controllers\Api\Patient\PatientAppointmentApiController::class, 'destroy']);
+            
+            Route::get('/appointments', [PatientAppointmentApiController::class, 'index']);
+            Route::delete('/appointments/{id}', [PatientAppointmentApiController::class, 'destroy']);
 
         });
 

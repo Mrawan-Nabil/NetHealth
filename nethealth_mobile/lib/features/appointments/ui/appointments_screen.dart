@@ -83,16 +83,17 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen>
 
             return _Appointment(
               id: a.id.toString(),
-              doctor: a.doctor?.fullName ?? 'Unknown Doctor',
+              doctorName: a.doctor?.fullName ?? 'Unknown Doctor',
               specialty: a.doctor?.specialty ?? 'Specialist',
               clinic: a.clinic?.clinicName ?? 'Main Clinic',
               date: dt != null ? DateFormat('MMM dd, yyyy').format(dt) : 'TBD',
               time: dt != null ? DateFormat('hh:mm a').format(dt) : 'TBD',
-              doctorModel: doctorModel,
+              doctor: doctorModel,
               status: a.status.value.toString(),
               type: a.appointmentType.value.toString(),
               cancelledBy: a.cancelledBy,
               cancelReason: a.cancellationReason,
+              visitReason: a.visitReason,
             );
           }).toList();
 
@@ -210,14 +211,14 @@ class _AppointmentCard extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DoctorAvatar(doctor: appt.doctorModel, radius: 26),
+                DoctorAvatar(doctor: appt.doctor, radius: 26),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        appt.doctor,
+                        appt.doctorName,
                         style: TextStyle(
                           fontFamily: 'Outfit',
                           fontWeight: FontWeight.bold,
@@ -259,6 +260,26 @@ class _AppointmentCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 6),
                 _InfoChip(icon: Icons.location_on_outlined, text: appt.clinic, isDark: isDark),
+                if (appt.visitReason != null && appt.visitReason!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Reason: ${appt.visitReason}',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -332,7 +353,8 @@ class _ScheduledContent extends ConsumerWidget {
               child: OutlinedButton.icon(
                 onPressed: () => context.pushNamed(
                   RouteNames.doctorDetails,
-                  pathParameters: {'id': '1'},
+                  pathParameters: {'id': appt.doctor.id.toString()},
+                  extra: appt.doctor,
                 ),
                 icon: const Icon(Icons.edit_calendar_rounded, size: 16),
                 label: const Text('Reschedule'),
@@ -507,7 +529,13 @@ class _CancelledContent extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () => context.pushNamed(RouteNames.findSpecialist),
+            onPressed: () {
+              context.pushNamed(
+                RouteNames.doctorDetails,
+                pathParameters: {'id': appt.doctor.id.toString()},
+                extra: appt.doctor,
+              );
+            },
             icon: const Icon(Icons.refresh_rounded, size: 16),
             label: const Text('Rebook Appointment'),
             style: ElevatedButton.styleFrom(
@@ -634,28 +662,30 @@ class _EmptyState extends StatelessWidget {
 
 class _Appointment {
   final String id;
-  final String doctor;
+  final String doctorName;
   final String specialty;
   final String clinic;
   final String date;
   final String time;
-  final DoctorModel doctorModel;
+  final DoctorModel doctor;
   final String status;
   final String type;
   final String? cancelledBy;
   final String? cancelReason;
+  final String? visitReason;
 
   const _Appointment({
     required this.id,
-    required this.doctor,
+    required this.doctorName,
     required this.specialty,
     required this.clinic,
     required this.date,
     required this.time,
-    required this.doctorModel,
+    required this.doctor,
     required this.status,
     required this.type,
     this.cancelledBy,
     this.cancelReason,
+    this.visitReason,
   });
 }
