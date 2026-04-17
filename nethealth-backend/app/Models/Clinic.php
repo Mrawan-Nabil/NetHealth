@@ -35,4 +35,9 @@ class Clinic extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    public function doctors()
+    {
+        return $this->hasMany(User::class)->where('role', \App\Enums\UserRole::Doctor->value);
+    }
 }

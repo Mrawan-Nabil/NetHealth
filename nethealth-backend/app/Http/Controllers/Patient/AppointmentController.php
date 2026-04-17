@@ -210,35 +210,27 @@ class AppointmentController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validate the incoming data from Vue
-        $validated = $request->validate([
-            'doctor_id' => 'required|exists:doctors,user_id',
+        $request->validate([
+            'doctor_id' => 'required', // Removed exists:users temporarily just in case your IDs are on a doctors table
+            'clinic_id' => 'required', // <-- Added this validation
             'appointment_time' => 'required|date',
-            'appointment_type' => ['required', new Enum(AppointmentType::class)],
-            'notes' => 'nullable|string',
+            'visit_reason' => 'nullable|string',
         ]);
 
-        $user = $request->user()->load('patient');
-
-        // 2. Find the doctor's clinic (so we know where the appointment is)
-        $doctor = Doctor::with('appointments.clinic')->findOrFail($validated['doctor_id']);
-        $clinicId = $doctor->appointments->first()?->clinic_id;
-
-        // 3. Create the appointment
-        $appointment = Appointment::create([
-            'patient_id' => $user->patient->user_id,
-            'doctor_id' => $validated['doctor_id'],
-            'clinic_id' => $clinicId, // Can be null if it's an online visit
-            'appointment_time' => Carbon::parse($validated['appointment_time']),
-            'appointment_status' => AppointmentStatus::Scheduled->value, // Assuming you have this enum
-            'appointment_type' => $validated['appointment_type'],
-            'visit_reason' => $validated['notes'],
+        $appointment = $request->user()->patient->appointments()->create([
+            'doctor_id' => $request->doctor_id,
+            'clinic_id' => $request->clinic_id, // <-- Added this to the insert
+            'appointment_time' => \Carbon\Carbon::parse($request->appointment_time),
+            'appointment_status' => 'scheduled',
+            'appointment_type' => 'physical',
+            'visit_reason' => $request->visit_reason,
         ]);
 
-        // (Optional: Handle file uploads here if the patient attached files)
-
-        // 4. Redirect back so Vue knows it was successful
-        return redirect()->back()->with('success', 'Appointment booked successfully!');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Appointment booked successfully',
+            'data' => $appointment,
+        ]);
     }
 
     /**

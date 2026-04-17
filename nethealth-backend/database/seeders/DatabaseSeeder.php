@@ -37,10 +37,14 @@ class DatabaseSeeder extends Seeder
 
         // Tier 2 (Base Profiles): Call the factories. Note: Inline User Creation handles roles.
         // Save to collection for later use.
-        $doctors = Doctor::factory(5)->create();
+        $clinics = Clinic::factory(3)->create();
+        
+        $doctors = User::factory()->doctor()->count(5)->create()->map(function ($user) {
+            return Doctor::factory()->create(['user_id' => $user->id]);
+        });
+
         $patients = Patient::factory(20)->create();
         $pharmacies = Pharmacy::factory(5)->create();
-        $clinics = Clinic::factory(5)->create();
 
         $medicines = Medicine::factory(20)->create();
 

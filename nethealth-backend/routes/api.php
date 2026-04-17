@@ -54,10 +54,10 @@ Route::prefix('v1')->group(function () {
 
             // We will add the Dashboard, Appointments, and Medical Records routes here next!
             Route::get('/dashboard', [DashboardApiController::class, 'index']);
-            
+
             Route::get('/appointments', [PatientAppointmentApiController::class, 'index']);
             Route::delete('/appointments/{id}', [PatientAppointmentApiController::class, 'destroy']);
-
+            Route::post('/appointments', [PatientAppointmentApiController::class, 'store']);
         });
 
         // (Future: You can add Doctor, Clinic, and Pharmacy route groups here later)
