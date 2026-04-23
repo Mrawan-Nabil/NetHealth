@@ -1,21 +1,12 @@
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue';
 
-type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'teal' | 'gray' | 'urgent';
-type BadgeSize = 'sm' | 'md';
+const props = defineProps({
+    variant: { type: String, default: 'gray' },
+    size: { type: String, default: 'sm' },
+});
 
-const props = withDefaults(
-    defineProps<{
-        variant?: BadgeVariant;
-        size?: BadgeSize;
-    }>(),
-    {
-        variant: 'gray',
-        size: 'sm',
-    },
-);
-
-const variantClasses: Record<BadgeVariant, string> = {
+const variantClasses = {
     success: 'bg-[#DCFCE7] text-[#15803D] dark:bg-emerald-500/20 dark:text-emerald-300',
     warning: 'bg-[#FEF9C3] text-[#92400E] dark:bg-amber-500/20 dark:text-amber-300',
     danger: 'bg-[#FEE2E2] text-[#B91C1C] dark:bg-red-500/20 dark:text-red-300',
@@ -25,7 +16,7 @@ const variantClasses: Record<BadgeVariant, string> = {
     urgent: 'bg-[#FEE2E2] text-[#B91C1C] dark:bg-red-500/20 dark:text-red-300',
 };
 
-const sizeClasses: Record<BadgeSize, string> = {
+const sizeClasses = {
     sm: 'px-2 py-0.5 text-[10px]',
     md: 'px-2.5 py-1 text-xs',
 };

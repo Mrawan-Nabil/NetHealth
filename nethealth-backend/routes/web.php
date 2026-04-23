@@ -26,36 +26,81 @@ Route::get('/home', function () {
     return Inertia::render('Home');
 })->name('home');
 
+// ==========================================
+// DOCTOR DASHBOARD ROUTES
+// (All render paths updated to new DoctorDashboard/ structure)
+// TODO: Replace closures with DoctorDashboardController methods
+//       and pass real Eloquent data matching the Inertia data contract.
+// ==========================================
+
 Route::get('/doctor/dashboard', function () {
-    return Inertia::render('Dashboards/DoctorDashboard');
+    return Inertia::render('DoctorDashboard/Index', [
+        // 'doctor'               => [...],  // DoctorProp shape
+        // 'stats'                => [...],  // StatsProp shape
+        // 'todaySchedule'        => [...],
+        // 'upcomingAppointments' => [...],
+        // 'pendingReviews'       => [...],
+        // 'recentPatients'       => [...],
+        // 'schedule'             => [...],
+    ]);
 });
 
 Route::get('/doctor/profile', function () {
-    return Inertia::render('Dashboards/DoctorProfileDashboard');
+    return Inertia::render('DoctorDashboard/Profile', [
+        // 'doctor'   => [...],  // DoctorProp shape (clinic from doctor->clinic->name)
+        // 'schedule' => [...],
+    ]);
 });
 
 Route::get('/doctor/appointments', function () {
-    return Inertia::render('Dashboards/DoctorAppointmentsDashboard');
+    return Inertia::render('DoctorDashboard/Appointments', [
+        // 'doctor'                  => [...],
+        // 'completedAppointments'   => [...],
+        // 'upcomingAppointments'    => [...],
+        // 'cancelledAppointments'   => [...],
+    ]);
 });
 
 Route::get('/doctor/notifications', function () {
-    return Inertia::render('Dashboards/DoctorNotificationsDashboard');
+    return Inertia::render('DoctorDashboard/Notifications', [
+        // 'doctor'        => [...],
+        // 'notifications' => [...],
+    ]);
 });
 
 Route::get('/doctor/reviews', function () {
-    return Inertia::render('Dashboards/DoctorReviewsDashboard');
+    return Inertia::render('DoctorDashboard/Reviews', [
+        // 'doctor'  => [...],
+        // 'reviews' => [...],
+    ]);
 });
 
 Route::get('/doctor/reviews/files', function () {
-    return Inertia::render('Dashboards/DoctorReviewFilesDashboard');
+    return Inertia::render('DoctorDashboard/ReviewFiles', [
+        // 'doctor'  => [...],
+        // 'patient' => [...],
+        // 'files'   => [...],
+    ]);
 });
 
-Route::get('/doctor/reviews/view-full-file', function () {
-    return Inertia::render('Dashboards/DoctorViewFullFileDashboard');
+Route::get('/doctor/reviews/view-full-file', function (\Illuminate\Http\Request $request) {
+    return Inertia::render('DoctorDashboard/ViewFullFile', [
+        // 'doctor'   => [...],
+        'fileType' => $request->query('type', 'imaging'),  // REQUIRED: passed as prop (not window.location)
+        // 'imaging'  => [...],  // nullable
+        // 'lab'      => [...],  // nullable
+    ]);
 });
 
 Route::get('/doctor/reviews/medical-record', function () {
-    return Inertia::render('Dashboards/DoctorMedicalRecordDashboard');
+    return Inertia::render('DoctorDashboard/MedicalRecord', [
+        // 'doctor'        => [...],
+        // 'patient'       => [...],
+        // 'testResults'   => [...],
+        // 'imaging'       => [...],
+        // 'prescriptions' => [...],
+        // 'visits'        => [...],
+    ]);
 });
 
 
@@ -151,7 +196,8 @@ Route::middleware(['auth', 'active', 'role:patient'])->group(function () {
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
     // Cancelling an existing appointment
     Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
-
+    // Reschedule an existing appointment
+    Route::put('/appointments/{id}', [AppointmentController::class, 'update'])->name('appointments.update');
     // ==========================================
     // MEDICAL RECORDS MODULE
     // ==========================================

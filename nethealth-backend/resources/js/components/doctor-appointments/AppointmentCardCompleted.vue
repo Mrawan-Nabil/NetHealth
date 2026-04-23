@@ -1,23 +1,11 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 import BaseButton from './BaseButton.vue';
 import PatientAvatar from './PatientAvatar.vue';
 
-defineProps<{
-    item: {
-        patientName: string;
-        initials: string;
-        date: string;
-        time: string;
-        visitType: 'In-Clinic Visit' | 'Follow-up Visit';
-        canEdit?: boolean;
-    };
-}>();
+defineProps({ item: { type: Object, required: true } });
+defineEmits(['edit', 'prescription']);
 
-defineEmits<{
-    (event: 'edit'): void;
-    (event: 'prescription'): void;
-}>();
 </script>
 
 <template>

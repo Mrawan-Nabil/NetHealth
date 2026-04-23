@@ -1,5 +1,5 @@
-<script setup lang="ts">
-defineProps<{ rows: Array<{ parameter: string; result: string; unit: string; range: string; status: 'Normal' | 'High' | 'Low' }> }>();
+<script setup>
+defineProps({ rows: { type: Array, required: true } });
 </script>
 <template>
     <section

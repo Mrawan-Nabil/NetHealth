@@ -37,29 +37,29 @@ class PatientAppointmentApiController extends ApiController
     public function store(Request $request)
     {
         $request->validate([
-            'doctor_id'       => 'required|exists:users,id',
-            'clinic_id'       => 'required|exists:clinics,id',
+            'doctor_id' => 'required|exists:users,id',
+            'clinic_id' => 'required|exists:clinics,id',
             'appointment_time' => 'required|date',
             'appointment_type' => 'required|string',
-            'visit_reason'    => 'nullable|string',
-            'patient_name'    => 'nullable|string|max:255',
-            'patient_phone'   => 'nullable|string|max:50',
-            'patient_email'   => 'nullable|email|max:255',
+            'visit_reason' => 'nullable|string',
+            'patient_name' => 'nullable|string|max:255',
+            'patient_phone' => 'nullable|string|max:50',
+            'patient_email' => 'nullable|email|max:255',
         ]);
 
         $appointment = $request->user()->patient->appointments()->create([
-            'doctor_id'          => $request->doctor_id,
-            'clinic_id'          => $request->clinic_id,
-            'appointment_time'   => Carbon::parse($request->appointment_time),
+            'doctor_id' => $request->doctor_id,
+            'clinic_id' => $request->clinic_id,
+            'appointment_time' => Carbon::parse($request->appointment_time),
             'appointment_status' => 'scheduled',
-            'appointment_type'   => $request->appointment_type,
-            'visit_reason'       => $request->visit_reason,
+            'appointment_type' => $request->appointment_type,
+            'visit_reason' => $request->visit_reason,
         ]);
 
         return response()->json([
-            'status'  => 'success',
+            'status' => 'success',
             'message' => 'Appointment booked successfully',
-            'data'    => $appointment,
+            'data' => $appointment,
         ]);
     }
 

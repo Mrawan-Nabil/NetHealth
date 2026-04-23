@@ -1,12 +1,10 @@
-<script setup lang="ts">
-defineProps<{
-    modelValue: string;
-    options: string[];
-}>();
+<script setup>
+defineProps({
+    modelValue: { type: String, required: true },
+    options: { type: Array, required: true },
+});
 
-defineEmits<{
-    (event: 'update:modelValue', value: string): void;
-}>();
+defineEmits(['update:modelValue']);
 </script>
 
 <template>

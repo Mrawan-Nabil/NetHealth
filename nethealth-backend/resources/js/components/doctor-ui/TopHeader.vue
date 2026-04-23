@@ -1,52 +1,26 @@
-<script setup lang="ts">
+<script setup>
 import { router } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import NotificationDropdown from '@/components/dashboard/NotificationDropdown.vue';
 
-type DoctorNotification = {
-    id: number;
-    type: 'appointment' | 'prescription' | 'lab' | 'message' | 'test' | 'info';
-    title: string;
-    message: string;
-    description: string;
-    time: string;
-    date: 'today' | 'yesterday';
-    badge: string;
-    read: boolean;
-};
+const props = defineProps({
+    title: { type: String, required: true },
+    doctorName: { type: String, required: true },
+    handle: { type: String, required: true },
+    avatar: { type: String, required: true },
+    lastViewed: { type: String, default: '10 mins ago' },
+    showLastViewed: { type: Boolean, default: true },
+    showShare: { type: Boolean, default: true },
+    notifications: { type: Array, default: () => [] },
+    isDark: { type: Boolean, default: false },
+});
 
-const props = withDefaults(
-    defineProps<{
-        title: string;
-        doctorName: string;
-        handle: string;
-        avatar: string;
-        lastViewed?: string;
-        showLastViewed?: boolean;
-        showShare?: boolean;
-        notifications?: DoctorNotification[];
-        isDark?: boolean;
-    }>(),
-    {
-        lastViewed: '10 mins ago',
-        showLastViewed: true,
-        showShare: true,
-        notifications: () => [],
-        isDark: false,
-    },
-);
-
-const emit = defineEmits<{
-    (event: 'toggle-sidebar'): void;
-    (event: 'mark-read', id: number): void;
-    (event: 'mark-all-read'): void;
-    (event: 'notification-click', notification: DoctorNotification): void;
-}>();
+const emit = defineEmits(['toggle-sidebar', 'mark-read', 'mark-all-read', 'notification-click']);
 
 const shareCopied = ref(false);
 const userMenuOpen = ref(false);
-const userMenuRef = ref<HTMLElement | null>(null);
-const localNotifications = ref<DoctorNotification[]>([
+const userMenuRef = ref(null);
+const localNotifications = ref([
     {
         id: 1,
         type: 'appointment',
@@ -84,7 +58,7 @@ const localNotifications = ref<DoctorNotification[]>([
 
 const visibleNotifications = computed(() => (props.notifications.length ? props.notifications : localNotifications.value));
 
-const markRead = (id: number) => {
+const markRead = (id) => {
     if (props.notifications.length) {
         emit('mark-read', id);
         return;
@@ -101,7 +75,7 @@ const markAllRead = () => {
     localNotifications.value = localNotifications.value.map((item) => ({ ...item, read: true }));
 };
 
-const openNotification = (notification: DoctorNotification) => {
+const openNotification = (notification) => {
     markRead(notification.id);
     emit('notification-click', notification);
     if (notification.type === 'appointment') router.get('/doctor/appointments');
@@ -132,8 +106,8 @@ const handleLogout = () => {
     router.get('/logout');
 };
 
-const handleClickOutside = (event: MouseEvent) => {
-    if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
+const handleClickOutside = (event) => {
+    if (userMenuRef.value && !userMenuRef.value.contains(event.target)) {
         userMenuOpen.value = false;
     }
 };

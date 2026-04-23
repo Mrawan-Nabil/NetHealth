@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup>
 import BaseButton from './BaseButton.vue';
-const notes = defineModel<string>({ default: '' });
-defineProps<{ saved?: boolean }>();
-defineEmits<{ (event: 'submit'): void }>();
+const notes = defineModel({ default: '' });
+defineProps({ saved: { type: Boolean, default: false } });
+defineEmits(['submit']);
 </script>
 <template>
     <section

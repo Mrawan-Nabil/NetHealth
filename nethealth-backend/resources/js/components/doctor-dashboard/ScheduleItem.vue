@@ -1,16 +1,16 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 
-defineProps<{
-    patientName: string;
-    appointmentType: string;
-    description: string;
-    time: string;
-    status: string;
-    avatar: string;
-}>();
+defineProps({
+    patientName: { type: String, required: true },
+    appointmentType: { type: String, required: true },
+    description: { type: String, required: true },
+    time: { type: String, required: true },
+    status: { type: String, required: true },
+    avatar: { type: String, required: true },
+});
 
-defineEmits<{ (event: 'view-details'): void }>();
+defineEmits(['view-details']);
 </script>
 
 <template>

@@ -14,7 +14,7 @@ const loginSchema = z.object({
     password: z.string().min(1, 'Password is required'),
 });
 
-// 2. Extract isSubmitting alongside handleSubmit and setErrors
+// 2. Extract isSubmitting alongside handleSubmit and setErrors6
 const { handleSubmit, setErrors, isSubmitting } = useForm({
     validationSchema: toTypedSchema(loginSchema),
     initialValues: { email: '', password: '' },

@@ -1,16 +1,10 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 import BaseButton from './BaseButton.vue';
 import PatientAvatar from './PatientAvatar.vue';
 
-defineProps<{
-    item: { id: number; patientName: string; initials: string; filesCount: number; date: string; time: string; status: 'Pending' | 'Reviewed' };
-}>();
-defineEmits<{
-    (event: 'view-files', id: number): void;
-    (event: 'view-details', id: number): void;
-    (event: 'edit-review', id: number): void;
-}>();
+defineProps({ item: { type: Object, required: true } });
+defineEmits(['view-files', 'view-details', 'edit-review']);
 </script>
 
 <template>

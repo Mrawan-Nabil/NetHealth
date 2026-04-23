@@ -1,8 +1,6 @@
-<script setup lang="ts">
+<script setup>
 import { Head } from '@inertiajs/vue3';
 import Layout from '@/layouts/AuthLayout.vue';
-
-// defineProps<{}>();
 </script>
 
 <template>

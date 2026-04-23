@@ -1,17 +1,23 @@
-<script setup lang="ts">
+<script setup>
 defineOptions({ inheritAttrs: false });
 
-defineProps<{
-    title: string;
-    subtitle?: string;
-}>();
+defineProps({
+    title: {
+        type: String,
+        required: true,
+    },
+    subtitle: {
+        type: String,
+        required: true,
+    },
+});
 </script>
 
 <template>
     <section
         v-bind="$attrs"
         class="rounded-xl border border-[#E5E7EB] bg-white p-5 dark:border-[#334155] dark:bg-[#1E293B]"
-        style="box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
+        style="box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04)"
     >
         <header class="mb-5">
             <h3 class="mb-0.5 text-sm font-semibold text-[#0F172A] dark:text-[#F1F5F9]">{{ title }}</h3>

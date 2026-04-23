@@ -1,22 +1,12 @@
-<script setup lang="ts">
-const props = withDefaults(
-    defineProps<{
-        modelValue?: string;
-        label?: string;
-        placeholder?: string;
-        rows?: number;
-    }>(),
-    {
-        modelValue: '',
-        label: '',
-        placeholder: '',
-        rows: 4,
-    },
-);
+<script setup>
+defineProps({
+    modelValue: { type: String, default: '' },
+    label: { type: String, default: '' },
+    placeholder: { type: String, default: '' },
+    rows: { type: Number, default: 4 },
+});
 
-const emit = defineEmits<{
-    (event: 'update:modelValue', value: string): void;
-}>();
+const emit = defineEmits(['update:modelValue']);
 </script>
 
 <template>
@@ -27,7 +17,7 @@ const emit = defineEmits<{
             :rows="rows"
             :placeholder="placeholder"
             class="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2.5 text-sm text-[#0F172A] outline-none transition-all duration-200 hover:border-[#14B8A6]/50 focus:border-[#14B8A6] resize-none dark:border-[#334155] dark:bg-[#0F172A] dark:text-[#F1F5F9] dark:hover:border-[#14B8A6]/50 dark:focus:border-[#14B8A6] dark:placeholder:text-[#64748B]"
-            @input="emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
+            @input="emit('update:modelValue', $event.target.value)"
         />
     </label>
 </template>

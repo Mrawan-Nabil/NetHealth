@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
-defineProps<{ title: string; icon: string; items: Array<{ label: string; value?: string; badges?: Array<{ label: string; variant?: 'teal' | 'purple' | 'amber' | 'rose' | 'emerald' | 'gray' }> }> }>();
+defineProps({ title: { type: String, required: true }, icon: { type: String, required: true }, items: { type: Array, required: true } });
 </script>
 <template>
     <section

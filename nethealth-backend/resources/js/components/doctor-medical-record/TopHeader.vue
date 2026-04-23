@@ -1,6 +1,6 @@
-<script setup lang="ts">
-defineProps<{ title: string; doctorName: string; handle: string; avatar: string }>();
-defineEmits<{ (event: 'toggle-sidebar'): void }>();
+<script setup>
+defineProps({ title: { type: String, required: true }, doctorName: { type: String, required: true }, handle: { type: String, required: true }, avatar: { type: String, required: true } });
+defineEmits(['toggle-sidebar']);
 </script>
 <template>
     <header class="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur-sm md:px-8 dark:border-slate-700 dark:bg-slate-900/95">

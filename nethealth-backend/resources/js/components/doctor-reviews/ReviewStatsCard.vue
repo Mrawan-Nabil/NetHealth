@@ -1,5 +1,5 @@
-<script setup lang="ts">
-defineProps<{ label: string; value: number; tone: 'total' | 'pending' | 'reviewed' }>();
+<script setup>
+defineProps({ label: { type: String, required: true }, value: { type: Number, required: true }, tone: { type: String, required: true } });
 </script>
 <template>
     <article

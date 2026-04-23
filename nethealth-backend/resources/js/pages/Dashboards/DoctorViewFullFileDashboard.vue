@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, onMounted, reactive, ref } from 'vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
@@ -11,18 +11,15 @@ import ResultsAnalysisTable from '@/components/doctor-full-file/ResultsAnalysisT
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
-type FileType = 'imaging' | 'lab';
-type NavIcon = 'home' | 'profile' | 'appointments' | 'reviews' | 'notification' | 'logout';
-
 const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
 const activeThumb = ref(0);
 const notes = ref('');
 const notesSaved = ref(false);
-const fileType = ref<FileType>('imaging');
+const fileType = ref('imaging');
 
 const doctor = { fullName: 'Ahmed Yahia', handle: '@y7ia007', avatar: 'https://i.pravatar.cc/200?img=12' };
-const navItems = ref<Array<{ key: string; label: string; icon: NavIcon; active?: boolean }>>([
+const navItems = ref([
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'profile', label: 'Profile', icon: 'profile' },
     { key: 'appointments', label: 'Appointments', icon: 'appointments' },
@@ -64,17 +61,17 @@ const labFile = reactive({
         reportId: 'ID: #TR-99021',
     },
     rows: [
-        { parameter: 'Hemoglobin', result: '14.2', unit: 'g/dL', range: '13.5 - 17.5', status: 'Normal' as const },
-        { parameter: 'White Blood Cell Count', result: '11.5', unit: 'x10^9/L', range: '4.5 - 11.0', status: 'High' as const },
-        { parameter: 'Platelets', result: '250', unit: 'x10^9/L', range: '150 - 450', status: 'Normal' as const },
-        { parameter: 'Iron', result: '12.0', unit: 'umol/L', range: '14.0 - 32.0', status: 'Low' as const },
+        { parameter: 'Hemoglobin', result: '14.2', unit: 'g/dL', range: '13.5 - 17.5', status: 'Normal' },
+        { parameter: 'White Blood Cell Count', result: '11.5', unit: 'x10^9/L', range: '4.5 - 11.0', status: 'High' },
+        { parameter: 'Platelets', result: '250', unit: 'x10^9/L', range: '150 - 450', status: 'Normal' },
+        { parameter: 'Iron', result: '12.0', unit: 'umol/L', range: '14.0 - 32.0', status: 'Low' },
     ],
 });
 
 const isDark = computed(() => state.isDark);
 const currentImage = computed(() => imagingFile.thumbnails[activeThumb.value] ?? imagingFile.thumbnails[0]);
 
-const toggleTheme = (value: 'light' | 'dark') => setTheme(value);
+const toggleTheme = (value) => setTheme(value);
 
 const submitNotes = () => {
     notesSaved.value = true;
@@ -101,7 +98,7 @@ const downloadFile = () => {
     URL.revokeObjectURL(url);
 };
 
-const handleNav = (key: string) => {
+const handleNav = (key) => {
     navItems.value = navItems.value.map((item) => ({ ...item, active: item.key === key }));
     sidebarOpen.value = false;
     if (key === 'home') return router.get('/doctor/dashboard');

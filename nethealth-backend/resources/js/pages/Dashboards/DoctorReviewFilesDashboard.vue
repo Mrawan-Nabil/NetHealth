@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
@@ -7,10 +7,9 @@ import PatientSummaryCard from '@/components/doctor-reviews/PatientSummaryCard.v
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
-type NavIcon = 'home' | 'profile' | 'appointments' | 'reviews' | 'notification' | 'logout';
 const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
-const navItems = ref<Array<{ key: string; label: string; icon: NavIcon; active?: boolean }>>([
+const navItems = ref([
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'profile', label: 'Profile', icon: 'profile' },
     { key: 'appointments', label: 'Appointments', icon: 'appointments' },
@@ -25,14 +24,14 @@ const files = [
     { id: 2, category: 'X-Ray Imaging', title: 'Chest X-Ray - PA View', date: 'Mar 24, 2026', previewImage: 'https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=1200', buttonText: 'View Full File' },
     { id: 3, category: 'MRI Imaging', title: 'Brain MRI - T2 Weighted', date: 'Mar 25, 2026', previewImage: 'https://images.pexels.com/photos/7088525/pexels-photo-7088525.jpeg?auto=compress&cs=tinysrgb&w=1200', buttonText: 'View Full File' },
 ];
-const openFullFile = (category: string) => {
+const openFullFile = (category) => {
     const type = category === 'Lab Test' ? 'lab' : 'imaging';
     router.get(`/doctor/reviews/view-full-file?type=${type}`);
 };
 const openMedicalRecord = () => router.get('/doctor/reviews/medical-record');
 const isDark = computed(() => state.isDark);
-const toggleTheme = (value: 'light' | 'dark') => setTheme(value);
-const handleNav = (key: string) => {
+const toggleTheme = (value) => setTheme(value);
+const handleNav = (key) => {
     navItems.value = navItems.value.map((item) => ({ ...item, active: item.key === key }));
     sidebarOpen.value = false;
     if (key === 'home') return router.get('/doctor/dashboard');

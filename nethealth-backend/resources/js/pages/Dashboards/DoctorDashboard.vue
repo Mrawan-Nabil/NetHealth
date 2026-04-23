@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
@@ -14,10 +14,6 @@ import WeeklyAvailabilityCard from '@/components/doctor-dashboard/WeeklyAvailabi
 import WelcomeBanner from '@/components/doctor-dashboard/WelcomeBanner.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
-type NavIcon = 'home' | 'profile' | 'appointments' | 'reviews' | 'notification' | 'logout';
-type StatIcon = 'calendar' | 'file' | 'users' | 'check';
-type Accent = 'teal' | 'rose' | 'emerald' | 'amber';
-
 const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
 const scheduleModalOpen = ref(false);
@@ -31,7 +27,7 @@ const doctorProfile = ref({
     avatar: 'https://i.pravatar.cc/100?img=12',
 });
 
-const navItems = ref<Array<{ key: string; label: string; icon: NavIcon; active?: boolean }>>([
+const navItems = ref([
     { key: 'home', label: 'Home', icon: 'home', active: true },
     { key: 'profile', label: 'Profile', icon: 'profile' },
     { key: 'appointments', label: 'Appointments', icon: 'appointments' },
@@ -64,7 +60,7 @@ const schedule = ref({
     },
 });
 
-const stats = ref<Array<{ title: string; value: string; subtitle: string; icon: StatIcon; accent: Accent; urgent: boolean }>>([
+const stats = ref([
     { title: 'Upcoming', value: '12', subtitle: 'Appointments', icon: 'calendar', accent: 'teal', urgent: false },
     { title: 'Pending', value: '08', subtitle: 'Test Reviews', icon: 'file', accent: 'rose', urgent: true },
     { title: 'Total', value: '1,420', subtitle: 'Patients', icon: 'users', accent: 'emerald', urgent: false },
@@ -119,14 +115,14 @@ const availabilityDays = computed(() =>
     })),
 );
 
-const toggleTheme = (value: 'light' | 'dark') => setTheme(value);
+const toggleTheme = (value) => setTheme(value);
 
-const saveSchedule = (value: typeof schedule.value) => {
+const saveSchedule = (value) => {
     schedule.value = value;
     scheduleModalOpen.value = false;
 };
 
-const handleNav = (key: string) => {
+const handleNav = (key) => {
     navItems.value = navItems.value.map((item) => ({ ...item, active: item.key === key }));
     sidebarOpen.value = false;
 

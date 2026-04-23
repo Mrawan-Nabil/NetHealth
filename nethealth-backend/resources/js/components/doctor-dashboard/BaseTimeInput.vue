@@ -1,13 +1,11 @@
-<script setup lang="ts">
-defineProps<{
-    modelValue: string;
-    label?: string;
-    disabled?: boolean;
-}>();
+<script setup>
+defineProps({
+    modelValue: { type: String, required: true },
+    label: { type: String, default: null },
+    disabled: { type: Boolean, default: false },
+});
 
-defineEmits<{
-    (event: 'update:modelValue', value: string): void;
-}>();
+defineEmits(['update:modelValue']);
 </script>
 
 <template>
@@ -19,7 +17,7 @@ defineEmits<{
             type="text"
             inputmode="text"
             class="h-10 min-w-[108px] rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#0F172A] outline-none transition-all duration-200 hover:border-[#14B8A6]/50 focus:border-[#14B8A6] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#334155] dark:bg-[#0F172A] dark:text-[#F1F5F9] dark:hover:border-[#14B8A6]/50 dark:focus:border-[#14B8A6]"
-            @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+            @input="$emit('update:modelValue', $event.target.value)"
         />
     </label>
 </template>

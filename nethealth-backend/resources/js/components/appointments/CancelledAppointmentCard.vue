@@ -1,13 +1,13 @@
 <template>
-  <div 
+  <div
     :class="isDark ? 'bg-[#1E293B] border-[#334155]' : 'bg-white border-[#E5E7EB]'"
     class="border rounded-xl p-5 transition-all duration-300 flex items-start justify-between"
   >
     <!-- Left Section: Doctor Info & Details -->
     <div class="flex items-start gap-4 flex-1">
       <!-- Doctor Avatar -->
-      <img 
-        :src="appointment.doctorAvatar" 
+      <img
+        :src="appointment.doctorAvatar"
         alt="Doctor"
         class="w-12 h-12 rounded-full object-cover flex-shrink-0"
       />
@@ -60,7 +60,7 @@
             <span class="w-1.5 h-1.5 bg-[#EF4444] rounded-full"></span>
             CANCELLED
           </span>
-          <span 
+          <span
             :class="isDark ? 'bg-[#334155] text-[#94A3B8]' : 'bg-[#F3F4F6] text-[#6B7280]'"
             class="px-2 py-1 rounded text-xs font-semibold uppercase"
           >
@@ -71,7 +71,7 @@
     </div>
 
     <!-- Right Section: Reschedule Button -->
-    <button 
+    <button
       @click="$emit('reschedule', appointment)"
       class="px-4 py-2.5 bg-[#14B8A6] hover:bg-[#0F9B8E] text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 flex-shrink-0"
     >
@@ -94,6 +94,5 @@ defineProps({
     default: false
   }
 })
-
 defineEmits(['reschedule'])
 </script>

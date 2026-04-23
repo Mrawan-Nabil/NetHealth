@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script setup>
 import BaseButton from './BaseButton.vue';
-defineEmits<{ (event: 'back'): void; (event: 'print'): void; (event: 'download'): void }>();
+defineEmits(['back', 'print', 'download']);
 </script>
 <template>
     <div class="flex w-full flex-wrap items-center justify-start gap-2 lg:w-auto lg:justify-end">

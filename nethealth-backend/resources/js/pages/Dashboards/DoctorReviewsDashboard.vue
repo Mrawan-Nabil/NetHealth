@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
@@ -7,12 +7,11 @@ import ReviewStatsCard from '@/components/doctor-reviews/ReviewStatsCard.vue';
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
-type NavIcon = 'home' | 'profile' | 'appointments' | 'reviews' | 'notification' | 'logout';
 const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
 
 onMounted(() => setTheme(state.isDark ? 'dark' : 'light'));
-const navItems = ref<Array<{ key: string; label: string; icon: NavIcon; active?: boolean }>>([
+const navItems = ref([
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'profile', label: 'Profile', icon: 'profile' },
     { key: 'appointments', label: 'Appointments', icon: 'appointments' },
@@ -35,8 +34,8 @@ const isDark = computed(() => state.isDark);
 const pendingCount = computed(() => reviews.filter((item) => item.status === 'Pending').length);
 const reviewedCount = computed(() => reviews.filter((item) => item.status === 'Reviewed').length);
 
-const toggleTheme = (value: 'light' | 'dark') => setTheme(value);
-const handleNav = (key: string) => {
+const toggleTheme = (value) => setTheme(value);
+const handleNav = (key) => {
     navItems.value = navItems.value.map((item) => ({ ...item, active: item.key === key }));
     sidebarOpen.value = false;
     if (key === 'home') return router.get('/doctor/dashboard');

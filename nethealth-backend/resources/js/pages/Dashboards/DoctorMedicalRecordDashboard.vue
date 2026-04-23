@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
@@ -14,18 +14,15 @@ import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import VisitHistoryCard from '@/components/doctor-medical-record/VisitHistoryCard.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
-type Tab = 'profile' | 'test-results' | 'imaging' | 'prescriptions' | 'visit-history';
-type NavIcon = 'home' | 'profile' | 'appointments' | 'reviews' | 'notification' | 'logout';
-
 const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
-const activeMainTab = ref<Tab>('profile');
+const activeMainTab = ref('profile');
 const activeFilter = ref('all');
 
 onMounted(() => setTheme(state.isDark ? 'dark' : 'light'));
 
 const doctor = { fullName: 'Ahmed Yahia', handle: '@y7ia007', avatar: 'https://i.pravatar.cc/200?img=12' };
-const navItems = ref<Array<{ key: string; label: string; icon: NavIcon; active?: boolean }>>([
+const navItems = ref([
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'profile', label: 'Profile', icon: 'profile' },
     { key: 'appointments', label: 'Appointments', icon: 'appointments' },
@@ -48,33 +45,33 @@ const patient = {
 };
 
 const testResults = [
-    { title: 'Complete Blood Count (CBC)', lab: 'Central Medical Laboratory', date: 'Mar 24, 2026', status: 'Reviewed' as const },
-    { title: 'Lipid Panel', lab: 'Central Medical Laboratory', date: 'Mar 24, 2026', status: 'Reviewed' as const },
-    { title: 'Thyroid Function Panel', lab: 'Central Medical Laboratory', date: 'Mar 26, 2026', status: 'Pending' as const },
+    { title: 'Complete Blood Count (CBC)', lab: 'Central Medical Laboratory', date: 'Mar 24, 2026', status: 'Reviewed' },
+    { title: 'Lipid Panel', lab: 'Central Medical Laboratory', date: 'Mar 24, 2026', status: 'Reviewed' },
+    { title: 'Thyroid Function Panel', lab: 'Central Medical Laboratory', date: 'Mar 26, 2026', status: 'Pending' },
 ];
 
 const imaging = [
-    { title: 'Chest X-ray', region: 'Chest', doctor: 'Dr. Sarah Martinez', date: 'Mar 23, 2026', modality: 'X-ray' as const },
-    { title: 'Cardiac Ultrasound', region: 'Heart', doctor: 'Dr. Sarah Martinez', date: 'Mar 24, 2026', modality: 'Ultrasound' as const },
-    { title: 'Abdominal CT Scan', region: 'Abdomen', doctor: 'Dr. Sarah Martinez', date: 'Mar 24, 2026', modality: 'CT Scan' as const },
+    { title: 'Chest X-ray', region: 'Chest', doctor: 'Dr. Sarah Martinez', date: 'Mar 23, 2026', modality: 'X-ray' },
+    { title: 'Cardiac Ultrasound', region: 'Heart', doctor: 'Dr. Sarah Martinez', date: 'Mar 24, 2026', modality: 'Ultrasound' },
+    { title: 'Abdominal CT Scan', region: 'Abdomen', doctor: 'Dr. Sarah Martinez', date: 'Mar 24, 2026', modality: 'CT Scan' },
 ];
 
 const prescriptions = [
-    { doctor: 'Dr. Sarah Martinez', visitType: 'Follow-up Visit', date: 'Mar 10, 2026', condition: 'Chronic Lower Back Pain', medicines: ['Ibuprofen (600mg)', 'Cyclobenzaprine (10mg)', 'Gabapentin (300mg)'], status: 'Expired' as const },
-    { doctor: 'Dr. Sarah Martinez', visitType: 'First Visit', date: 'Mar 25, 2026', condition: 'Hypertension', medicines: ['Lisinopril (10mg)', 'Amlodipine (5mg)', 'Aspirin (81mg)'], status: 'Active' as const },
-    { doctor: 'Dr. Sarah Martinez', visitType: 'Follow-up Visit', date: 'Mar 18, 2026', condition: 'Gastroesophageal Reflux Disease', medicines: ['Omeprazole (20mg)', 'Famotidine (20mg)', 'Calcium Carbonate (500mg)'], status: 'Active' as const },
+    { doctor: 'Dr. Sarah Martinez', visitType: 'Follow-up Visit', date: 'Mar 10, 2026', condition: 'Chronic Lower Back Pain', medicines: ['Ibuprofen (600mg)', 'Cyclobenzaprine (10mg)', 'Gabapentin (300mg)'], status: 'Expired' },
+    { doctor: 'Dr. Sarah Martinez', visitType: 'First Visit', date: 'Mar 25, 2026', condition: 'Hypertension', medicines: ['Lisinopril (10mg)', 'Amlodipine (5mg)', 'Aspirin (81mg)'], status: 'Active' },
+    { doctor: 'Dr. Sarah Martinez', visitType: 'Follow-up Visit', date: 'Mar 18, 2026', condition: 'Gastroesophageal Reflux Disease', medicines: ['Omeprazole (20mg)', 'Famotidine (20mg)', 'Calcium Carbonate (500mg)'], status: 'Active' },
 ];
 
 const visits = [
-    { visitType: 'Follow-up Visit', date: 'Mar 25, 2026', time: '2:15 PM', title: 'Hypertension follow-up', summary: 'Blood pressure readings show improvement. Continue current medication.', prescriptionNote: 'Prescription renewed', status: 'Completed' as const, hasPrescription: true },
-    { visitType: 'First Visit', date: 'Mar 24, 2026', time: '11:00 AM', title: 'Diabetes management', summary: 'Initial consultation for Type 2 Diabetes. Lab results reviewed. Started on Metformin.', prescriptionNote: 'New prescription issued', status: 'Completed' as const, hasPrescription: true },
-    { visitType: 'Follow-up Visit', date: 'Mar 22, 2026', time: '3:45 PM', title: 'Follow-up for URI', summary: 'Upper respiratory infection symptoms resolved. Completed antibiotic course.', status: 'Completed' as const },
-    { visitType: 'Follow-up Visit', date: 'Mar 8, 2026', time: '3:00 PM', title: 'Routine follow-up', summary: 'Patient cancelled due to scheduling conflict. Rescheduled for later date.', status: 'Cancelled' as const },
+    { visitType: 'Follow-up Visit', date: 'Mar 25, 2026', time: '2:15 PM', title: 'Hypertension follow-up', summary: 'Blood pressure readings show improvement. Continue current medication.', prescriptionNote: 'Prescription renewed', status: 'Completed', hasPrescription: true },
+    { visitType: 'First Visit', date: 'Mar 24, 2026', time: '11:00 AM', title: 'Diabetes management', summary: 'Initial consultation for Type 2 Diabetes. Lab results reviewed. Started on Metformin.', prescriptionNote: 'New prescription issued', status: 'Completed', hasPrescription: true },
+    { visitType: 'Follow-up Visit', date: 'Mar 22, 2026', time: '3:45 PM', title: 'Follow-up for URI', summary: 'Upper respiratory infection symptoms resolved. Completed antibiotic course.', status: 'Completed' },
+    { visitType: 'Follow-up Visit', date: 'Mar 8, 2026', time: '3:00 PM', title: 'Routine follow-up', summary: 'Patient cancelled due to scheduling conflict. Rescheduled for later date.', status: 'Cancelled' },
 ];
 
 const isDark = computed(() => state.isDark);
 const tabLabel = computed(() => {
-    const map: Record<Tab, string> = {
+    const map = {
         profile: 'Profile',
         'test-results': 'Test Result',
         imaging: 'Imaging',
@@ -95,16 +92,16 @@ const pills = computed(() => {
 const filteredTestResults = computed(() => activeFilter.value === 'all' ? testResults : testResults.filter((item) => item.status.toLowerCase() === activeFilter.value));
 const filteredImaging = computed(() => {
     if (activeFilter.value === 'all') return imaging;
-    const map: Record<string, string> = { xray: 'X-ray', ct: 'CT Scan', ultrasound: 'Ultrasound' };
+    const map = { xray: 'X-ray', ct: 'CT Scan', ultrasound: 'Ultrasound' };
     return imaging.filter((item) => item.modality === map[activeFilter.value]);
 });
 const filteredPrescriptions = computed(() => activeFilter.value === 'all' ? prescriptions : prescriptions.filter((item) => item.status.toLowerCase() === activeFilter.value));
 const filteredVisits = computed(() => activeFilter.value === 'all' ? visits : visits.filter((item) => item.status.toLowerCase() === activeFilter.value));
 
-const toggleTheme = (value: 'light' | 'dark') => setTheme(value);
-const openFullFile = (type: 'lab' | 'imaging' = 'lab') => router.get(`/doctor/reviews/view-full-file?type=${type}`);
+const toggleTheme = (value) => setTheme(value);
+const openFullFile = (type = 'lab') => router.get(`/doctor/reviews/view-full-file?type=${type}`);
 const openPrescription = () => router.get('/doctor/reviews/view-full-file?type=lab');
-const handleNav = (key: string) => {
+const handleNav = (key) => {
     navItems.value = navItems.value.map((item) => ({ ...item, active: item.key === key }));
     sidebarOpen.value = false;
     if (key === 'home') return router.get('/doctor/dashboard');

@@ -1,15 +1,13 @@
-<script setup lang="ts">
+<script setup>
 import BaseButton from './BaseButton.vue';
 import BaseBadge from './BaseBadge.vue';
 import SectionCard from './SectionCard.vue';
 
-defineProps<{
-    days: Array<{ day: string; hours: string; available: boolean }>;
-}>();
+defineProps({
+    days: { type: Array, required: true },
+});
 
-defineEmits<{
-    (event: 'edit-schedule'): void;
-}>();
+defineEmits(['edit-schedule']);
 </script>
 
 <template>

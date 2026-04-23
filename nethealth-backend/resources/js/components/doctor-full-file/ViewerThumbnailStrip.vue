@@ -1,7 +1,7 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
-defineProps<{ thumbnails: string[]; activeIndex: number }>();
-defineEmits<{ (event: 'select', index: number): void }>();
+defineProps({ thumbnails: { type: Array, required: true }, activeIndex: { type: Number, required: true } });
+defineEmits(['select']);
 </script>
 <template>
     <div class="mt-3 flex gap-3 overflow-x-auto pb-1">

@@ -1,12 +1,12 @@
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue';
 
-type BadgeVariant = 'completed' | 'pending' | 'confirmed' | 'visit-clinic' | 'visit-followup' | 'cancelled';
-
-const props = defineProps<{ variant: BadgeVariant }>();
+const props = defineProps({
+    variant: { type: String, required: true },
+});
 
 const classes = computed(() => {
-    const map: Record<BadgeVariant, string> = {
+    const map = {
         completed: 'bg-[#DCFCE7] text-[#15803D] dark:bg-emerald-500/15 dark:text-emerald-300',
         pending: 'bg-[#FEF9C3] text-[#A16207] dark:bg-amber-500/15 dark:text-amber-300',
         confirmed: 'bg-[#CCFBF1] text-[#0F766E] dark:bg-teal-500/15 dark:text-[#2DD4BF]',
