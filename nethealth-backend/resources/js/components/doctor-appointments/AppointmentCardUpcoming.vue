@@ -1,25 +1,11 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 import BaseButton from './BaseButton.vue';
 import PatientAvatar from './PatientAvatar.vue';
 
-defineProps<{
-    item: {
-        patientName: string;
-        initials: string;
-        visitType: string;
-        date: string;
-        time: string;
-        status: 'Pending' | 'Confirmed';
-        action: 'start' | 'review';
-    };
-}>();
+defineProps({ item: { type: Object, required: true } });
+defineEmits(['view-patient', 'review-files', 'cancel']);
 
-defineEmits<{
-    (event: 'view-patient'): void;
-    (event: 'review-files'): void;
-    (event: 'cancel'): void;
-}>();
 </script>
 
 <template>

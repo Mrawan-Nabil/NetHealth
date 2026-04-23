@@ -1,22 +1,22 @@
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue';
 import BaseButton from './BaseButton.vue';
 
-defineProps<{
-    avatar: string;
-    name: string;
-    doctorId: string;
-}>();
+defineProps({
+    avatar: { type: String, required: true },
+    name: { type: String, required: true },
+    doctorId: { type: String, required: true },
+});
 
-const emit = defineEmits<{
-    (event: 'change-photo', file: File): void;
-    (event: 'remove-photo'): void;
-}>();
+// 1. Removed the TypeScript <{...}> syntax
+const emit = defineEmits(['change-photo', 'remove-photo']);
 
-const fileInput = ref<HTMLInputElement | null>(null);
+// 2. Removed the <HTMLInputElement | null> generic
+const fileInput = ref(null);
 
-const handleFileChange = (event: Event) => {
-    const file = (event.target as HTMLInputElement).files?.[0];
+const handleFileChange = (event) => {
+    // 3. Removed the "as HTMLInputElement" assertion
+    const file = event.target.files?.[0];
     if (file) emit('change-photo', file);
 };
 
@@ -28,7 +28,7 @@ const openFileDialog = () => {
 <template>
     <section
         class="rounded-xl border border-[#E5E7EB] bg-white p-5 dark:border-[#334155] dark:bg-[#1E293B]"
-        style="box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
+        style="box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04)"
     >
         <header class="mb-4">
             <h3 class="text-sm font-semibold text-[#0F172A] dark:text-[#F1F5F9]">Profile Picture</h3>
@@ -48,7 +48,12 @@ const openFileDialog = () => {
                 <input ref="fileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="handleFileChange" />
                 <BaseButton variant="secondary" size="sm" @click="openFileDialog">
                     <svg class="mr-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16V5m0 0 4 4m-4-4-4 4M4 16.5v2A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-2" />
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 16V5m0 0 4 4m-4-4-4 4M4 16.5v2A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-2"
+                        />
                     </svg>
                     Change Photo
                 </BaseButton>

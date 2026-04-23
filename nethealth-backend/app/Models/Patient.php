@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 
 class Patient extends Model
@@ -44,8 +45,8 @@ class Patient extends Model
         return $this->hasMany(Appointment::class, 'patient_id');
     }
 
-    public function medicalRecords(): HasMany
+    public function medicalRecords(): HasOne
     {
-        return $this->hasMany(MedicalRecord::class, 'patient_id');
+        return $this->hasOne(MedicalRecord::class, 'patient_id');
     }
 }

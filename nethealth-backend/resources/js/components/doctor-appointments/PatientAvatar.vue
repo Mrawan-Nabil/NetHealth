@@ -1,5 +1,5 @@
-<script setup lang="ts">
-defineProps<{ initials: string; muted?: boolean }>();
+<script setup>
+defineProps({ initials: { type: String, required: true }, muted: { type: Boolean, default: false } });
 </script>
 
 <template>

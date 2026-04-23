@@ -1,7 +1,7 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 
-defineProps<{ patient: { name: string; initials: string; id: string; dob: string; email: string } }>();
+defineProps({ patient: { type: Object, required: true } });
 </script>
 
 <template>

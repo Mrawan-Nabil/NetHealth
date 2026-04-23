@@ -1,11 +1,9 @@
-<script setup lang="ts">
-defineProps<{
-    isDark: boolean;
-}>();
+<script setup>
+defineProps({
+    isDark: { type: Boolean, required: true },
+});
 
-defineEmits<{
-    (event: 'toggle'): void;
-}>();
+defineEmits(['toggle']);
 </script>
 
 <template>

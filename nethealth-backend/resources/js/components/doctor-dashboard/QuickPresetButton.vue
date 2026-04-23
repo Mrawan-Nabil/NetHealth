@@ -1,9 +1,9 @@
-<script setup lang="ts">
-defineProps<{
-    label: string;
-    timeRange: string;
-    selected?: boolean;
-}>();
+<script setup>
+defineProps({
+    label: { type: String, required: true },
+    timeRange: { type: String, required: true },
+    selected: { type: Boolean, default: false },
+});
 </script>
 
 <template>

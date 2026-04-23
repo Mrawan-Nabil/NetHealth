@@ -1,6 +1,6 @@
-<script setup lang="ts">
-defineProps<{ pills: Array<{ key: string; label: string }>; activeFilter: string }>();
-defineEmits<{ (event: 'change', value: string): void }>();
+<script setup>
+defineProps({ pills: { type: Array, required: true }, activeFilter: { type: String, required: true } });
+defineEmits(['change']);
 </script>
 <template>
     <div class="flex flex-wrap items-center gap-2">

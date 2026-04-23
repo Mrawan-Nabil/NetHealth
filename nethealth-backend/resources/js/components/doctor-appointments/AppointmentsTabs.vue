@@ -1,17 +1,11 @@
-<script setup lang="ts">
-type TabId = 'completed' | 'upcoming' | 'cancelled';
-withDefaults(
-    defineProps<{
-        activeTab: TabId;
-        counts?: Record<TabId, number>;
-    }>(),
-    {
-        counts: () => ({ completed: 0, upcoming: 0, cancelled: 0 }),
-    },
-);
-defineEmits<{ (event: 'change', tab: TabId): void }>();
+<script setup>
+defineProps({
+    activeTab: { type: String, required: true },
+    counts: { type: Object, default: () => ({ completed: 0, upcoming: 0, cancelled: 0 }) },
+});
+defineEmits(['change']);
 
-const tabs: Array<{ id: TabId; label: string }> = [
+const tabs = [
     { id: 'completed', label: 'Completed' },
     { id: 'upcoming', label: 'Upcoming' },
     { id: 'cancelled', label: 'Cancelled' },

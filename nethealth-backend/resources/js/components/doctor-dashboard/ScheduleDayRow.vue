@@ -1,21 +1,12 @@
-<script setup lang="ts">
+<script setup>
 import BaseTimeInput from './BaseTimeInput.vue';
 import BaseToggle from './BaseToggle.vue';
 
-defineProps<{
-    day: {
-        name: string;
-        enabled: boolean;
-        from: string;
-        to: string;
-    };
-}>();
+defineProps({
+    day: { type: Object, required: true },
+});
 
-defineEmits<{
-    (event: 'toggle'): void;
-    (event: 'update:from', value: string): void;
-    (event: 'update:to', value: string): void;
-}>();
+defineEmits(['toggle', 'update:from', 'update:to']);
 </script>
 
 <template>

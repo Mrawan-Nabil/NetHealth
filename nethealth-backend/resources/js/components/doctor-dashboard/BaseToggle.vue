@@ -1,6 +1,6 @@
-<script setup lang="ts">
-defineProps<{ modelValue: boolean }>();
-defineEmits<{ (event: 'update:modelValue', value: boolean): void }>();
+<script setup>
+defineProps({ modelValue: { type: Boolean, required: true } });
+defineEmits(['update:modelValue']);
 </script>
 
 <template>

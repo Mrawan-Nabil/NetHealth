@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
@@ -6,24 +6,11 @@ import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import NotificationItem from '@/components/notifications/NotificationItem.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
-type NavIcon = 'home' | 'profile' | 'appointments' | 'reviews' | 'notification' | 'logout';
-type DoctorNotification = {
-    id: number;
-    type: 'appointment' | 'prescription' | 'lab' | 'message';
-    title: string;
-    message: string;
-    description: string;
-    time: string;
-    badge: string;
-    date: 'today' | 'yesterday';
-    read: boolean;
-};
-
 const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
 const doctor = { fullName: 'Ahmed Yahia', handle: '@y7ia007', avatar: 'https://i.pravatar.cc/200?img=12' };
 
-const navItems = ref<Array<{ key: string; label: string; icon: NavIcon; active?: boolean }>>([
+const navItems = ref([
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'profile', label: 'Profile', icon: 'profile' },
     { key: 'appointments', label: 'Appointments', icon: 'appointments' },
@@ -32,7 +19,7 @@ const navItems = ref<Array<{ key: string; label: string; icon: NavIcon; active?:
     { key: 'logout', label: 'Logout', icon: 'logout' },
 ]);
 
-const notifications = ref<DoctorNotification[]>([
+const notifications = ref([
     {
         id: 1,
         type: 'appointment',
@@ -95,13 +82,13 @@ const todayNotifications = computed(() => notifications.value.filter((notificati
 const yesterdayNotifications = computed(() => notifications.value.filter((notification) => notification.date === 'yesterday'));
 const unreadCount = computed(() => notifications.value.filter((notification) => !notification.read).length);
 
-const toggleTheme = (value: 'light' | 'dark') => setTheme(value);
+const toggleTheme = (value) => setTheme(value);
 
 const markAllAsRead = () => {
     notifications.value = notifications.value.map((notification) => ({ ...notification, read: true }));
 };
 
-const markAsRead = (id: number) => {
+const markAsRead = (id) => {
     const notification = notifications.value.find((item) => item.id === id);
     if (notification) notification.read = true;
 };
@@ -110,14 +97,14 @@ const clearAll = () => {
     notifications.value = [];
 };
 
-const handleNotificationClick = (notification: DoctorNotification) => {
+const handleNotificationClick = (notification) => {
     notification.read = true;
     if (notification.type === 'appointment') router.get('/doctor/appointments');
     else if (notification.type === 'lab') router.get('/doctor/reviews/files');
     else if (notification.type === 'prescription') router.get('/doctor/reviews/medical-record');
 };
 
-const handleNav = (key: string) => {
+const handleNav = (key) => {
     navItems.value = navItems.value.map((item) => ({ ...item, active: item.key === key }));
     sidebarOpen.value = false;
     if (key === 'home') return router.get('/doctor/dashboard');

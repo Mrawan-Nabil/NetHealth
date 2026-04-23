@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 import BaseButton from './BaseButton.vue';
-defineProps<{ item: { title: string; lab: string; date: string; status: 'Reviewed' | 'Pending' } }>();
-defineEmits<{ (event: 'view-details'): void }>();
+defineProps({ item: { type: Object, required: true } });
+defineEmits(['view-details']);
 </script>
 <template>
     <article

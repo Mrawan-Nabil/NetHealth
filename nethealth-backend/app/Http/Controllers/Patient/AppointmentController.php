@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Patient;
 
 use App\Enums\AppointmentStatus;
-use App\Enums\AppointmentType;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class AppointmentController extends Controller
@@ -34,7 +34,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Display the user's appointments (Scheduled, Completed, Cancelled)
+     * Display the user's appointments (Scheduled, Completed, Canceled)
      */
     public function index(Request $request)
     {
@@ -68,6 +68,7 @@ class AppointmentController extends Controller
             return [
                 'id' => $apt->id,
                 'status' => $status,
+                'doctorId' => $apt->doctor_id,
                 'doctorName' => 'Dr. '.($apt->doctor?->user?->full_name ?? 'Unknown Doctor'),
                 'doctorAvatar' => $this->resolveAvatarUrl(
                     $apt->doctor?->user?->avatar,
@@ -107,8 +108,9 @@ class AppointmentController extends Controller
     {
         $user = $request->user();
 
-        // 1. Fetch all active doctors with their associated users and clinics (via appointments for now, or direct clinic relation if you have one)
-        $rawDoctors = Doctor::with(['user', 'appointments.clinic'])->get();
+        // Phase 1: Eager-load the clinic directly via the User model's clinic_id FK.
+        // No longer traversing appointments to guess the clinic.
+        $rawDoctors = Doctor::with(['user.clinic'])->get();
 
         // Extract unique specialties from the doctors table
         $uniqueSpecialties = $rawDoctors->pluck('specialty')->filter()->unique()->values();
@@ -118,7 +120,6 @@ class AppointmentController extends Controller
             return [
                 'id' => 'spec_'.$index,
                 'name' => $spec,
-                // A generic medical cross SVG as a fallback icon
                 'icon' => '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>',
             ];
         });
@@ -126,12 +127,10 @@ class AppointmentController extends Controller
         // Map doctors for the DoctorCard component
         $doctors = $rawDoctors->map(function ($doc) use ($uniqueSpecialties) {
 
-            // Find the specialty ID we generated above to link them
             $specialtyId = 'spec_'.$uniqueSpecialties->search($doc->specialty);
 
-            // Find a clinic associated with this doctor (Assuming they have appointments at a clinic)
-            // If you have a direct Doctor -> Clinic relationship, use that instead!
-            $clinicName = $doc->appointments->first()?->clinic?->clinic_name ?? 'NetHealth Virtual Clinic';
+            // Phase 1: Use direct User -> Clinic relationship instead of guessing via appointments.
+            $clinicName = $doc->user?->clinic?->clinic_name ?? 'NetHealth Virtual Clinic';
 
             return [
                 'id' => $doc->user_id,
@@ -144,8 +143,12 @@ class AppointmentController extends Controller
                 'specialty' => $doc->specialty ?? 'General Practice',
                 'specialtyId' => $specialtyId,
                 'hospital' => $clinicName,
-                'rating' => '4.'.rand(5, 9), // Placeholder rating since it's not in DB
-                'reviews' => rand(80, 300),    // Placeholder reviews
+                'clinic' => $doc->user?->clinic ? [
+                    'id' => $doc->user->clinic->id,
+                    'name' => $doc->user->clinic->clinic_name,
+                ] : null,
+                'rating' => '4.'.rand(5, 9),
+                'reviews' => rand(80, 300),
                 'price' => '$'.($doc->consultation_fee ?? '150'),
             ];
         });
@@ -170,12 +173,12 @@ class AppointmentController extends Controller
     {
         $user = $request->user();
 
-        // Fetch the specific doctor and their relationships
-        $doc = Doctor::with(['user', 'appointments.clinic'])->findOrFail($id);
+        // Phase 1: Fetch doctor with direct User -> Clinic relationship.
+        $doc = Doctor::with(['user.clinic'])->findOrFail($id);
 
-        $clinicName = $doc->appointments->first()?->clinic?->clinic_name ?? 'NetHealth Virtual Clinic';
+        // Phase 1 UI: Directly use the new FK relationship.
+        $clinicName = $doc->user?->clinic?->clinic_name ?? 'NetHealth Virtual Clinic';
 
-        // Format the doctor data exactly as DoctorProfile.vue expects
         $doctorProfile = [
             'id' => $doc->user_id,
             'name' => 'Dr. '.($doc->user?->full_name ?? 'Unknown'),
@@ -186,8 +189,14 @@ class AppointmentController extends Controller
             ),
             'specialty' => $doc->specialty ?? 'General Practice',
             'hospital' => $clinicName,
-            'rating' => '4.'.rand(5, 9), // Placeholder
-            'reviews' => rand(80, 300),    // Placeholder
+            // Expose the full clinic object so DoctorProfile.vue can bind doctor.clinic?.name
+            'clinic' => $doc->user?->clinic ? [
+                'id' => $doc->user->clinic->id,
+                'name' => $doc->user->clinic->clinic_name,
+                'address' => $doc->user->clinic->clinic_address,
+            ] : null,
+            'rating' => '4.'.rand(5, 9),
+            'reviews' => rand(80, 300),
             'price' => '$'.($doc->consultation_fee ?? '100'),
         ];
 
@@ -210,27 +219,83 @@ class AppointmentController extends Controller
      */
     public function store(Request $request)
     {
+        // Phase 2: Validate only what the frontend should supply.
+        // clinic_id is NO LONGER accepted from the request — it is resolved server-side.
         $request->validate([
-            'doctor_id' => 'required', // Removed exists:users temporarily just in case your IDs are on a doctors table
-            'clinic_id' => 'required', // <-- Added this validation
+            'doctor_id' => 'required|exists:users,id',
             'appointment_time' => 'required|date',
+            'appointment_type' => 'nullable|string',
             'visit_reason' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
+
+        // Phase 2 — Auto-Assignment: Resolve clinic from the doctor's User record directly.
+        $doctor = User::findOrFail($request->doctor_id);
+
+        // Phase 2 — Failsafe: Reject booking if doctor has no assigned clinic.
+        if (! $doctor->clinic_id) {
+            throw ValidationException::withMessages([
+                'doctor_id' => 'This doctor is not assigned to a clinic. Please contact support.',
+            ]);
+        }
 
         $appointment = $request->user()->patient->appointments()->create([
-            'doctor_id' => $request->doctor_id,
-            'clinic_id' => $request->clinic_id, // <-- Added this to the insert
-            'appointment_time' => \Carbon\Carbon::parse($request->appointment_time),
+            'doctor_id' => $doctor->id,
+            'clinic_id' => $doctor->clinic_id,  // Authoritative — set by backend only.
+            'appointment_time' => Carbon::parse($request->appointment_time),
             'appointment_status' => 'scheduled',
-            'appointment_type' => 'physical',
+            'appointment_type' => $request->appointment_type ?? 'physical',
             'visit_reason' => $request->visit_reason,
+            'notes' => $request->notes,
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Appointment booked successfully',
-            'data' => $appointment,
+        return redirect()->route('appointments.index')
+            ->with('success', 'Appointment booked successfully!');
+    }
+
+    /**
+     * Reschedule an existing appointment.
+     */
+    public function update(Request $request, int $id)
+    {
+        // 1. Validate the payload from Inertia (from RescheduleModal.vue)
+        $request->validate([
+            'date' => 'required|date',
+            'time' => 'required|string', // e.g., "10:00 AM"
+            'reason' => 'nullable|string',
         ]);
+
+        $user = $request->user();
+        $appointment = Appointment::findOrFail($id);
+
+        // 2. Security check: Ensure the patient owns this appointment
+        $ownsAppointment = (int) $appointment->patient_id === (int) $user->id
+            || (int) $appointment->patient_id === (int) ($user->patient?->user_id ?? 0);
+
+        if (! $ownsAppointment) {
+            abort(403, 'You are not allowed to reschedule this appointment.');
+        }
+
+        // 3. Combine the date and time strings into a valid Carbon database timestamp
+        $newAppointmentTime = Carbon::parse($request->date.' '.$request->time);
+
+        // 4. Prepare data for update
+        $updateData = [
+            'appointment_time' => $newAppointmentTime,
+            'appointment_status' => 'scheduled', // Reset to scheduled in case it was pending/cancelled
+        ];
+
+        // 5. If they provided a reason, append it to the appointment notes
+        if ($request->filled('reason')) {
+            $existingNotes = $appointment->notes ? $appointment->notes."\n\n" : '';
+            $updateData['notes'] = $existingNotes.'Reschedule Reason: '.$request->reason;
+        }
+
+        // 6. Save to database
+        $appointment->update($updateData);
+
+        // 7. Return Inertia response
+        return back()->with('success', 'Appointment rescheduled successfully to '.$newAppointmentTime->format('M j, Y h:i A'));
     }
 
     /**

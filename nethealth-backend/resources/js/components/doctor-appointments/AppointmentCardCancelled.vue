@@ -1,20 +1,10 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 import BaseButton from './BaseButton.vue';
 import PatientAvatar from './PatientAvatar.vue';
 
-defineProps<{
-    item: {
-        patientName: string;
-        initials: string;
-        date: string;
-        time: string;
-        cancelledNote: string;
-        reason: string;
-    };
-}>();
-
-defineEmits<{ (event: 'reschedule'): void }>();
+defineProps({ item: { type: Object, required: true } });
+defineEmits(['reschedule']);
 </script>
 
 <template>

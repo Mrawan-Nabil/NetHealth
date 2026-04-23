@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
@@ -9,12 +9,9 @@ import AppointmentsTabs from '@/components/doctor-appointments/AppointmentsTabs.
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
-type Tab = 'completed' | 'upcoming' | 'cancelled';
-type NavIcon = 'home' | 'profile' | 'appointments' | 'reviews' | 'notification' | 'logout';
-
 const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
-const activeTab = ref<Tab>('completed');
+const activeTab = ref('completed');
 
 const doctor = {
     fullName: 'Ahmed Yahia',
@@ -22,7 +19,7 @@ const doctor = {
     avatar: 'https://i.pravatar.cc/200?img=12',
 };
 
-const navItems = ref<Array<{ key: string; label: string; icon: NavIcon; active?: boolean }>>([
+const navItems = ref([
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'profile', label: 'Profile', icon: 'profile' },
     { key: 'appointments', label: 'Appointments', icon: 'appointments', active: true },
@@ -65,19 +62,19 @@ const tabCounts = computed(() => ({
     cancelled: cancelledAppointments.value.length,
 }));
 
-const toggleTheme = (value: 'light' | 'dark') => setTheme(value);
+const toggleTheme = (value) => setTheme(value);
 
 const openPatientRecord = () => router.get('/doctor/reviews/medical-record');
 const openReviewFiles = () => router.get('/doctor/reviews/files');
 const openPrescription = () => router.get('/doctor/reviews/medical-record');
-const cancelUpcoming = (id: number) => {
+const cancelUpcoming = (id) => {
     upcomingAppointments.value = upcomingAppointments.value.filter((appointment) => appointment.id !== id);
 };
 const restoreCancelled = () => {
     activeTab.value = 'upcoming';
 };
 
-const handleNav = (key: string) => {
+const handleNav = (key) => {
     navItems.value = navItems.value.map((item) => ({ ...item, active: item.key === key }));
     sidebarOpen.value = false;
     if (key === 'home') return router.get('/doctor/dashboard');

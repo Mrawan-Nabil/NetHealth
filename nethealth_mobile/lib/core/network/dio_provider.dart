@@ -6,7 +6,7 @@ import '../../features/auth/providers/auth_provider.dart';
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: 'http://10.0.2.2:8001/api/v1',
+      baseUrl: 'http://127.0.0.1:8001/api/v1',
       headers: {
         'Accept': 'application/json',
       },

@@ -1,26 +1,15 @@
-<script setup lang="ts">
+<script setup>
 import ThemeToggle from './ThemeToggle.vue';
 
-type NavItem = {
-    key: string;
-    label: string;
-    icon: 'home' | 'profile' | 'appointments' | 'reviews' | 'notification' | 'logout';
-    active?: boolean;
-};
+defineProps({
+    navItems: { type: Array, required: true },
+    isOpen: { type: Boolean, required: true },
+    isDark: { type: Boolean, required: true },
+});
 
-defineProps<{
-    navItems: NavItem[];
-    isOpen: boolean;
-    isDark: boolean;
-}>();
+defineEmits(['navigate', 'close', 'toggle-theme']);
 
-defineEmits<{
-    (event: 'navigate', key: string): void;
-    (event: 'close'): void;
-    (event: 'toggle-theme'): void;
-}>();
-
-const iconMap: Record<NavItem['icon'], string> = {
+const iconMap = {
     home: 'M3 12 12 4l9 8M5 10v10h14V10',
     profile: 'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM4 20a8 8 0 0 1 16 0',
     appointments: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z',

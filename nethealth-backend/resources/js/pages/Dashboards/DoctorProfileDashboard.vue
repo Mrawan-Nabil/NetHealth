@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, onMounted, reactive, ref } from 'vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
@@ -12,8 +12,6 @@ import InfoMiniCard from '@/components/doctor-profile/InfoMiniCard.vue';
 import ProfilePictureCard from '@/components/doctor-profile/ProfilePictureCard.vue';
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
-
-type NavIcon = 'home' | 'profile' | 'appointments' | 'reviews' | 'notification' | 'logout';
 
 const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
@@ -33,7 +31,7 @@ const doctor = reactive({
     avatar: 'https://i.pravatar.cc/200?img=12',
 });
 
-const navItems = ref<Array<{ key: string; label: string; icon: NavIcon; active?: boolean }>>([
+const navItems = ref([
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'profile', label: 'Profile', icon: 'profile', active: true },
     { key: 'appointments', label: 'Appointments', icon: 'appointments' },
@@ -65,7 +63,7 @@ const form = reactive({
 
 const initialForm = { ...form };
 
-const schedule = ref<ScheduleState>({
+const schedule = ref({
     days: [
         { name: 'Monday', enabled: true, from: '09:00 AM', to: '03:00 PM' },
         { name: 'Tuesday', enabled: true, from: '09:00 AM', to: '03:00 PM' },
@@ -112,16 +110,16 @@ const countryOptions = [
 ];
 
 const isDark = computed(() => state.isDark);
-const toggleTheme = (value: 'light' | 'dark') => setTheme(value);
+const toggleTheme = (value) => setTheme(value);
 
-const setSaveMessage = (message: string) => {
+const setSaveMessage = (message) => {
     saveMessage.value = message;
     window.setTimeout(() => {
         if (saveMessage.value === message) saveMessage.value = '';
     }, 1800);
 };
 
-const handlePhotoChange = (file: File) => {
+const handlePhotoChange = (file) => {
     doctor.avatar = URL.createObjectURL(file);
     setSaveMessage('Profile photo preview updated.');
 };
@@ -141,29 +139,13 @@ const handleSave = () => {
     setSaveMessage('Profile changes saved.');
 };
 
-type ScheduleState = {
-    days: Array<{ name: string; enabled: boolean; from: string; to: string }>;
-    duration: string;
-    breakBetweenSlots: string;
-    selectedPreset: string | null;
-    appointmentTypes: {
-        inClinic: boolean;
-        followUp: boolean;
-        labReview: boolean;
-    };
-    labReviewOptions: {
-        acceptLabTests: boolean;
-        acceptXrayImages: boolean;
-    };
-};
-
-const saveSchedule = (value: ScheduleState) => {
+const saveSchedule = (value) => {
     schedule.value = value;
     scheduleModalOpen.value = false;
     setSaveMessage('Schedule updated.');
 };
 
-const handleNav = (key: string) => {
+const handleNav = (key) => {
     navItems.value = navItems.value.map((item) => ({ ...item, active: item.key === key }));
     sidebarOpen.value = false;
 

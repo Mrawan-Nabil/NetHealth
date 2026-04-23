@@ -1,14 +1,12 @@
-<script setup lang="ts">
-defineProps<{
-    title: string;
-    doctorName: string;
-    handle: string;
-    avatar: string;
-}>();
+<script setup>
+defineProps({
+    title: { type: String, required: true },
+    doctorName: { type: String, required: true },
+    handle: { type: String, required: true },
+    avatar: { type: String, required: true },
+});
 
-defineEmits<{
-    (event: 'toggle-sidebar'): void;
-}>();
+defineEmits(['toggle-sidebar']);
 </script>
 
 <template>

@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 import BaseButton from './BaseButton.vue';
-defineProps<{ item: { category: 'Lab Test' | 'X-Ray Imaging' | 'MRI Imaging'; title: string; date: string; previewImage: string; buttonText: string } }>();
-defineEmits<{ (event: 'view-file'): void }>();
+defineProps({ item: { type: Object, required: true } });
+defineEmits(['view-file']);
 </script>
 <template>
     <article

@@ -1,12 +1,12 @@
-<script setup lang="ts">
-defineProps<{
-    reportType: string;
-    patientName: string;
-    category: string;
-    timeAgo: string;
-}>();
+<script setup>
+defineProps({
+    reportType: { type: String, required: true },
+    patientName: { type: String, required: true },
+    category: { type: String, required: true },
+    timeAgo: { type: String, required: true },
+});
 
-defineEmits<{ (event: 'review-files'): void }>();
+defineEmits(['review-files']);
 </script>
 
 <template>

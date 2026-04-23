@@ -1,8 +1,7 @@
-<script setup lang="ts">
-type TabId = 'profile' | 'test-results' | 'imaging' | 'prescriptions' | 'visit-history';
-defineProps<{ activeTab: TabId }>();
-defineEmits<{ (event: 'change', tab: TabId): void }>();
-const tabs: Array<{ id: TabId; label: string; icon: string }> = [
+<script setup>
+defineProps({ activeTab: { type: String, required: true } });
+defineEmits(['change']);
+const tabs = [
     { id: 'profile', label: 'Profile', icon: 'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM4 20a8 8 0 0 1 16 0' },
     { id: 'test-results', label: 'Test Results', icon: 'M9 3v6a3 3 0 0 1-3 3H3m0 0v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3m-15 0h15' },
     { id: 'imaging', label: 'Imaging', icon: 'M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m5 4a2 2 0 1 0-4 0 2 2 0 0 0 4 0m8 10l-5-5-3 3' },

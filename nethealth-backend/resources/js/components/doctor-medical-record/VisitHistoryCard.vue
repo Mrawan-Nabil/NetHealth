@@ -1,12 +1,9 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 import BaseButton from './BaseButton.vue';
 
-defineProps<{ item: { visitType: string; date: string; time: string; title: string; summary: string; prescriptionNote?: string; status: 'Completed' | 'Cancelled'; hasPrescription?: boolean } }>();
-defineEmits<{
-    (event: 'view-details'): void;
-    (event: 'view-prescription'): void;
-}>();
+defineProps({ item: { type: Object, required: true } });
+defineEmits(['view-details', 'view-prescription']);
 </script>
 
 <template>

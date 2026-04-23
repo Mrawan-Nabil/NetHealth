@@ -1,9 +1,10 @@
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue';
-type Variant = 'pending' | 'reviewed' | 'lab' | 'xray' | 'mri';
-const props = defineProps<{ variant: Variant }>();
+const props = defineProps({
+    variant: { type: String, required: true },
+});
 const classes = computed(() => {
-    const map: Record<Variant, string> = {
+    const map = {
         pending: 'bg-[#FEF9C3] text-[#A16207] dark:bg-amber-500/15 dark:text-amber-300',
         reviewed: 'bg-[#DCFCE7] text-[#15803D] dark:bg-emerald-500/15 dark:text-emerald-300',
         lab: 'bg-[#CCFBF1] text-[#0F766E] dark:bg-teal-500/15 dark:text-[#2DD4BF]',

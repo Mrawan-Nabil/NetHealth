@@ -1,12 +1,10 @@
-<script setup lang="ts">
-defineProps<{
-    modelValue: boolean;
-    label?: string;
-}>();
+<script setup>
+defineProps({
+    modelValue: { type: Boolean, required: true },
+    label: { type: String, default: null },
+});
 
-defineEmits<{
-    (event: 'update:modelValue', value: boolean): void;
-}>();
+defineEmits(['update:modelValue']);
 </script>
 
 <template>
@@ -16,7 +14,7 @@ defineEmits<{
                 type="checkbox"
                 class="peer sr-only"
                 :checked="modelValue"
-                @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
+                @change="$emit('update:modelValue', $event.target.checked)"
             />
             <span class="h-5 w-5 rounded-md border border-[#E5E7EB] bg-white transition-colors duration-200 peer-checked:border-[#14B8A6] peer-checked:bg-[#14B8A6] dark:border-[#334155] dark:bg-[#0F172A]" />
             <svg class="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition-opacity duration-200 peer-checked:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor">

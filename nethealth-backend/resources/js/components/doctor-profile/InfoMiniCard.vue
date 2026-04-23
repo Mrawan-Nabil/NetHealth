@@ -1,9 +1,20 @@
-<script setup lang="ts">
-defineProps<{
-    title: string;
-    subtitle: string;
-    icon: 'education' | 'certification' | 'availability';
-}>();
+<script setup>
+    defineProps({
+    title: {
+    type: String,
+    required: true
+},
+    subtitle: {
+    type: String,
+    required: true
+},
+    icon: {
+    type: String,
+    required: true,
+    // This replaces the TS union type to ensure only valid icons are passed
+    validator: (value) => ['education', 'certification', 'availability'].includes(value)
+},
+});
 </script>
 
 <template>

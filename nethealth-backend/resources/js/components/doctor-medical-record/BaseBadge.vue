@@ -1,11 +1,10 @@
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue';
 
-type Variant = 'teal' | 'purple' | 'amber' | 'rose' | 'emerald' | 'gray';
-const props = withDefaults(defineProps<{ variant?: Variant }>(), { variant: 'gray' });
+const props = defineProps({ variant: { type: String, default: 'gray' } });
 
 const classes = computed(() => {
-    const map: Record<Variant, string> = {
+    const map = {
         teal: 'bg-[#CCFBF1] text-[#0D9488] dark:bg-teal-500/20 dark:text-[#2DD4BF]',
         purple: 'bg-[#EDE9FE] text-[#6D28D9] dark:bg-violet-500/20 dark:text-violet-300',
         amber: 'bg-[#FEF9C3] text-[#92400E] dark:bg-amber-500/20 dark:text-amber-300',

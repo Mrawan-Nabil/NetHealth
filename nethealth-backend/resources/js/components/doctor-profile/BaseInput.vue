@@ -1,31 +1,17 @@
-<script setup lang="ts">
+<script setup>
 import { computed, useAttrs } from 'vue';
 
-const props = withDefaults(
-    defineProps<{
-        modelValue?: string | number;
-        label?: string;
-        type?: string;
-        placeholder?: string;
-        hint?: string;
-        icon?: 'calendar' | 'eye' | 'eye-off' | 'none';
-        inputClass?: string;
-    }>(),
-    {
-        modelValue: '',
-        label: '',
-        type: 'text',
-        placeholder: '',
-        hint: '',
-        icon: 'none',
-        inputClass: '',
-    },
-);
+const props = defineProps({
+    modelValue: { type: [String, Number], default: '' },
+    label: { type: String, default: '' },
+    type: { type: String, default: 'text' },
+    placeholder: { type: String, default: '' },
+    hint: { type: String, default: '' },
+    icon: { type: String, default: 'none' },
+    inputClass: { type: String, default: '' },
+});
 
-const emit = defineEmits<{
-    (event: 'update:modelValue', value: string): void;
-    (event: 'icon-click'): void;
-}>();
+const emit = defineEmits(['update:modelValue', 'icon-click']);
 
 const attrs = useAttrs();
 
@@ -45,7 +31,7 @@ const hasIcon = computed(() => props.icon !== 'none' && props.type !== 'date');
                 :placeholder="placeholder"
                 :class="['h-full w-full bg-transparent outline-none placeholder:text-[#9CA3AF] dark:placeholder:text-[#475569]', inputClass]"
                 v-bind="attrs"
-                @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+                @input="emit('update:modelValue', $event.target.value)"
             />
             <button
                 v-if="hasIcon"

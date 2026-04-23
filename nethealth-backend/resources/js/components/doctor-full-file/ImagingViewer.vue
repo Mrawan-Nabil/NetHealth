@@ -1,14 +1,14 @@
-<script setup lang="ts">
+<script setup>
 import { computed, ref } from 'vue';
 import ViewerThumbnailStrip from './ViewerThumbnailStrip.vue';
 
-defineProps<{ image: string; pages: number; currentPage: number; thumbnails: string[]; activeThumb: number }>();
-defineEmits<{ (event: 'thumbnail', index: number): void }>();
+defineProps({ image: { type: String, required: true }, pages: { type: Number, required: true }, currentPage: { type: Number, required: true }, thumbnails: { type: Array, required: true }, activeThumb: { type: Number, required: true } });
+defineEmits(['thumbnail']);
 
 const zoom = ref(1);
 const rotation = ref(0);
 const isPlaying = ref(false);
-const viewerRef = ref<HTMLElement | null>(null);
+const viewerRef = ref(null);
 
 const imageStyle = computed(() => ({
     transform: `scale(${zoom.value}) rotate(${rotation.value}deg)`,

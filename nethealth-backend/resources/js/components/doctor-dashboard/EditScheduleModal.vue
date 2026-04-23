@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppointmentTypeCard from './AppointmentTypeCard.vue';
 import BaseButton from './BaseButton.vue';
@@ -8,43 +8,16 @@ import QuickPresetButton from './QuickPresetButton.vue';
 import ScheduleDayRow from './ScheduleDayRow.vue';
 import TimeOptionGroup from './TimeOptionGroup.vue';
 
-type ScheduleDay = {
-    name: string;
-    enabled: boolean;
-    from: string;
-    to: string;
-};
+const props = defineProps({
+    open: { type: Boolean, required: true },
+    schedule: { type: Object, required: true },
+});
 
-type ScheduleState = {
-    days: ScheduleDay[];
-    duration: string;
-    breakBetweenSlots: string;
-    selectedPreset: string | null;
-    appointmentTypes: {
-        inClinic: boolean;
-        followUp: boolean;
-        labReview: boolean;
-    };
-    labReviewOptions: {
-        acceptLabTests: boolean;
-        acceptXrayImages: boolean;
-    };
-};
+const emit = defineEmits(['close', 'save']);
 
-const props = defineProps<{
-    open: boolean;
-    schedule: ScheduleState;
-}>();
+const modalRef = ref(null);
 
-const emit = defineEmits<{
-    (event: 'close'): void;
-    (event: 'save', value: ScheduleState): void;
-}>();
-
-const modalRef = ref<HTMLElement | null>(null);
-const cancelButtonRef = ref<InstanceType<typeof BaseButton> | null>(null);
-
-const makeCopy = (source: ScheduleState): ScheduleState => ({
+const makeCopy = (source) => ({
     days: source.days.map((day) => ({ ...day })),
     duration: source.duration,
     breakBetweenSlots: source.breakBetweenSlots,
@@ -53,12 +26,12 @@ const makeCopy = (source: ScheduleState): ScheduleState => ({
     labReviewOptions: { ...source.labReviewOptions },
 });
 
-const localSchedule = ref<ScheduleState>(makeCopy(props.schedule));
+const localSchedule = ref(makeCopy(props.schedule));
 
 const presetMap = {
     morning: { from: '09:00 AM', to: '02:00 PM' },
     evening: { from: '05:00 PM', to: '10:00 PM' },
-} as const;
+};
 
 const presetButtons = [
     { key: 'morning', label: 'Morning Shift', range: '9:00 AM - 2:00 PM' },
@@ -76,7 +49,7 @@ const errors = computed(() =>
 
 const closeModal = () => emit('close');
 
-const onKeydown = (event: KeyboardEvent) => {
+const onKeydown = (event) => {
     if (!props.open) return;
 
     if (event.key === 'Escape') {
@@ -86,14 +59,14 @@ const onKeydown = (event: KeyboardEvent) => {
     }
 
     if (event.key === 'Tab' && modalRef.value) {
-        const focusables = modalRef.value.querySelectorAll<HTMLElement>(
+        const focusables = modalRef.value.querySelectorAll(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         );
         if (!focusables.length) return;
 
         const first = focusables[0];
         const last = focusables[focusables.length - 1];
-        const active = document.activeElement as HTMLElement | null;
+        const active = document.activeElement;
 
         if (event.shiftKey && active === first) {
             event.preventDefault();
@@ -105,24 +78,18 @@ const onKeydown = (event: KeyboardEvent) => {
     }
 };
 
-const applyPreset = (presetKey: 'morning' | 'evening') => {
+const applyPreset = (presetKey) => {
     const preset = presetMap[presetKey];
     localSchedule.value.selectedPreset = presetKey;
     localSchedule.value.days = localSchedule.value.days.map((day) =>
-        day.enabled
-            ? {
-                  ...day,
-                  from: preset.from,
-                  to: preset.to,
-              }
-            : day,
+        day.enabled ? { ...day, from: preset.from, to: preset.to } : day,
     );
 };
 
 const saveSchedule = () => {
     if (errors.value.length) return;
     emit('save', makeCopy(localSchedule.value));
-  };
+};
 
 watch(
     () => props.schedule,
@@ -138,7 +105,7 @@ watch(
         if (value) {
             localSchedule.value = makeCopy(props.schedule);
             await nextTick();
-            const firstFocusable = modalRef.value?.querySelector<HTMLElement>('button, input, select, textarea');
+            const firstFocusable = modalRef.value?.querySelector('button, input, select, textarea');
             firstFocusable?.focus();
         }
     },
@@ -183,7 +150,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown));
                                     :label="preset.label"
                                     :time-range="preset.range"
                                     :selected="localSchedule.selectedPreset === preset.key"
-                                    @click="applyPreset(preset.key as 'morning' | 'evening')"
+                                    @click="applyPreset(preset.key)"
                                 />
                             </div>
                         </section>
@@ -251,7 +218,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown));
                     </div>
 
                     <div class="flex justify-end gap-2 border-t border-[#E5E7EB] px-6 py-4 dark:border-[#334155]">
-                        <BaseButton ref="cancelButtonRef" variant="secondary" @click="closeModal">Cancel</BaseButton>
+                        <BaseButton variant="secondary" @click="closeModal">Cancel</BaseButton>
                         <BaseButton variant="primary" :disabled="errors.length > 0" @click="saveSchedule">Save Changes</BaseButton>
                     </div>
                 </div>

@@ -1,12 +1,12 @@
-<script setup lang="ts">
-defineProps<{
-    title: string;
-    value: string;
-    subtitle: string;
-    icon: 'calendar' | 'file' | 'users' | 'check';
-    accent?: 'teal' | 'rose' | 'emerald' | 'amber';
-    urgent?: boolean;
-}>();
+<script setup>
+defineProps({
+    title: { type: String, required: true },
+    value: { type: String, required: true },
+    subtitle: { type: String, required: true },
+    icon: { type: String, required: true },
+    accent: { type: String, default: 'teal' },
+    urgent: { type: Boolean, default: false },
+});
 
 const accentMap = {
     teal:    { bg: 'bg-blue-50    dark:bg-blue-500/15',    color: 'text-blue-500    dark:text-blue-400' },
@@ -15,8 +15,7 @@ const accentMap = {
     amber:   { bg: 'bg-amber-50   dark:bg-amber-500/15',   color: 'text-amber-500   dark:text-amber-400' },
 };
 
-// All paths kept safely within the 0 0 24 24 viewBox
-const iconPaths: Record<string, string[]> = {
+const iconPaths = {
     calendar: [
         'M8 7V4m8 3V4m-9 5h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z',
     ],

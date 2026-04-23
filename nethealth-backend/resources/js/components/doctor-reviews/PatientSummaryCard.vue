@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup>
 import BaseButton from './BaseButton.vue';
 import PatientAvatar from './PatientAvatar.vue';
-defineProps<{ name: string; initials: string; age: number; gender: string; patientId: string }>();
-defineEmits<{ (event: 'view-medical-record'): void }>();
+defineProps({ name: { type: String, required: true }, initials: { type: String, required: true }, age: { type: Number, required: true }, gender: { type: String, required: true }, patientId: { type: String, required: true } });
+defineEmits(['view-medical-record']);
 </script>
 <template>
     <article

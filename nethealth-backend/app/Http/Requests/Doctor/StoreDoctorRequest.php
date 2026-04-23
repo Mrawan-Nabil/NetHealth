@@ -30,14 +30,16 @@ class StoreDoctorRequest extends FormRequest
 
         return array_merge($registerRules, [
             'medical_license_number' => 'required|string|max:50|unique:doctors,medical_license',
-            'specialty' => 'required|string|max:255',
-            'professional_title' => ['required', new Enum(ProfessionalTitle::class)],
-            'syndicate_id' => 'required|string|unique:doctors,syndicate_id|max:50',
-            'consultation_fee' => 'required|integer|min:0',
-            'experience' => 'nullable|string|max:255',
-            'qualifications' => 'nullable|string|max:255',
-            'verification_documents' => 'nullable|array',
+            'specialty'              => 'required|string|max:255',
+            'professional_title'     => ['required', new Enum(ProfessionalTitle::class)],
+            'syndicate_id'           => 'required|string|unique:doctors,syndicate_id|max:50',
+            'consultation_fee'       => 'required|integer|min:0',
+            'experience'             => 'nullable|string|max:255',
+            'qualifications'         => 'nullable|string|max:255',
+            'verification_documents'   => 'nullable|array',
             'verification_documents.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
+            // clinic_id is optional at registration; an admin assigns it after approval.
+            'clinic_id'              => 'nullable|exists:clinics,id',
         ]);
     }
 }

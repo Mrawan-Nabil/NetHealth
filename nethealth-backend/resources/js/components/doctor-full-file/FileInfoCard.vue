@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
-defineProps<{ metadata: Record<string, string> }>();
+defineProps({ metadata: { type: Object, required: true } });
 </script>
 <template>
     <section

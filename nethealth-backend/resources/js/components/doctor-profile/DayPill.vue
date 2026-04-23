@@ -1,8 +1,14 @@
-<script setup lang="ts">
-defineProps<{
-    label: string;
-    active?: boolean;
-}>();
+<script setup>
+defineProps({
+    label: {
+        type: String,
+        required: true,
+    },
+    active: {
+        type: Boolean,
+        default: false,
+    },
+});
 </script>
 
 <template>

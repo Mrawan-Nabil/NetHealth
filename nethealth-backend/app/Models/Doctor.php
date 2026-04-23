@@ -49,4 +49,13 @@ class Doctor extends Model
         // Explicitly define the foreign key and local key here as well
         return $this->hasMany(MedicalRecord::class, 'doctor_id', 'user_id');
     }
+
+    /**
+     * Convenience accessor: resolve the clinic through the User FK.
+     * Usage: $doctor->clinic  (reads $doctor->user->clinic)
+     */
+    public function getClinicAttribute()
+    {
+        return $this->user?->clinic;
+    }
 }

@@ -1,27 +1,15 @@
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
-type Size = 'sm' | 'md' | 'lg';
+const props = defineProps({
+    type: { type: String, default: 'button' },
+    variant: { type: String, default: 'secondary' },
+    size: { type: String, default: 'md' },
+    block: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false },
+});
 
-const props = withDefaults(
-    defineProps<{
-        type?: 'button' | 'submit' | 'reset';
-        variant?: Variant;
-        size?: Size;
-        block?: boolean;
-        disabled?: boolean;
-    }>(),
-    {
-        type: 'button',
-        variant: 'secondary',
-        size: 'md',
-        block: false,
-        disabled: false,
-    },
-);
-
-const variantClasses: Record<Variant, string> = {
+const variantClasses = {
     primary:
         'bg-[#14B8A6] text-white hover:bg-[#0D9488] hover:shadow-[0_4px_14px_rgba(20,184,166,0.35)] active:scale-95',
     secondary:
@@ -32,7 +20,7 @@ const variantClasses: Record<Variant, string> = {
         'border border-red-200 bg-red-50 text-red-500 hover:bg-red-100 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20',
 };
 
-const sizeClasses: Record<Size, string> = {
+const sizeClasses = {
     sm: 'h-8 px-3 text-xs',
     md: 'h-9 px-4 text-sm',
     lg: 'h-10 px-5 text-sm',

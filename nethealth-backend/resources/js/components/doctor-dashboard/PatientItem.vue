@@ -1,12 +1,12 @@
-<script setup lang="ts">
-defineProps<{
-    name: string;
-    lastVisit: string;
-    note: string;
-    avatar: string;
-}>();
+<script setup>
+defineProps({
+    name: { type: String, required: true },
+    lastVisit: { type: String, required: true },
+    note: { type: String, required: true },
+    avatar: { type: String, required: true },
+});
 
-defineEmits<{ (event: 'view-patient'): void }>();
+defineEmits(['view-patient']);
 </script>
 
 <template>

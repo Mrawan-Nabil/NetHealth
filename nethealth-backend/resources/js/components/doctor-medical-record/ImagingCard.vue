@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup>
 import BaseBadge from './BaseBadge.vue';
 import BaseButton from './BaseButton.vue';
-defineProps<{ item: { title: string; region: string; doctor: string; date: string; modality: 'X-ray' | 'Ultrasound' | 'CT Scan' } }>();
-defineEmits<{ (event: 'view-details'): void }>();
+defineProps({ item: { type: Object, required: true } });
+defineEmits(['view-details']);
 </script>
 <template>
     <article

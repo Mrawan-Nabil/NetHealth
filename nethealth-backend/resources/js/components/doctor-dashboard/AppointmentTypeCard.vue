@@ -1,17 +1,15 @@
-<script setup lang="ts">
+<script setup>
 import BaseCheckbox from './BaseCheckbox.vue';
 
-defineProps<{
-    title: string;
-    description: string;
-    icon: string;
-    modelValue: boolean;
-    accent?: 'teal' | 'slate';
-}>();
+defineProps({
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    icon: { type: String, required: true },
+    modelValue: { type: Boolean, required: true },
+    accent: { type: String, default: 'teal' },
+});
 
-defineEmits<{
-    (event: 'update:modelValue', value: boolean): void;
-}>();
+defineEmits(['update:modelValue']);
 </script>
 
 <template>

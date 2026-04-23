@@ -115,13 +115,17 @@ const handleModalConfirm = (data) => {
     const slot = props.timeSlots.find((s) => s.id === selectedSlot.value);
     const appointmentDateTime = `2026-10-22 ${slot?.time || '09:00 AM'}`;
 
+    // Phase 3 — Booking Form Cleanup:
+    // clinic_id is intentionally OMITTED from this payload.
+    // The backend (AppointmentController@store) will auto-assign it
+    // from the doctor's clinic_id FK on the users table.
     router.post(
         '/appointments',
         {
-            doctor_id: props.doctor.id,
+            doctor_id:        props.doctor.id,
             appointment_time: appointmentDateTime,
             appointment_type: selectedType.value,
-            notes: data.patientInfo.notes,
+            notes:            data.patientInfo.notes,
         },
         {
             onSuccess: () => {
@@ -196,14 +200,15 @@ const cardClass = computed(() => isDark.value ? 'border-[#1E293B] bg-[#1E293B]' 
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                                         <span>12 Years Exp.</span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 border-l pl-4" :class="isDark ? 'border-[#334155]' : 'border-[#E5E7EB]'">
+                                <div class="flex items-center gap-1.5 border-l pl-4" :class="isDark ? 'border-[#334155]' : 'border-[#E5E7EB]'">
                                         <svg class="h-4 w-4 text-[#14B8A6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                        <span>{{ doctor.hospital }}</span>
+                                        <!-- Phase 3: Directly bind to doctor.clinic?.name with null-safe fallback -->
+                                        <span>{{ doctor.clinic?.name ?? doctor.hospital ?? 'Not assigned' }}</span>
                                     </div>
                                 </div>
 
                                 <p :class="isDark ? 'text-[#94A3B8]' : 'text-[#64748B]'" class="max-w-2xl text-xs leading-relaxed">
-                                    {{ doctor.name }} is a specialist at {{ doctor.hospital }} with over 12 years of experience specializing in preventive care and advanced patient management.
+                                    {{ doctor.name }} is a specialist at {{ doctor.clinic?.name ?? doctor.hospital ?? 'NetHealth' }} with over 12 years of experience specializing in preventive care and advanced patient management.
                                 </p>
                             </div>
                         </div>

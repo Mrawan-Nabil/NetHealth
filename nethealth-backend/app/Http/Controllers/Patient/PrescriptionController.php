@@ -68,21 +68,10 @@ class PrescriptionController extends Controller
             'items.medicine',
         ])->findOrFail($id);
 
-        // 🛑 DEBUG POINT 1: Dump the raw model to an array
-        // dd($prescriptionModel->toArray());
-
         // Security Check: Ensure this prescription belongs to the logged-in patient
         if ($prescriptionModel->medicalRecord->patient_id !== $user->patient->user_id) {
             abort(403, 'Unauthorized access to this medical record.');
         }
-
-        // 🛑 DEBUG POINT 2: Test the specific chain
-        //        dd([
-        //            '1_has_record' => $prescriptionModel->medicalRecord !== null,
-        //            '2_has_doctor' => $prescriptionModel->medicalRecord?->doctor !== null,
-        //            '3_has_user' => $prescriptionModel->medicalRecord?->doctor?->user !== null,
-        //            '4_doctor_name' => $prescriptionModel->medicalRecord?->doctor?->user?->full_name,
-        //        ]);
 
         // Map to the complex object structure expected by PrescriptionDetails.vue
         $formattedPrescription = [
