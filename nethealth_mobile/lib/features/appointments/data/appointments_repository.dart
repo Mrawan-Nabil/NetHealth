@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../core/network/models/paginated_response.dart';
@@ -71,6 +72,19 @@ class AppointmentsRepository {
     }
   }
 
+  Future<AppointmentModel> getAppointmentDetails(String id) async {
+    try {
+      final response = await _dio.get(ApiEndpoints.appointmentDetail(id));
+      final wrapper = StandardResponse<AppointmentModel>.fromJson(
+        response.data,
+        (json) => AppointmentModel.fromJson(json),
+      );
+      return wrapper.data;
+    } on DioException catch (e) {
+      throw _mapDioError(e);
+    }
+  }
+
   Future<void> bookAppointment({
     required String doctorId,
     required String clinicId,
@@ -80,21 +94,27 @@ class AppointmentsRepository {
     String? patientName,
     String? patientPhone,
     String? patientEmail,
+    File? attachment,
   }) async {
     try {
-      await _dio.post(
-        ApiEndpoints.patientAppointments,
-        data: {
-          'doctor_id': doctorId,
-          'clinic_id': clinicId,
-          'appointment_type': appointmentType,
-          'appointment_time': appointmentTime,
-          if (visitReason  != null && visitReason.isNotEmpty)  'visit_reason':  visitReason,
-          if (patientName  != null && patientName.isNotEmpty)  'patient_name':  patientName,
-          if (patientPhone != null && patientPhone.isNotEmpty) 'patient_phone': patientPhone,
-          if (patientEmail != null && patientEmail.isNotEmpty) 'patient_email': patientEmail,
-        },
-      );
+      // Use Map<String, dynamic> so it can hold both String and MultipartFile values.
+      final Map<String, dynamic> dataMap = {
+        'doctor_id': doctorId,
+        'clinic_id': clinicId,
+        'appointment_type': appointmentType,
+        'appointment_time': appointmentTime,
+        if (visitReason  != null && visitReason.isNotEmpty)  'visit_reason':  visitReason,
+        if (patientName  != null && patientName.isNotEmpty)  'patient_name':  patientName,
+        if (patientPhone != null && patientPhone.isNotEmpty) 'patient_phone': patientPhone,
+        if (patientEmail != null && patientEmail.isNotEmpty) 'patient_email': patientEmail,
+      };
+
+      if (attachment != null) {
+        dataMap['attachment'] = await MultipartFile.fromFile(attachment.path);
+        await _dio.post(ApiEndpoints.patientAppointments, data: FormData.fromMap(dataMap));
+      } else {
+        await _dio.post(ApiEndpoints.patientAppointments, data: dataMap);
+      }
     } on DioException catch (e) {
       throw _mapDioError(e);
     }

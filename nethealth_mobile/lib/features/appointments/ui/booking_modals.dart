@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/route_names.dart';
+import '../../../core/utils/file_picker_util.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Booking Modals
@@ -67,6 +69,7 @@ class _ConfirmSheetBodyState extends State<_ConfirmSheetBody> {
   final _phoneCtrl = TextEditingController(text: '+20 100 234 5678');
   final _emailCtrl = TextEditingController(text: 'ahmed.m@email.com');
   final _noteCtrl  = TextEditingController();
+  File? _selectedFile;
 
   @override
   void dispose() {
@@ -74,6 +77,13 @@ class _ConfirmSheetBodyState extends State<_ConfirmSheetBody> {
       c.dispose();
     }
     super.dispose();
+  }
+
+  Future<void> _pickFile() async {
+    final file = await FilePickerUtil.pickDocument();
+    if (file != null) {
+      setState(() => _selectedFile = file);
+    }
   }
 
   @override
@@ -192,7 +202,16 @@ class _ConfirmSheetBodyState extends State<_ConfirmSheetBody> {
                     // Medical records upload zone (dashed)
                     _FormSectionTitle('Medical Records', isDark),
                     const SizedBox(height: 8),
-                    DashedUploadZone(isDark: isDark),
+                    DashedUploadZone(isDark: isDark, onTap: _pickFile),
+                    if (_selectedFile != null) ...[
+                      const SizedBox(height: 12),
+                      _UploadedFileTile(
+                        name: _selectedFile!.path.split('/').last,
+                        size: '${(_selectedFile!.lengthSync() / 1024 / 1024).toStringAsFixed(1)} MB',
+                        isDark: isDark,
+                        onRemove: () => setState(() => _selectedFile = null),
+                      ),
+                    ],
                     const SizedBox(height: 28),
 
                     // Confirm button
@@ -200,8 +219,14 @@ class _ConfirmSheetBodyState extends State<_ConfirmSheetBody> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
+                          final fileName = _selectedFile?.path.split('/').last;
                           Navigator.pop(context);
-                          showBookingSuccessDialog(context, doctorName: widget.doctorName, specialty: widget.specialty);
+                          showBookingSuccessDialog(
+                            context,
+                            doctorName: widget.doctorName,
+                            specialty: widget.specialty,
+                            uploadedFileName: fileName,
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -227,19 +252,29 @@ void showBookingSuccessDialog(
   BuildContext context, {
   required String doctorName,
   required String specialty,
+  String? uploadedFileName,
 }) {
   showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (ctx) => _SuccessDialog(doctorName: doctorName, specialty: specialty),
+    builder: (ctx) => _SuccessDialog(
+      doctorName: doctorName,
+      specialty: specialty,
+      uploadedFileName: uploadedFileName,
+    ),
   );
 }
 
 class _SuccessDialog extends StatelessWidget {
   final String doctorName;
   final String specialty;
+  final String? uploadedFileName;
 
-  const _SuccessDialog({required this.doctorName, required this.specialty});
+  const _SuccessDialog({
+    required this.doctorName,
+    required this.specialty,
+    this.uploadedFileName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -305,16 +340,17 @@ class _SuccessDialog extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Uploaded files
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text('Uploaded Files', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13, color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)),
-            ),
-            const SizedBox(height: 8),
-            _UploadedFileTile(name: 'ECG_REPORT_2025.PDF',   size: '1.2 MB', isDark: isDark),
-            const SizedBox(height: 6),
-            _UploadedFileTile(name: 'BLOOD_WORK_OCT.PDF',    size: '0.8 MB', isDark: isDark),
-            const SizedBox(height: 24),
+            // Uploaded file — only shown when a file was actually attached
+            if (uploadedFileName != null) ...[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Uploaded File', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13, color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)),
+              ),
+              const SizedBox(height: 8),
+              _UploadedFileTile(name: uploadedFileName!, size: '', isDark: isDark),
+              const SizedBox(height: 24),
+            ] else
+              const SizedBox(height: 24),
 
             // Action buttons
             SizedBox(
@@ -347,12 +383,13 @@ class _SuccessDialog extends StatelessWidget {
 
 class DashedUploadZone extends StatelessWidget {
   final bool isDark;
-  const DashedUploadZone({super.key, required this.isDark});
+  final VoidCallback onTap;
+  const DashedUploadZone({super.key, required this.isDark, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: onTap,
       child: CustomPaint(
         painter: _DashedBorderPainter(isDark: isDark),
         child: Container(
@@ -470,8 +507,9 @@ class _UploadedFileTile extends StatelessWidget {
   final String name;
   final String size;
   final bool isDark;
+  final VoidCallback? onRemove;
 
-  const _UploadedFileTile({required this.name, required this.size, required this.isDark});
+  const _UploadedFileTile({required this.name, required this.size, required this.isDark, this.onRemove});
 
   @override
   Widget build(BuildContext context) => Container(
@@ -490,7 +528,13 @@ class _UploadedFileTile extends StatelessWidget {
         ),
         Text(size, style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: isDark ? AppColors.textHintDark : AppColors.textHintLight)),
         const SizedBox(width: 8),
-        const Icon(Icons.check_circle_rounded, color: AppColors.statusCompleted, size: 16),
+        if (onRemove != null)
+          GestureDetector(
+            onTap: onRemove,
+            child: const Icon(Icons.close_rounded, color: AppColors.error, size: 18),
+          )
+        else
+          const Icon(Icons.check_circle_rounded, color: AppColors.statusCompleted, size: 16),
       ],
     ),
   );

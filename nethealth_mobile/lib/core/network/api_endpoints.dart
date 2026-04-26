@@ -25,6 +25,7 @@ class ApiEndpoints {
   static String testResultDetail(String id)      => '/patient/test-results/$id';
   static String imagingDetail(String id)         => '/patient/imaging/$id';
   static String appointmentDoctor(String id)     => '/patient/appointments/doctor/$id';
+  static String appointmentDetail(String id)     => '/patient/appointments/$id';
   static String appointmentReschedule(String id) => '/patient/appointments/$id/reschedule';
   static String appointmentDelete(String id)     => '/patient/appointments/$id';
   static String notificationRead(String id)      => '/patient/notifications/$id/read';

@@ -21,9 +21,8 @@ class ProfileNotifier extends AsyncNotifier<PatientProfileModel?> {
     try {
       final profile = await ref.read(profileRepositoryProvider).getProfile();
       return profile;
-    } catch (e, st) {
-      // Allow Riverpod to catch errors to display in UI natively
-      throw e;
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -42,6 +41,14 @@ class ProfileNotifier extends AsyncNotifier<PatientProfileModel?> {
       await ref.read(profileRepositoryProvider).updateAvatar(image);
       // Invalidate to trigger a fresh fetch from the server ensuring clean synchronization
       ref.invalidateSelf();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> changePassword(String currentPassword, String newPassword, String newPasswordConfirmation) async {
+    try {
+      await ref.read(profileRepositoryProvider).changePassword(currentPassword, newPassword, newPasswordConfirmation);
     } catch (e) {
       rethrow;
     }

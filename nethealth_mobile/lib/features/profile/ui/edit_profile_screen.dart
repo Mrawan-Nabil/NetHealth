@@ -1,24 +1,40 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
+import '../providers/profile_provider.dart';
+import '../../../shared/widgets/nh_avatar.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// EditProfileScreen — mock form for editing user profile
+// EditProfileScreen
 // ─────────────────────────────────────────────────────────────────────────────
 
-class EditProfileScreen extends StatefulWidget {
+class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameCtrl  = TextEditingController(text: 'Ahmed Mohamed');
-  final _emailCtrl = TextEditingController(text: 'ahmed.m@email.com');
-  final _phoneCtrl = TextEditingController(text: '+20 100 234 5678');
-  final _dobCtrl   = TextEditingController(text: '15 / 04 / 1992');
-  String _selectedGender = 'Male';
+  late final TextEditingController _nameCtrl;
+  late final TextEditingController _emailCtrl;
+  late final TextEditingController _phoneCtrl;
+  late final TextEditingController _dobCtrl;
+  String _selectedGender = 'male';
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = ref.read(profileProvider).valueOrNull;
+    _nameCtrl = TextEditingController(text: profile?.fullName ?? '');
+    _emailCtrl = TextEditingController(text: profile?.email ?? '');
+    _phoneCtrl = TextEditingController(text: profile?.phone ?? '');
+    _dobCtrl = TextEditingController(text: profile?.birthDate ?? '');
+    _selectedGender = profile?.gender.name.toLowerCase() ?? 'male';
+  }
 
   @override
   void dispose() {
@@ -31,6 +47,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final profileState = ref.watch(profileProvider);
+    final profile = profileState.valueOrNull;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
@@ -39,10 +57,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          TextButton(
-            onPressed: _save,
-            child: const Text('Save', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 15)),
-          ),
+          if (profileState.isLoading)
+            const Center(child: Padding(padding: EdgeInsets.only(right: 16), child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))))
+          else
+            TextButton(
+              onPressed: _save,
+              child: const Text('Save', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 15)),
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -56,15 +77,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Center(
                 child: Stack(
                   children: [
-                    CircleAvatar(
+                    NhAvatar(
+                      imageUrl: profile?.avatarUrl,
+                      fallbackName: profile?.fullName ?? 'U',
                       radius: 52,
-                      backgroundColor: AppColors.primaryFaint,
-                      child: Text('A', style: const TextStyle(fontSize: 44, fontWeight: FontWeight.bold, color: AppColors.primary)),
                     ),
                     Positioned(
                       bottom: 0, right: 0,
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: _pickImage,
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
@@ -97,8 +118,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Text('Gender', style: TextStyle(fontFamily: 'Inter', fontSize: 13, color: isDark ? AppColors.textHintDark : AppColors.textHintLight)),
               const SizedBox(height: 8),
               Row(
-                children: ['Male', 'Female', 'Prefer not to say'].map((g) {
+                children: ['male', 'female'].map((g) {
                   final isSelected = _selectedGender == g;
+                  final displayLabel = g == 'male' ? 'Male' : 'Female';
                   return Expanded(
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedGender = g),
@@ -111,7 +133,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: isSelected ? AppColors.primary : (isDark ? AppColors.borderDark : AppColors.borderLight)),
                         ),
-                        child: Text(g, textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Inter', fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, fontSize: 12, color: isSelected ? Colors.white : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight))),
+                        child: Text(displayLabel, textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Inter', fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, fontSize: 12, color: isSelected ? Colors.white : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight))),
                       ),
                     ),
                   );
@@ -140,17 +162,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   String? _required(String? v) => (v == null || v.isEmpty) ? 'This field is required' : null;
 
-  void _save() {
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final xFile = await picker.pickImage(source: ImageSource.gallery);
+    if (xFile != null) {
+      try {
+        await ref.read(profileProvider.notifier).updateAvatar(File(xFile.path));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Avatar updated!'), backgroundColor: AppColors.primary));
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to upload avatar: $e'), backgroundColor: AppColors.error));
+        }
+      }
+    }
+  }
+
+  Future<void> _save() async {
     if (_formKey.currentState?.validate() ?? false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Profile updated successfully!', style: TextStyle(fontFamily: 'Inter')),
-          backgroundColor: AppColors.primary,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      Navigator.pop(context);
+      try {
+        final data = {
+          'full_name': _nameCtrl.text,
+          'phone': _phoneCtrl.text,
+          'birth_date': _dobCtrl.text.isNotEmpty ? _dobCtrl.text : null,
+          'gender': _selectedGender,
+        };
+        await ref.read(profileProvider.notifier).updateProfile(data);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Profile updated successfully!', style: TextStyle(fontFamily: 'Inter')),
+              backgroundColor: AppColors.primary,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error));
+        }
+      }
     }
   }
 }

@@ -46,7 +46,7 @@ class AuthUser {
       phone:         json['phone']?.toString() ?? '',
       role:          UserRole.fromString(json['role']?.toString() ?? 'patient'),
       accountStatus: AccountStatus.fromString(json['account_status']?.toString() ?? 'active'),
-      avatar:        json['avatar']?.toString(),
+      avatar:        json['avatar_url']?.toString(),
     );
   }
 

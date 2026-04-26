@@ -34,6 +34,29 @@ class PatientAppointmentApiController extends ApiController
         ]);
     }
 
+    public function show(Request $request, $id)
+    {
+        $patient = $request->user()->patient;
+
+        if (! $patient) {
+            return $this->errorResponse('Patient profile not found.', 404);
+        }
+
+        $appointment = $patient->appointments()
+            ->with(['doctor.user', 'clinic'])
+            ->find($id);
+
+        if (! $appointment) {
+            return $this->errorResponse('Appointment not found or unauthorized.', 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Appointment detail loaded.',
+            'data' => $appointment,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

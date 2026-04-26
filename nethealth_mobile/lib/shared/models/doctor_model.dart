@@ -28,16 +28,19 @@ class DoctorSummaryModel {
   });
 
   factory DoctorSummaryModel.fromJson(Map<String, dynamic> json) {
-    // Check if full_name is at top level or inside nested user object (Laravel relation)
+    // Shape A: top-level from GET /doctors — full_name and avatar_url at root.
+    // Shape B: nested from appointment payloads — doctor.user.full_name / doctor.user.avatar (raw path).
     final topFullName = json['full_name']?.toString();
-    final nestedFullName = json['user'] is Map<String, dynamic> 
-        ? json['user']['full_name']?.toString() 
+    final nestedFullName = json['user'] is Map<String, dynamic>
+        ? json['user']['full_name']?.toString()
         : null;
-    
-    // Check if avatar_url is at top level or inside nested user object
-    final topAvatar = json['avatar_url']?.toString();
-    final nestedAvatar = json['user'] is Map<String, dynamic> 
-        ? (json['user']['avatar'] ?? json['user']['avatar_url'])?.toString()
+
+    // avatar_url is the resolved URL (Shape A or PatientProfileResource).
+    // user.avatar_url may also be present if the backend resolves it.
+    // user.avatar is the raw storage path — we do NOT use it directly; fall back to null.
+    final topAvatarUrl = json['avatar_url']?.toString();
+    final nestedAvatarUrl = json['user'] is Map<String, dynamic>
+        ? (json['user']['avatar_url'] ?? json['user']['avatar_url'])?.toString()
         : null;
 
     return DoctorSummaryModel(
@@ -45,7 +48,7 @@ class DoctorSummaryModel {
       fullName: topFullName ?? nestedFullName ?? 'Unknown Doctor',
       specialty: json['specialty']?.toString() ?? 'General Physician',
       professionalTitle: ProfessionalTitle.fromString(json['professional_title']?.toString() ?? ''),
-      avatarUrl: topAvatar ?? nestedAvatar,
+      avatarUrl: topAvatarUrl ?? nestedAvatarUrl,
       consultationFee: json['consultation_fee']?.toString(),
       clinicName: json['clinic_name']?.toString() ?? (json['clinic'] is Map<String, dynamic> ? json['clinic']['name']?.toString() : null),
       experience: json['experience']?.toString(),
@@ -90,16 +93,16 @@ class DoctorDetailModel extends DoctorSummaryModel {
   });
 
   factory DoctorDetailModel.fromJson(Map<String, dynamic> json) {
-    // Check if full_name is at top level or inside nested user object (Laravel relation)
+    // Shape A: top-level from GET /doctors — full_name and avatar_url at root.
+    // Shape B: nested from appointment payloads — doctor.user.full_name.
     final topFullName = json['full_name']?.toString();
-    final nestedFullName = json['user'] is Map<String, dynamic> 
-        ? json['user']['full_name']?.toString() 
+    final nestedFullName = json['user'] is Map<String, dynamic>
+        ? json['user']['full_name']?.toString()
         : null;
-    
-    // Check if avatar_url is at top level or inside nested user object
-    final topAvatar = json['avatar_url']?.toString();
-    final nestedAvatar = json['user'] is Map<String, dynamic> 
-        ? (json['user']['avatar'] ?? json['user']['avatar_url'])?.toString()
+
+    final topAvatarUrl = json['avatar_url']?.toString();
+    final nestedAvatarUrl = json['user'] is Map<String, dynamic>
+        ? json['user']['avatar_url']?.toString()
         : null;
 
     return DoctorDetailModel(
@@ -107,7 +110,7 @@ class DoctorDetailModel extends DoctorSummaryModel {
       fullName: topFullName ?? nestedFullName ?? 'Unknown Doctor',
       specialty: json['specialty']?.toString() ?? 'General Physician',
       professionalTitle: ProfessionalTitle.fromString(json['professional_title']?.toString() ?? ''),
-      avatarUrl: topAvatar ?? nestedAvatar,
+      avatarUrl: topAvatarUrl ?? nestedAvatarUrl,
       consultationFee: json['consultation_fee']?.toString(),
       clinicName: json['clinic_name']?.toString() ?? (json['clinic'] is Map<String, dynamic> ? json['clinic']['name']?.toString() : null),
       experience: json['experience']?.toString(),

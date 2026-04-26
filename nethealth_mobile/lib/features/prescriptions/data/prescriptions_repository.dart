@@ -10,32 +10,33 @@ class PrescriptionsRepository {
 
   PrescriptionsRepository(this._dio);
 
-  Future<PaginatedResponse<PrescriptionModel>> getPrescriptions({
-    String? status,
-    int perPage = 15,
+  /// GET /patient/prescriptions — returns paginated list of PrescriptionListModel
+  Future<PaginatedResponse<PrescriptionListModel>> getPrescriptions({
+    int perPage = 50,
     int? page,
   }) async {
     try {
       final response = await _dio.get(
         ApiEndpoints.patientPrescriptions,
         queryParameters: {
-          if (status != null && status.isNotEmpty) 'status': status,
           'per_page': perPage,
           if (page != null) 'page': page,
         },
       );
-      return PaginatedResponse<PrescriptionModel>.fromJson(
+      return PaginatedResponse<PrescriptionListModel>.fromJson(
         response.data,
-        (json) => PrescriptionModel.fromJson(json),
+        (json) => PrescriptionListModel.fromJson(json),
       );
     } on DioException catch (e) {
       throw _mapDioError(e);
     }
   }
 
+  /// GET /patient/prescriptions/{id} — returns PrescriptionDetailModel
   Future<PrescriptionDetailModel> getPrescriptionDetails(String id) async {
     try {
       final response = await _dio.get(ApiEndpoints.prescriptionDetail(id));
+      // The detail endpoint uses successResponse() → { status, message, data: {...} }
       final wrapper = StandardResponse<PrescriptionDetailModel>.fromJson(
         response.data,
         (json) => PrescriptionDetailModel.fromJson(json),
