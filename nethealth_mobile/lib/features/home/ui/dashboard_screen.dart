@@ -12,22 +12,37 @@ import '../../../shared/models/doctor_booking_model.dart';
 import '../../../shared/widgets/doctor_avatar.dart';
 import '../../../shared/models/enums.dart';
 import '../../appointments/ui/doctor_selection_screen.dart';
+import '../../../shared/widgets/nh_avatar.dart';
+import '../../profile/providers/profile_provider.dart';
 
 String _formatDateTime(String isoDate) {
   try {
     final date = DateTime.parse(isoDate).toLocal();
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     final month = months[date.month - 1];
     final day = date.day.toString().padLeft(2, '0');
     final year = date.year;
-    
+
     int hour = date.hour;
     final amPm = hour >= 12 ? 'PM' : 'AM';
     hour = hour % 12;
     if (hour == 0) hour = 12;
-    
+
     final minute = date.minute.toString().padLeft(2, '0');
-    
+
     return '$month $day, $year - $hour:$minute $amPm';
   } catch (e) {
     return isoDate;
@@ -43,35 +58,42 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user   = ref.watch(authProvider).valueOrNull;
+    final user = ref.watch(authProvider).valueOrNull;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final firstName = (user?.fullName ?? 'Ahmed').split(' ').first;
-    
+
     final dashboardAsync = ref.watch(dashboardProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: SafeArea(
         child: dashboardAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          loading: () => const Center(
+              child: CircularProgressIndicator(color: AppColors.primary)),
           error: (error, stack) => Center(
-            child: Text('Failed to load dashboard: $error', style: const TextStyle(color: AppColors.error)),
+            child: Text('Failed to load dashboard: $error',
+                style: const TextStyle(color: AppColors.error)),
           ),
           data: (dashboardData) {
             return CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
                 // ── App Bar ───────────────────────────────────────────────────────
-                SliverToBoxAdapter(child: _TopBar(firstName: firstName, isDark: isDark, user: user)),
+                SliverToBoxAdapter(
+                    child: _TopBar(
+                        firstName: firstName, isDark: isDark, user: user)),
 
                 // ── Hero Banner ───────────────────────────────────────────────────
-                SliverToBoxAdapter(child: Padding(
+                SliverToBoxAdapter(
+                    child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
                   child: _HeroBanner(isDark: isDark),
                 )),
 
                 // ── Stats Row ─────────────────────────────────────────────────────
-                SliverToBoxAdapter(child: Padding(
+                SliverToBoxAdapter(
+                    child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
                   child: _StatsRow(isDark: isDark, stats: dashboardData!.stats),
                 )),
@@ -86,9 +108,13 @@ class DashboardScreen extends ConsumerWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: _LeftColumn(isDark: isDark, data: dashboardData)),
+                            Expanded(
+                                child: _LeftColumn(
+                                    isDark: isDark, data: dashboardData)),
                             const SizedBox(width: 16),
-                            Expanded(child: _RightColumn(isDark: isDark, data: dashboardData)),
+                            Expanded(
+                                child: _RightColumn(
+                                    isDark: isDark, data: dashboardData)),
                           ],
                         ),
                       );
@@ -120,12 +146,13 @@ class DashboardScreen extends ConsumerWidget {
 // Top Bar
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _TopBar extends StatelessWidget {
+class _TopBar extends ConsumerWidget {
   final String firstName;
   final bool isDark;
   final dynamic user;
 
-  const _TopBar({required this.firstName, required this.isDark, required this.user});
+  const _TopBar(
+      {required this.firstName, required this.isDark, required this.user});
 
   String _greeting() {
     final h = DateTime.now().hour;
@@ -142,7 +169,10 @@ class _TopBar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileState = ref.watch(profileProvider);
+    final avatarUrl = profileState.valueOrNull?.avatarUrl ?? user?.avatar;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       child: Row(
@@ -150,20 +180,10 @@ class _TopBar extends StatelessWidget {
           // Avatar
           GestureDetector(
             onTap: () => context.goNamed(RouteNames.profile),
-            child: CircleAvatar(
+            child: NhAvatar(
+              imageUrl: avatarUrl,
+              fallbackName: user?.fullName ?? 'User',
               radius: 22,
-              backgroundColor: AppColors.primaryFaint,
-              backgroundImage: user?.avatar != null ? NetworkImage(user!.avatar!) : null,
-              child: user?.avatar == null
-                  ? Text(
-                      user?.initials ?? 'A',
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    )
-                  : null,
             ),
           ),
           const SizedBox(width: 12),
@@ -177,7 +197,9 @@ class _TopBar extends StatelessWidget {
                     fontFamily: 'Outfit',
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
                   ),
                 ),
                 Text(
@@ -185,7 +207,9 @@ class _TopBar extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 13,
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
               ],
@@ -197,7 +221,9 @@ class _TopBar extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   Icons.notifications_outlined,
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                   size: 26,
                 ),
                 onPressed: () => context.pushNamed(RouteNames.notifications),
@@ -312,10 +338,12 @@ class _HeroBanner extends StatelessWidget {
                 GestureDetector(
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const DoctorSelectionScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const DoctorSelectionScreen()),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -429,7 +457,9 @@ class _StatCard extends StatelessWidget {
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+          color: isDark
+              ? AppColors.borderDark
+              : AppColors.borderLight.withValues(alpha: 0.7),
         ),
         boxShadow: [
           if (!isDark)
@@ -445,7 +475,8 @@ class _StatCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(
+                color: iconBg, borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, color: iconColor, size: 18),
           ),
           const SizedBox(height: 10),
@@ -455,7 +486,9 @@ class _StatCard extends StatelessWidget {
               fontFamily: 'Outfit',
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+              color: isDark
+                  ? AppColors.textPrimaryDark
+                  : AppColors.textPrimaryLight,
             ),
           ),
           const SizedBox(height: 2),
@@ -465,7 +498,9 @@ class _StatCard extends StatelessWidget {
               fontFamily: 'Inter',
               fontSize: 11,
               height: 1.3,
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
             ),
           ),
         ],
@@ -515,13 +550,15 @@ class _NextAppointmentCard extends ConsumerWidget {
         const SizedBox(height: 12),
         appointmentsAsync.when(
           loading: () => _LoadingPlaceholder(isDark: isDark),
-          error: (err, stack) => _ErrorPlaceholder(isDark: isDark, message: err.toString()),
+          error: (err, stack) =>
+              _ErrorPlaceholder(isDark: isDark, message: err.toString()),
           data: (appointments) {
             final now = DateTime.now();
             final upcoming = appointments.where((a) {
               try {
                 final dt = DateTime.parse(a.appointmentTime);
-                return dt.isAfter(now) && a.status == AppointmentStatus.scheduled;
+                return dt.isAfter(now) &&
+                    a.status == AppointmentStatus.scheduled;
               } catch (_) {
                 return false;
               }
@@ -532,7 +569,8 @@ class _NextAppointmentCard extends ConsumerWidget {
             }
 
             // Sort ascending to get the closest one
-            upcoming.sort((a, b) => a.appointmentTime.compareTo(b.appointmentTime));
+            upcoming
+                .sort((a, b) => a.appointmentTime.compareTo(b.appointmentTime));
             final appointment = upcoming.first;
 
             // Map DoctorSummaryModel to DoctorModel for the avatar
@@ -540,8 +578,10 @@ class _NextAppointmentCard extends ConsumerWidget {
               id: appointment.doctor?.id ?? 0,
               fullName: appointment.doctor?.fullName ?? 'Unknown Doctor',
               specialty: appointment.doctor?.specialty ?? 'General',
-              professionalTitle: appointment.doctor?.professionalTitle ?? ProfessionalTitle.specialist,
+              professionalTitle: appointment.doctor?.professionalTitle ??
+                  ProfessionalTitle.specialist,
               avatarUrl: appointment.doctor?.avatarUrl,
+              clinic: appointment.doctor?.clinic ?? appointment.clinic,
             );
 
             return Container(
@@ -550,7 +590,8 @@ class _NextAppointmentCard extends ConsumerWidget {
                 color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.25),
+                  color:
+                      AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.25),
                 ),
                 boxShadow: [
                   if (!isDark)
@@ -578,7 +619,9 @@ class _NextAppointmentCard extends ConsumerWidget {
                                 fontFamily: 'Outfit',
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                                color: isDark
+                                    ? AppColors.textPrimaryDark
+                                    : AppColors.textPrimaryLight,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -587,7 +630,9 @@ class _NextAppointmentCard extends ConsumerWidget {
                               style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 13,
-                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
                               ),
                             ),
                           ],
@@ -597,7 +642,11 @@ class _NextAppointmentCard extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                  Divider(
+                      height: 1,
+                      color: isDark
+                          ? AppColors.borderDark
+                          : AppColors.borderLight),
                   const SizedBox(height: 14),
 
                   // Details row
@@ -627,19 +676,27 @@ class _NextAppointmentCard extends ConsumerWidget {
                             if (appointment.doctor != null) {
                               context.pushNamed(
                                 RouteNames.doctorDetails,
-                                pathParameters: {'id': doctorModel.id.toString()},
+                                pathParameters: {
+                                  'id': doctorModel.id.toString()
+                                },
                                 extra: doctorModel,
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Doctor details not available.')),
+                                const SnackBar(
+                                    content:
+                                        Text('Doctor details not available.')),
                               );
                             }
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            textStyle: const TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13),
                           ),
                           child: const Text('Reschedule'),
                         ),
@@ -653,8 +710,12 @@ class _NextAppointmentCard extends ConsumerWidget {
                           ),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            textStyle: const TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13),
                           ),
                           child: const Text('View Details'),
                         ),
@@ -684,7 +745,9 @@ class _EmptyNextPlaceholder extends StatelessWidget {
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+          color: isDark
+              ? AppColors.borderDark
+              : AppColors.borderLight.withValues(alpha: 0.7),
         ),
         boxShadow: [
           if (!isDark)
@@ -698,7 +761,8 @@ class _EmptyNextPlaceholder extends StatelessWidget {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Icon(Icons.event_available_rounded, size: 48, color: AppColors.primary.withValues(alpha: 0.5)),
+          Icon(Icons.event_available_rounded,
+              size: 48, color: AppColors.primary.withValues(alpha: 0.5)),
           const SizedBox(height: 12),
           Text(
             'No upcoming appointments',
@@ -706,7 +770,9 @@ class _EmptyNextPlaceholder extends StatelessWidget {
               fontFamily: 'Outfit',
               fontWeight: FontWeight.w600,
               fontSize: 16,
-              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+              color: isDark
+                  ? AppColors.textPrimaryDark
+                  : AppColors.textPrimaryLight,
             ),
           ),
           const SizedBox(height: 6),
@@ -715,7 +781,9 @@ class _EmptyNextPlaceholder extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 13,
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
             ),
             textAlign: TextAlign.center,
           ),
@@ -737,7 +805,8 @@ class _LoadingPlaceholder extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+        border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.borderLight),
       ),
       child: const Center(
         child: CircularProgressIndicator(),
@@ -763,16 +832,25 @@ class _ErrorPlaceholder extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 32),
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.error, size: 32),
           const SizedBox(height: 12),
           Text(
             'Failed to load appointment',
-            style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.error),
+            style: TextStyle(
+                fontFamily: 'Outfit',
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : AppColors.error),
           ),
           const SizedBox(height: 4),
           Text(
             message,
-            style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: isDark ? Colors.white70 : AppColors.error.withValues(alpha: 0.8)),
+            style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                color: isDark
+                    ? Colors.white70
+                    : AppColors.error.withValues(alpha: 0.8)),
             textAlign: TextAlign.center,
           ),
         ],
@@ -786,7 +864,8 @@ class _AppointInfoChip extends StatelessWidget {
   final String label;
   final bool isDark;
 
-  const _AppointInfoChip({required this.icon, required this.label, required this.isDark});
+  const _AppointInfoChip(
+      {required this.icon, required this.label, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -799,7 +878,9 @@ class _AppointInfoChip extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'Inter',
             fontSize: 13,
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
           ),
         ),
       ],
@@ -824,20 +905,23 @@ class _RecentRecordsSection extends StatelessWidget {
           onAction: () => context.goNamed(RouteNames.records),
         ),
         const SizedBox(height: 12),
-        if (records.isEmpty) 
+        if (records.isEmpty)
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+                color: isDark
+                    ? AppColors.borderDark
+                    : AppColors.borderLight.withValues(alpha: 0.7),
               ),
             ),
             alignment: Alignment.center,
             child: Column(
               children: [
-                Icon(Icons.folder_open_rounded, size: 48, color: AppColors.info.withValues(alpha: 0.5)),
+                Icon(Icons.folder_open_rounded,
+                    size: 48, color: AppColors.info.withValues(alpha: 0.5)),
                 const SizedBox(height: 12),
                 Text(
                   'No recent records',
@@ -845,7 +929,9 @@ class _RecentRecordsSection extends StatelessWidget {
                     fontFamily: 'Outfit',
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -854,7 +940,9 @@ class _RecentRecordsSection extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 13,
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -867,7 +955,9 @@ class _RecentRecordsSection extends StatelessWidget {
               color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+                color: isDark
+                    ? AppColors.borderDark
+                    : AppColors.borderLight.withValues(alpha: 0.7),
               ),
               boxShadow: [
                 if (!isDark)
@@ -885,22 +975,23 @@ class _RecentRecordsSection extends StatelessWidget {
                 return Column(
                   children: [
                     _RecordTile(
-                      item: _RecordItem(
-                        icon: Icons.local_hospital_rounded,
-                        iconColor: AppColors.primary,
-                        iconBg: AppColors.primaryFaint,
-                        title: 'Medical Record #${item.appointmentId}',
-                        doctor: item.doctorFullName,
-                        date: _formatDateTime(item.appointmentTime),
-                        status: item.status,
-                      ),
-                      isDark: isDark
-                    ),
+                        item: _RecordItem(
+                          icon: Icons.local_hospital_rounded,
+                          iconColor: AppColors.primary,
+                          iconBg: AppColors.primaryFaint,
+                          title: 'Medical Record #${item.appointmentId}',
+                          doctor: item.doctorFullName,
+                          date: _formatDateTime(item.appointmentTime),
+                          status: item.status,
+                        ),
+                        isDark: isDark),
                     if (i < records.length - 1)
                       Divider(
                         height: 1,
                         indent: 64,
-                        color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.5),
+                        color: isDark
+                            ? AppColors.borderDark
+                            : AppColors.borderLight.withValues(alpha: 0.5),
                       ),
                   ],
                 );
@@ -926,7 +1017,8 @@ class _RecordTile extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: item.iconBg, shape: BoxShape.circle),
+            decoration:
+                BoxDecoration(color: item.iconBg, shape: BoxShape.circle),
             child: Icon(item.icon, color: item.iconColor, size: 18),
           ),
           const SizedBox(width: 14),
@@ -940,7 +1032,9 @@ class _RecordTile extends StatelessWidget {
                     fontFamily: 'Outfit',
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -949,7 +1043,9 @@ class _RecordTile extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 12,
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                   ),
                 ),
               ],
@@ -976,7 +1072,8 @@ class _RightColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _HealthOverviewCard(isDark: isDark, healthOverview: data.healthOverview),
+        _HealthOverviewCard(
+            isDark: isDark, healthOverview: data.healthOverview),
         const SizedBox(height: 20),
         _RecentActivitySection(isDark: isDark),
       ],
@@ -987,7 +1084,8 @@ class _RightColumn extends StatelessWidget {
 class _HealthOverviewCard extends StatelessWidget {
   final bool isDark;
   final HealthOverview healthOverview;
-  const _HealthOverviewCard({required this.isDark, required this.healthOverview});
+  const _HealthOverviewCard(
+      {required this.isDark, required this.healthOverview});
 
   @override
   Widget build(BuildContext context) {
@@ -1005,7 +1103,9 @@ class _HealthOverviewCard extends StatelessWidget {
             color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+              color: isDark
+                  ? AppColors.borderDark
+                  : AppColors.borderLight.withValues(alpha: 0.7),
             ),
             boxShadow: [
               if (!isDark)
@@ -1020,31 +1120,70 @@ class _HealthOverviewCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Health pills grid
-              Row(
-                children: [
-                  Expanded(
-                    child: _HealthPill(
-                      label: 'Blood Type',
-                      value: healthOverview.bloodType?.label ?? 'Unknown',
-                      icon: Icons.water_drop_rounded,
-                      color: AppColors.error,
-                      bg: AppColors.errorFaint,
-                      isDark: isDark,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _HealthPill(
-                      label: 'Allergies',
-                      value: '${healthOverview.allergies.length} Known',
-                      icon: Icons.warning_amber_rounded,
-                      color: AppColors.warning,
-                      bg: AppColors.warningFaint,
-                      isDark: isDark,
-                    ),
-                  ),
-                ],
+              _HealthPill(
+                label: 'Blood Type',
+                value: healthOverview.bloodType?.label ?? 'Unknown',
+                icon: Icons.water_drop_rounded,
+                color: AppColors.error,
+                bg: AppColors.errorFaint,
+                isDark: isDark,
+                fullWidth: true,
               ),
+              const SizedBox(height: 10),
+              // Allergies — individual chips matching the profile health sheet
+              if (healthOverview.allergies.isNotEmpty) ...[
+                Text(
+                  'Known Allergies',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: healthOverview.allergies
+                      .map((a) => Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: AppColors.errorFaint,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                  color:
+                                      AppColors.error.withValues(alpha: 0.3)),
+                            ),
+                            child: Text(
+                              a,
+                              style: const TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.error,
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                ),
+                const SizedBox(height: 10),
+              ] else ...[
+                Text(
+                  'No known allergies',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 13,
+                    color: isDark
+                        ? AppColors.textHintDark
+                        : AppColors.textHintLight,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
               const SizedBox(height: 10),
               _HealthPill(
                 label: 'Chronic Conditions',
@@ -1057,7 +1196,11 @@ class _HealthOverviewCard extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.5)),
+              Divider(
+                  height: 1,
+                  color: isDark
+                      ? AppColors.borderDark
+                      : AppColors.borderLight.withValues(alpha: 0.5)),
               const SizedBox(height: 14),
 
               // Primary Doctor
@@ -1067,7 +1210,9 @@ class _HealthOverviewCard extends StatelessWidget {
                   fontFamily: 'Outfit',
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  color: isDark
+                      ? AppColors.textPrimaryDark
+                      : AppColors.textPrimaryLight,
                 ),
               ),
               const SizedBox(height: 10),
@@ -1077,7 +1222,8 @@ class _HealthOverviewCard extends StatelessWidget {
                     const CircleAvatar(
                       radius: 20,
                       backgroundColor: AppColors.primaryFaint,
-                      child: Icon(Icons.person_add_alt_1_rounded, color: AppColors.primary, size: 20),
+                      child: Icon(Icons.person_add_alt_1_rounded,
+                          color: AppColors.primary, size: 20),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1090,7 +1236,9 @@ class _HealthOverviewCard extends StatelessWidget {
                               fontFamily: 'Outfit',
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
-                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                              color: isDark
+                                  ? AppColors.textPrimaryDark
+                                  : AppColors.textPrimaryLight,
                             ),
                           ),
                           const Text(
@@ -1111,9 +1259,12 @@ class _HealthOverviewCard extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 20,
-                      backgroundImage: healthOverview.primaryDoctor?.avatarUrl != null 
-                          ? NetworkImage(healthOverview.primaryDoctor!.avatarUrl!)
-                          : const NetworkImage('https://i.pravatar.cc/150?img=5'),
+                      backgroundImage:
+                          healthOverview.primaryDoctor?.avatarUrl != null
+                              ? NetworkImage(
+                                  healthOverview.primaryDoctor!.avatarUrl!)
+                              : const NetworkImage(
+                                  'https://i.pravatar.cc/150?img=5'),
                       backgroundColor: AppColors.primaryFaint,
                     ),
                     const SizedBox(width: 12),
@@ -1127,7 +1278,9 @@ class _HealthOverviewCard extends StatelessWidget {
                               fontFamily: 'Outfit',
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
-                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                              color: isDark
+                                  ? AppColors.textPrimaryDark
+                                  : AppColors.textPrimaryLight,
                             ),
                           ),
                           Text(
@@ -1135,7 +1288,9 @@ class _HealthOverviewCard extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 12,
-                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
                             ),
                           ),
                         ],
@@ -1147,7 +1302,8 @@ class _HealthOverviewCard extends StatelessWidget {
                         color: AppColors.primaryFaint,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.phone_rounded, color: AppColors.primary, size: 16),
+                      child: const Icon(Icons.phone_rounded,
+                          color: AppColors.primary, size: 16),
                     ),
                   ],
                 ),
@@ -1192,7 +1348,8 @@ class _HealthPill extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+                color: bg, borderRadius: BorderRadius.circular(8)),
             child: Icon(icon, color: color, size: 14),
           ),
           const SizedBox(width: 10),
@@ -1205,7 +1362,9 @@ class _HealthPill extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 10,
-                    color: isDark ? AppColors.textHintDark : AppColors.textHintLight,
+                    color: isDark
+                        ? AppColors.textHintDark
+                        : AppColors.textHintLight,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -1215,7 +1374,9 @@ class _HealthPill extends StatelessWidget {
                     fontFamily: 'Outfit',
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimaryLight,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1272,7 +1433,9 @@ class _RecentActivitySection extends StatelessWidget {
             color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isDark ? AppColors.borderDark : AppColors.borderLight.withValues(alpha: 0.7),
+              color: isDark
+                  ? AppColors.borderDark
+                  : AppColors.borderLight.withValues(alpha: 0.7),
             ),
             boxShadow: [
               if (!isDark)
@@ -1285,7 +1448,7 @@ class _RecentActivitySection extends StatelessWidget {
           ),
           child: Column(
             children: _activities.asMap().entries.map((entry) {
-              final i    = entry.key;
+              final i = entry.key;
               final item = entry.value;
               return _ActivityTile(
                 item: item,
@@ -1305,7 +1468,8 @@ class _ActivityTile extends StatelessWidget {
   final bool isDark;
   final bool isLast;
 
-  const _ActivityTile({required this.item, required this.isDark, required this.isLast});
+  const _ActivityTile(
+      {required this.item, required this.isDark, required this.isLast});
 
   @override
   Widget build(BuildContext context) {
@@ -1322,7 +1486,8 @@ class _ActivityTile extends StatelessWidget {
                 Container(
                   width: 10,
                   height: 10,
-                  decoration: BoxDecoration(color: item.dot, shape: BoxShape.circle),
+                  decoration:
+                      BoxDecoration(color: item.dot, shape: BoxShape.circle),
                 ),
                 if (!isLast)
                   Expanded(
@@ -1353,7 +1518,9 @@ class _ActivityTile extends StatelessWidget {
                             fontFamily: 'Outfit',
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
-                            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimaryLight,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -1362,7 +1529,9 @@ class _ActivityTile extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 12,
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
                           ),
                         ),
                       ],
@@ -1374,7 +1543,9 @@ class _ActivityTile extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 11,
-                      color: isDark ? AppColors.textHintDark : AppColors.textHintLight,
+                      color: isDark
+                          ? AppColors.textHintDark
+                          : AppColors.textHintLight,
                     ),
                   ),
                 ],
@@ -1415,7 +1586,8 @@ class _SectionHeader extends StatelessWidget {
             fontFamily: 'Outfit',
             fontSize: 17,
             fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color:
+                isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
           ),
         ),
         if (actionLabel != null)

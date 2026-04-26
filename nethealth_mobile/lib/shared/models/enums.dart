@@ -166,7 +166,7 @@ enum AppointmentType {
 
   String get label => switch (this) {
         AppointmentType.physical  => 'Physical',
-        AppointmentType.remote    => 'Remote',
+        AppointmentType.remote    => 'Virtual/Online',
         AppointmentType.emergency => 'Emergency',
       };
 

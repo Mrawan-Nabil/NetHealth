@@ -26,6 +26,12 @@ final appointmentsProvider = FutureProvider<List<AppointmentModel>>((ref) async 
   return response.data;
 });
 
+/// Detail of a specific appointment.
+final appointmentDetailProvider = FutureProvider.family<AppointmentModel, String>((ref, id) async {
+  final repo = ref.watch(appointmentsRepositoryProvider);
+  return repo.getAppointmentDetails(id);
+});
+
 /// All available doctors — used in the Doctor Selection booking flow.
 final doctorsProvider = FutureProvider<List<DoctorModel>>((ref) async {
   final repo = ref.watch(doctorRepositoryProvider);

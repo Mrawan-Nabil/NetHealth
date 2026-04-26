@@ -12,6 +12,7 @@ class PatientProfileModel {
   final List<String> allergies;
   final String? chronicConditions;
   final EmergencyContact? emergencyContact;
+  final String? avatarUrl;
 
   PatientProfileModel({
     required this.fullName,
@@ -25,6 +26,7 @@ class PatientProfileModel {
     this.allergies = const [],
     this.chronicConditions,
     this.emergencyContact,
+    this.avatarUrl,
   });
 
   factory PatientProfileModel.fromJson(Map<String, dynamic> json) {
@@ -42,6 +44,7 @@ class PatientProfileModel {
       emergencyContact: (json['emergency_contact'] != null && json['emergency_contact'] is Map<String, dynamic>) 
           ? EmergencyContact.fromJson(json['emergency_contact'])
           : null,
+      avatarUrl: json['avatar_url']?.toString(),
     );
   }
 }

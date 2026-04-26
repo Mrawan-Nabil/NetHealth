@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../core/network/models/paginated_response.dart';
@@ -39,6 +40,28 @@ class MedicalRecordsRepository {
         (json) => MedicalRecordModel.fromJson(json),
       );
       return wrapper.data;
+    } on DioException catch (e) {
+      throw _mapDioError(e);
+    }
+  }
+
+  Future<void> uploadTestResult(File file) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(file.path),
+      });
+      await _dio.post('${ApiEndpoints.patientTestResults}', data: formData);
+    } on DioException catch (e) {
+      throw _mapDioError(e);
+    }
+  }
+
+  Future<void> uploadImaging(File file) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(file.path),
+      });
+      await _dio.post('${ApiEndpoints.patientImaging}', data: formData);
     } on DioException catch (e) {
       throw _mapDioError(e);
     }

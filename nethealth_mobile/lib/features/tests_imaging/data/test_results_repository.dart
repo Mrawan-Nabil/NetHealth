@@ -10,29 +10,29 @@ class TestResultsRepository {
 
   TestResultsRepository(this._dio);
 
-  Future<PaginatedResponse<TestResultModel>> getTestResults({
-    String? status,
-    int perPage = 15,
+  /// GET /patient/test-results
+  Future<PaginatedResponse<TestResultListModel>> getTestResults({
+    int perPage = 50,
     int? page,
   }) async {
     try {
       final response = await _dio.get(
         ApiEndpoints.patientTestResults,
         queryParameters: {
-          if (status != null && status.isNotEmpty) 'status': status,
           'per_page': perPage,
           if (page != null) 'page': page,
         },
       );
-      return PaginatedResponse<TestResultModel>.fromJson(
+      return PaginatedResponse<TestResultListModel>.fromJson(
         response.data,
-        (json) => TestResultModel.fromJson(json),
+        (json) => TestResultListModel.fromJson(json),
       );
     } on DioException catch (e) {
       throw _mapDioError(e);
     }
   }
 
+  /// GET /patient/test-results/{id}
   Future<TestResultDetailModel> getTestResultDetails(String id) async {
     try {
       final response = await _dio.get(ApiEndpoints.testResultDetail(id));

@@ -35,8 +35,9 @@ class DashboardResource extends JsonResource
                     'specialty' => $this->next_appointment->doctor->specialty,
                 ],
                 'clinic' => [
-                    'name' => $this->next_appointment->clinic->name ?? 'Main Clinic',
-                    'address' => $this->next_appointment->clinic->address ?? '',
+                    'id' => $this->next_appointment->clinic->id ?? null,
+                    'clinic_name' => $this->next_appointment->clinic->clinic_name ?? 'Main Clinic',
+                    'clinic_address' => $this->next_appointment->clinic->clinic_address ?? '',
                 ],
             ] : null,
 

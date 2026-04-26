@@ -10,8 +10,9 @@ class ImagingRepository {
 
   ImagingRepository(this._dio);
 
-  Future<PaginatedResponse<ImagingModel>> getImaging({
-    int perPage = 15,
+  /// GET /patient/imaging
+  Future<PaginatedResponse<ImagingListModel>> getImaging({
+    int perPage = 50,
     int? page,
   }) async {
     try {
@@ -22,15 +23,16 @@ class ImagingRepository {
           if (page != null) 'page': page,
         },
       );
-      return PaginatedResponse<ImagingModel>.fromJson(
+      return PaginatedResponse<ImagingListModel>.fromJson(
         response.data,
-        (json) => ImagingModel.fromJson(json),
+        (json) => ImagingListModel.fromJson(json),
       );
     } on DioException catch (e) {
       throw _mapDioError(e);
     }
   }
 
+  /// GET /patient/imaging/{id}
   Future<ImagingDetailModel> getImagingDetails(String id) async {
     try {
       final response = await _dio.get(ApiEndpoints.imagingDetail(id));

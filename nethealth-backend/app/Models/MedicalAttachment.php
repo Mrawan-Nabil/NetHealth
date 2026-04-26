@@ -20,6 +20,7 @@ class MedicalAttachment extends Model
 
     protected $fillable = [
         'medical_record_id',
+        'attachment_name',
         'attachment_type',
         'test_result_status',
         'notes',

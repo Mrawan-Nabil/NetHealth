@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/doctor_booking_model.dart';
 import '../providers/appointments_provider.dart';
+import '../../../core/utils/file_picker_util.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DoctorDetailsScreen — Step 1: Doctor Profile + Schedule Selection
@@ -45,7 +47,7 @@ class _DoctorDetailsScreenState extends ConsumerState<DoctorDetailsScreen> {
       icon: Icons.videocam_rounded,
       title: 'Online Medical Consultation',
       subtitle: 'Online Lab & Imaging Consultation',
-      badge: 'virtual',
+      badge: 'remote',
     ),
     _ApptType(
       icon: Icons.warning_rounded,
@@ -401,6 +403,7 @@ class _PatientInfoModalState extends ConsumerState<_PatientInfoModal> {
   final _emailCtrl   = TextEditingController();
   final _notesCtrl   = TextEditingController();
   bool  _isLoading   = false;
+  File? _selectedFile;
 
   @override
   void dispose() {
@@ -431,15 +434,23 @@ class _PatientInfoModalState extends ConsumerState<_PatientInfoModal> {
         .format(DateTime(d.year, d.month, d.day, tod.hour, tod.minute));
   }
 
+  Future<void> _pickFile() async {
+    final file = await FilePickerUtil.pickDocument();
+    if (file != null) {
+      setState(() => _selectedFile = file);
+    }
+  }
+
   Future<void> _submit(BuildContext ctx) async {
-    final String? clinicId = widget.doctor.clinic?.id?.toString();
+    final String? clinicId = widget.doctor.clinic?.id.toString();
     final messenger = ScaffoldMessenger.of(ctx);
 
     // Guard: doctor must be assigned to a clinic
-    if (clinicId == null || clinicId.isEmpty) {
+    if (clinicId == null || clinicId.isEmpty || clinicId == '0') {
+      print('DEBUG: clinicId is $clinicId. widget.doctor.clinic is ${widget.doctor.clinic}');
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Error: This doctor is not assigned to a clinic.'),
+        SnackBar(
+          content: Text('Error: This doctor is not assigned to a clinic. (Debug: id=$clinicId)'),
           backgroundColor: Colors.red,
         ),
       );
@@ -458,6 +469,7 @@ class _PatientInfoModalState extends ConsumerState<_PatientInfoModal> {
         patientPhone:    _phoneCtrl.text.isNotEmpty ? _phoneCtrl.text : null,
         patientEmail:    _emailCtrl.text.isNotEmpty ? _emailCtrl.text : null,
         visitReason:     _notesCtrl.text.isNotEmpty ? _notesCtrl.text : null,
+        attachment:      _selectedFile,
       );
 
       ref.invalidate(appointmentsProvider);
@@ -837,63 +849,65 @@ class _PatientInfoModalState extends ConsumerState<_PatientInfoModal> {
                     const SizedBox(height: 14),
 
                     // Upload zone
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.35),
-                          width: 1.5,
+                    GestureDetector(
+                      onTap: _pickFile,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.35),
+                            width: 1.5,
+                          ),
+                          color: AppColors.primary.withValues(alpha: 0.03),
                         ),
-                        color: AppColors.primary.withValues(alpha: 0.03),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.cloud_upload_outlined,
-                            size: 40,
-                            color: AppColors.primary.withValues(alpha: 0.5),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Click to upload or drag and drop',
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.cloud_upload_outlined,
+                              size: 40,
+                              color: AppColors.primary.withValues(alpha: 0.5),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Upload medical test results, X-rays, or reports',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 12,
-                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            const SizedBox(height: 10),
+                            Text(
+                              'Click to upload or drag and drop',
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'PDF, JPG, or PNG (max 10MB)',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 11,
-                              color: isDark ? AppColors.textHintDark : AppColors.textHintLight,
+                            const SizedBox(height: 4),
+                            Text(
+                              'Upload medical test results, X-rays, or reports',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                              ),
                             ),
-                          ),
-                        ],
+                            Text(
+                              'PDF, JPG, or PNG (max 10MB)',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 11,
+                                color: isDark ? AppColors.textHintDark : AppColors.textHintLight,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-
-                    // Static file placeholders
-                    _FileChip(name: 'cs2 2.png', isDark: isDark),
-                    const SizedBox(height: 8),
-                    _FileChip(
-                      name: 'WhatsApp Image 2025-10-04 at 21.08.12 d9f000af.jpg',
-                      isDark: isDark,
-                    ),
+                    if (_selectedFile != null) ...[
+                      const SizedBox(height: 12),
+                      _FileChip(
+                        name: _selectedFile!.path.split('/').last,
+                        isDark: isDark,
+                        onRemove: () => setState(() => _selectedFile = null),
+                      ),
+                    ],
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -1389,7 +1403,8 @@ class _ModalField extends StatelessWidget {
 class _FileChip extends StatelessWidget {
   final String name;
   final bool   isDark;
-  const _FileChip({required this.name, required this.isDark});
+  final VoidCallback? onRemove;
+  const _FileChip({required this.name, required this.isDark, this.onRemove});
 
   @override
   Widget build(BuildContext context) {
@@ -1418,11 +1433,21 @@ class _FileChip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Icon(
-            Icons.close_rounded,
-            size: 16,
-            color: isDark ? AppColors.textHintDark : AppColors.textHintLight,
-          ),
+          if (onRemove != null)
+            GestureDetector(
+              onTap: onRemove,
+              child: Icon(
+                Icons.close_rounded,
+                size: 16,
+                color: isDark ? AppColors.textHintDark : AppColors.textHintLight,
+              ),
+            )
+          else
+            Icon(
+              Icons.close_rounded,
+              size: 16,
+              color: isDark ? AppColors.textHintDark : AppColors.textHintLight,
+            ),
         ],
       ),
     );

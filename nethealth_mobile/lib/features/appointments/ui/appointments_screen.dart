@@ -9,6 +9,8 @@ import '../../../shared/models/enums.dart';
 import '../../../shared/widgets/doctor_avatar.dart';
 import '../../../shared/widgets/status_badge.dart';
 import '../providers/appointments_provider.dart';
+import '../../records/providers/medical_records_provider.dart';
+import '../../../core/utils/file_picker_util.dart';
 import 'doctor_selection_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -79,6 +81,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen>
               specialty:         a.doctor?.specialty ?? 'Specialist',
               professionalTitle: a.doctor?.professionalTitle ?? ProfessionalTitle.specialist,
               avatarUrl:         a.doctor?.avatarUrl,
+              clinic:            a.doctor?.clinic ?? a.clinic,
             );
 
             return _Appointment(
@@ -332,7 +335,21 @@ class _ScheduledContent extends ConsumerWidget {
                 icon: Icons.science_rounded,
                 label: 'Upload Test Results',
                 primary: true,
-                onTap: () {},
+                onTap: () async {
+                  final file = await FilePickerUtil.pickDocument();
+                  if (file != null) {
+                    try {
+                      await ref.read(medicalRecordsRepositoryProvider).uploadTestResult(file);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Test Result Uploaded Successfully!'), backgroundColor: AppColors.primary));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e'), backgroundColor: AppColors.error));
+                      }
+                    }
+                  }
+                },
               ),
             ),
             const SizedBox(width: 10),
@@ -341,7 +358,21 @@ class _ScheduledContent extends ConsumerWidget {
                 icon: Icons.image_outlined,
                 label: 'Upload Imaging',
                 primary: false,
-                onTap: () {},
+                onTap: () async {
+                  final file = await FilePickerUtil.pickDocument();
+                  if (file != null) {
+                    try {
+                      await ref.read(medicalRecordsRepositoryProvider).uploadImaging(file);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Imaging Uploaded Successfully!'), backgroundColor: AppColors.primary));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e'), backgroundColor: AppColors.error));
+                      }
+                    }
+                  }
+                },
               ),
             ),
           ],
@@ -433,23 +464,6 @@ class _CompletedContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Attached files zone (dashed)
-        Text('Reports & X-rays', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13, color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)),
-        const SizedBox(height: 8),
-        CustomPaint(
-          painter: _DashedBorder(isDark: isDark),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            child: const Column(
-              children: [
-                _AttachedFile(name: 'ECG_REPORT_2025.PDF',  size: '1.2 MB'),
-                SizedBox(height: 6),
-                _AttachedFile(name: 'BLOOD_WORK_OCT.PDF',   size: '0.8 MB'),
-              ],
-            ),
-          ),
-        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -593,45 +607,7 @@ class _ActionButton extends StatelessWidget {
   );
 }
 
-class _AttachedFile extends StatelessWidget {
-  final String name;
-  final String size;
-  const _AttachedFile({required this.name, required this.size});
 
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      const Icon(Icons.picture_as_pdf_rounded, color: AppColors.error, size: 18),
-      const SizedBox(width: 8),
-      Expanded(child: Text(name, style: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w500))),
-      Text(size, style: const TextStyle(fontFamily: 'Inter', fontSize: 11, color: AppColors.textHintLight)),
-    ],
-  );
-}
-
-class _DashedBorder extends CustomPainter {
-  final bool isDark;
-  _DashedBorder({required this.isDark});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = (isDark ? AppColors.borderDark : AppColors.borderLight).withValues(alpha: 0.8)
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-    const dash = 6.0;
-    const gap  = 4.0;
-    final path = Path()..addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height), const Radius.circular(12)));
-    final metric = path.computeMetrics().first;
-    double dist = 0;
-    while (dist < metric.length) {
-      canvas.drawPath(metric.extractPath(dist, dist + dash), paint);
-      dist += dash + gap;
-    }
-  }
-
-  @override bool shouldRepaint(covariant CustomPainter old) => false;
-}
 
 class _EmptyState extends StatelessWidget {
   final bool isDark;

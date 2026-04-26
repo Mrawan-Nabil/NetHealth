@@ -345,7 +345,7 @@ class _DoctorSearchCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              'City Medical Center', // Map this if available in DoctorModel
+                              doctor.clinic?.clinicName ?? 'Clinic not assigned',
                               style: const TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 12,
