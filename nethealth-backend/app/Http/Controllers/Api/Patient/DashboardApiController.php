@@ -37,7 +37,7 @@ class DashboardApiController extends ApiController
         $pendingTests = MedicalAttachment::whereHas('medicalRecord', function ($query) use ($patientId) {
             $query->where('patient_id', $patientId);
         })
-            ->where('attachment_type', 'lab_result')
+            ->whereIn('attachment_type', ['lab_result', 'imaging'])
             ->where('test_result_status', 'pending')
             ->count();
 

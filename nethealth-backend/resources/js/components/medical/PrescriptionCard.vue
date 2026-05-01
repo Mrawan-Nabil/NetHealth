@@ -38,7 +38,7 @@ const statusClass = computed(() => {
     } else if (status === 'dispensed') {
         return props.isDark ? 'bg-blue-500/10 text-[#3B82F6]' : 'bg-blue-100 text-blue-600';
     }
-    return props.isDark ? 'bg-[#334155] text-[#94A3B8]' : 'bg-gray-100 text-gray-500';
+    return props.isDark ? 'bg-red-400/10 text-red-500' : 'bg-red-100 text-red-600';
 });
 </script>
 
