@@ -1,11 +1,11 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import AppointmentCardCancelled from '@/components/doctor-appointments/AppointmentCardCancelled.vue';
 import AppointmentCardCompleted from '@/components/doctor-appointments/AppointmentCardCompleted.vue';
 import AppointmentCardUpcoming from '@/components/doctor-appointments/AppointmentCardUpcoming.vue';
 import AppointmentsTabs from '@/components/doctor-appointments/AppointmentsTabs.vue';
+import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
@@ -78,9 +78,9 @@ const handleNav = (key) => {
         <div class="lg:ml-64">
             <TopHeader
                 title="Appointments"
-                :doctor-name="props.doctor.fullName"
-                :handle="props.doctor.handle"
-                :avatar="props.doctor.avatar ?? ''"
+                :doctor-name="props.doctor?.fullName"
+                :handle="props.doctor?.handle"
+                :avatar="props.doctor?.avatar ?? ''"
                 :is-dark="isDark"
                 @toggle-sidebar="sidebarOpen = true"
             />

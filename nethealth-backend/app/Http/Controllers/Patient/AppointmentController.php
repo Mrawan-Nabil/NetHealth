@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\User;
+use App\Traits\AvatarResolver;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -14,24 +15,7 @@ use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
-    private function resolveAvatarUrl(?string $avatar, string $name, string $background = '0D9488'): string
-    {
-        $fallback = 'https://ui-avatars.com/api/?name='.urlencode($name).'&background='.$background.'&color=fff';
-
-        if (! $avatar) {
-            return $fallback;
-        }
-
-        if (str_starts_with($avatar, 'http://') || str_starts_with($avatar, 'https://')) {
-            if (str_contains($avatar, 'via.placeholder.com') || str_contains($avatar, 'placehold.co')) {
-                return $fallback;
-            }
-
-            return $avatar;
-        }
-
-        return asset('storage/'.$avatar);
-    }
+    use AvatarResolver;
 
     /**
      * Display the user's appointments (Scheduled, Completed, Canceled)

@@ -22,14 +22,18 @@ const props = defineProps({
     upcomingAppointments: { type: Array, default: () => [] },
     pendingReviews: { type: Array, default: () => [] },
     recentPatients: { type: Array, default: () => [] },
-    schedule: { type: Object, required: false, default: () => ({
-        days: [],
-        duration: '30 min',
-        breakBetweenSlots: '5 min',
-        selectedPreset: null,
-        appointmentTypes: { inClinic: true, followUp: true, labReview: true },
-        labReviewOptions: { acceptLabTests: true, acceptXrayImages: true },
-    }) },
+    schedule: {
+        type: Object,
+        required: false,
+        default: () => ({
+            days: [],
+            duration: '30 min',
+            breakBetweenSlots: '5 min',
+            selectedPreset: null,
+            appointmentTypes: { inClinic: true, followUp: true, labReview: true },
+            labReviewOptions: { acceptLabTests: true, acceptXrayImages: true },
+        }),
+    },
 });
 
 // ─── State ───────────────────────────────────────────────────────────────────
@@ -53,10 +57,24 @@ const navItems = ref([
 const isDark = computed(() => state.isDark);
 
 const statsCards = computed(() => [
-    { title: 'Upcoming', value: String(props.stats.upcomingAppointments), subtitle: 'Appointments', icon: 'calendar', accent: 'teal', urgent: false },
-    { title: 'Pending', value: String(props.stats.pendingTestReviews).padStart(2, '0'), subtitle: 'Test Reviews', icon: 'file', accent: 'rose', urgent: props.stats.pendingTestReviews > 0 },
-    { title: 'Total', value: props.stats.totalPatients.toLocaleString(), subtitle: 'Patients', icon: 'users', accent: 'emerald', urgent: false },
-    { title: 'Completed', value: String(props.stats.completedThisWeek), subtitle: 'This Week', icon: 'check', accent: 'amber', urgent: false },
+    {
+        title: 'Upcoming',
+        value: String(props.stats?.upcomingAppointments),
+        subtitle: 'Appointments',
+        icon: 'calendar',
+        accent: 'teal',
+        urgent: false,
+    },
+    {
+        title: 'Pending',
+        value: String(props.stats?.pendingTestReviews).padStart(2),
+        subtitle: 'Test Reviews',
+        icon: 'file',
+        accent: 'rose',
+        urgent: props.stats?.pendingTestReviews > 0,
+    },
+    { title: 'Total', value: props.stats?.totalPatients.toLocaleString(), subtitle: 'Patients', icon: 'users', accent: 'emerald', urgent: false },
+    { title: 'Completed', value: String(props.stats?.completedThisWeek), subtitle: 'This Week', icon: 'check', accent: 'amber', urgent: false },
 ]);
 
 const availabilityDays = computed(() =>
@@ -103,15 +121,15 @@ const handleNav = (key) => {
         <div class="lg:ml-64">
             <TopHeader
                 title="Home"
-                :doctor-name="props.doctor.fullName"
-                :handle="props.doctor.handle"
-                :avatar="props.doctor.avatar ?? ''"
+                :doctor-name="props.doctor?.fullName"
+                :handle="props.doctor?.handle"
+                :avatar="props.doctor?.avatar ?? ''"
                 :is-dark="isDark"
                 @toggle-sidebar="sidebarOpen = true"
             />
 
-            <main class="space-y-6 p-4 sm:p-6 lg:p-7 animate-fadeInUp">
-                <WelcomeBanner :name="props.doctor.name" />
+            <main class="animate-fadeInUp space-y-6 p-4 sm:p-6 lg:p-7">
+                <WelcomeBanner :name="props.doctor?.name" />
 
                 <WeeklyAvailabilityCard :days="availabilityDays" @edit-schedule="scheduleModalOpen = true" />
 
@@ -148,7 +166,10 @@ const handleNav = (key) => {
 
                         <SectionCard title="Upcoming Appointments">
                             <template #header-right>
-                                <button class="text-sm font-semibold text-teal-600 transition-colors duration-200 hover:text-teal-700 focus-visible:ring-2 focus-visible:ring-[#14B8A6]/30 focus-visible:outline-none dark:text-teal-300 dark:hover:text-teal-200" @click="router.get('/doctor/appointments')">
+                                <button
+                                    class="text-sm font-semibold text-teal-600 transition-colors duration-200 hover:text-teal-700 focus-visible:ring-2 focus-visible:ring-[#14B8A6]/30 focus-visible:outline-none dark:text-teal-300 dark:hover:text-teal-200"
+                                    @click="router.get('/doctor/appointments')"
+                                >
                                     View Full Calendar
                                 </button>
                             </template>
@@ -160,7 +181,9 @@ const handleNav = (key) => {
                                     class="flex flex-col gap-3 rounded-xl bg-[#F8FAFC] p-4 transition-colors duration-200 hover:bg-[#F1F5F9] sm:flex-row sm:items-center sm:justify-between dark:bg-[#0F172A] dark:hover:bg-[#334155]/40"
                                 >
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-sm font-semibold text-sky-700 dark:bg-sky-500/20 dark:text-sky-300">
+                                        <div
+                                            class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-sm font-semibold text-sky-700 dark:bg-sky-500/20 dark:text-sky-300"
+                                        >
                                             {{ item.initials }}
                                         </div>
                                         <div>
@@ -174,7 +197,10 @@ const handleNav = (key) => {
                                             <p class="text-xs text-[#64748B] dark:text-[#94A3B8]">{{ item.time }}</p>
                                         </div>
                                         <BaseBadge variant="teal">{{ item.status }}</BaseBadge>
-                                        <button class="text-sm font-semibold text-teal-600 transition-colors duration-200 hover:text-teal-700 focus-visible:ring-2 focus-visible:ring-[#14B8A6]/30 focus-visible:outline-none dark:text-teal-300 dark:hover:text-teal-200" @click="router.get('/doctor/appointments')">
+                                        <button
+                                            class="text-sm font-semibold text-teal-600 transition-colors duration-200 hover:text-teal-700 focus-visible:ring-2 focus-visible:ring-[#14B8A6]/30 focus-visible:outline-none dark:text-teal-300 dark:hover:text-teal-200"
+                                            @click="router.get('/doctor/appointments')"
+                                        >
                                             View Details
                                         </button>
                                     </div>

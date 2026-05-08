@@ -1,6 +1,6 @@
 <script setup>
 import { router, useForm } from '@inertiajs/vue3';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import Sidebar from '@/components/dashboard/Sidebar.vue';
 import TopNavbar from '@/components/dashboard/TopNavbar.vue';
 import { useDashboard } from '@/composables/useDashboard';

@@ -1,36 +1,40 @@
 <script setup>
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
-import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import EditScheduleModal from '@/components/doctor-dashboard/EditScheduleModal.vue';
 import BaseButton from '@/components/doctor-profile/BaseButton.vue';
 import BaseInput from '@/components/doctor-profile/BaseInput.vue';
 import BaseSelect from '@/components/doctor-profile/BaseSelect.vue';
-import FormSectionCard from '@/components/doctor-profile/FormSectionCard.vue';
 import DayPill from '@/components/doctor-profile/DayPill.vue';
+import FormSectionCard from '@/components/doctor-profile/FormSectionCard.vue';
 import InfoMiniCard from '@/components/doctor-profile/InfoMiniCard.vue';
 import ProfilePictureCard from '@/components/doctor-profile/ProfilePictureCard.vue';
+import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
 // ─── Props (Inertia Data Contract) ───────────────────────────────────────────
 const props = defineProps({
     doctor: { type: Object, required: true },
-    schedule: { type: Object, required: false, default: () => ({
-        days: [],
-        duration: '30 min',
-        breakBetweenSlots: '5 min',
-        selectedPreset: null,
-        appointmentTypes: { inClinic: true, followUp: true, labReview: true },
-        labReviewOptions: { acceptLabTests: true, acceptXrayImages: true },
-    }) },
+    schedule: {
+        type: Object,
+        required: false,
+        default: () => ({
+            days: [],
+            duration: '30 min',
+            breakBetweenSlots: '5 min',
+            selectedPreset: null,
+            appointmentTypes: { inClinic: true, followUp: true, labReview: true },
+            labReviewOptions: { acceptLabTests: true, acceptXrayImages: true },
+        }),
+    },
 });
 
 // ─── State ───────────────────────────────────────────────────────────────────
 const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
 const scheduleModalOpen = ref(false);
-const localAvatar = ref(props.doctor.avatar ?? '');
+const localAvatar = ref(props.doctor?.avatar ?? '');
 
 onMounted(() => setTheme(state.isDark ? 'dark' : 'light'));
 
@@ -45,25 +49,27 @@ const navItems = ref([
 
 // ─── Inertia useForm (Rule 3) ─────────────────────────────────────────────────
 const form = useForm({
-    firstName: props.doctor.firstName,
-    secondName: props.doctor.secondName,
-    email: props.doctor.email,
+    firstName: props.doctor?.firstName,
+    secondName: props.doctor?.secondName,
+    email: props.doctor?.email,
     countryCode: '+20',
-    phone: props.doctor.phone,
-    nationalId: props.doctor.nationalId,
-    dob: props.doctor.dob,
-    gender: props.doctor.gender,
-    address: props.doctor.address,
-    specialty: props.doctor.specialty,
-    experience: props.doctor.experience,
-    consultationFee: props.doctor.consultationFee,
-    about: props.doctor.about,
+    phone: props.doctor?.phone,
+    nationalId: props.doctor?.nationalId,
+    dob: props.doctor?.dob,
+    gender: props.doctor?.gender,
+    address: props.doctor?.address,
+    specialty: props.doctor?.specialty,
+    experience: props.doctor?.experience,
+    consultationFee: props.doctor?.consultationFee,
+    about: props.doctor?.about,
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
 });
 
 const localSchedule = ref(props.schedule);
+
+const fileInput = ref(null);
 
 // ─── Derived display values ───────────────────────────────────────────────────
 const activeDays = computed(() =>
@@ -89,12 +95,30 @@ const isDark = computed(() => state.isDark);
 const toggleTheme = (value) => setTheme(value);
 
 // ─── Handlers ────────────────────────────────────────────────────────────────
-const handlePhotoChange = (file) => {
-    localAvatar.value = URL.createObjectURL(file);
+const uploadAvatar = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    router.post(
+        '/doctor/profile/avatar',
+        { avatar: file },
+        {
+            preserveScroll: true,
+            forceFormData: true,
+            onSuccess: () => {
+                if (fileInput.value) fileInput.value.value = '';
+            },
+            onError: (errors) => alert(errors.avatar || 'Failed to upload image.'),
+        },
+    );
 };
 
 const removePhoto = () => {
-    localAvatar.value = `https://ui-avatars.com/api/?name=${encodeURIComponent(props.doctor.fullName)}&background=0D9488&color=fff&size=160`;
+    if (!props.profileData?.avatar) return;
+    if (!confirm('Remove your profile photo?')) return;
+
+    router.delete('/doctor/profile/avatar', {
+        preserveScroll: true,
+    });
 };
 
 // Rule 3: use form.reset() to revert
@@ -104,7 +128,7 @@ const handleCancel = () => {
 
 // Rule 3: use form.patch() to submit to the Laravel backend
 const handleSave = () => {
-    form.patch('/doctor/profile');
+    form.patch('/doctor/profile/update');
 };
 
 const saveSchedule = (value) => {
@@ -140,29 +164,31 @@ const handleNav = (key) => {
         <div class="lg:ml-64">
             <TopHeader
                 title="Profile"
-                :doctor-name="props.doctor.fullName"
-                :handle="props.doctor.handle"
+                :doctor-name="props.doctor?.fullName"
+                :handle="props.doctor?.handle"
                 :avatar="localAvatar"
                 :is-dark="isDark"
                 @toggle-sidebar="sidebarOpen = true"
             />
 
-            <main class="p-4 sm:p-6 lg:p-7 animate-fadeInUp">
+            <main class="animate-fadeInUp p-4 sm:p-6 lg:p-7">
                 <div class="mb-6">
                     <p :class="isDark ? 'text-[#475569]' : 'text-[#9CA3AF]'" class="mb-1.5 text-xs font-medium">
                         Dashboard <span class="mx-1.5 text-[#D1D5DB]">/</span>
                         <span :class="isDark ? 'text-[#94A3B8]' : 'text-[#64748B]'">Profile Settings</span>
                     </p>
                     <h1 :class="isDark ? 'text-[#F1F5F9]' : 'text-[#0F172A]'" class="mb-1 text-2xl font-bold tracking-tight">Profile Settings</h1>
-                    <p :class="isDark ? 'text-[#64748B]' : 'text-[#9CA3AF]'" class="text-sm">Manage your professional information and account settings.</p>
+                    <p :class="isDark ? 'text-[#64748B]' : 'text-[#9CA3AF]'" class="text-sm">
+                        Manage your professional information and account settings.
+                    </p>
                 </div>
 
                 <div class="max-w-3xl space-y-5">
                     <ProfilePictureCard
                         :avatar="localAvatar"
-                        :name="props.doctor.name"
-                        :doctor-id="String(props.doctor.id)"
-                        @change-photo="handlePhotoChange"
+                        :name="props.doctor?.name"
+                        :doctor-id="String(props.doctor?.id)"
+                        @change-photo="uploadAvatar"
                         @remove-photo="removePhoto"
                     />
 
@@ -195,25 +221,29 @@ const handleNav = (key) => {
                                 <BaseInput v-model="form.consultationFee" label="Consultation Fee" />
                             </div>
                             <!-- Clinic comes from backend relationship — read-only display -->
-                            <BaseInput :model-value="props.doctor.clinic?.name ?? 'No clinic assigned'" label="Clinic Name" :disabled="true" />
+                            <BaseInput :model-value="props.doctor?.clinic?.name ?? 'No clinic assigned'" label="Clinic Name" :disabled="true" />
                             <div class="sm:col-span-2">
-                                <BaseInput :model-value="props.doctor.clinic?.address ?? ''" label="Clinic Address" :disabled="true" />
+                                <BaseInput :model-value="props.doctor?.clinic?.address ?? ''" label="Clinic Address" :disabled="true" />
                             </div>
                         </div>
                     </FormSectionCard>
 
                     <section class="grid gap-4 xl:grid-cols-12">
-                        <FormSectionCard title="About & Experience" class="xl:col-span-7">
+                        <FormSectionCard title="About & Experience" subtitle="Your professional background and education" class="xl:col-span-7">
                             <p class="text-sm leading-6 text-[#64748B] dark:text-[#94A3B8]">
                                 {{ form.about }}
                             </p>
                             <div class="mt-4 grid gap-3 sm:grid-cols-2">
                                 <InfoMiniCard title="Education" subtitle="2009 M University School of Medicine" icon="education" />
-                                <InfoMiniCard title="Board Certification" subtitle="American Board of Surgeons Certified Specialist" icon="certification" />
+                                <InfoMiniCard
+                                    title="Board Certification"
+                                    subtitle="American Board of Surgeons Certified Specialist"
+                                    icon="certification"
+                                />
                             </div>
                         </FormSectionCard>
 
-                        <FormSectionCard title="Working Schedule" class="xl:col-span-5">
+                        <FormSectionCard title="Working Schedule" subtitle="Set your weekly availability and hours" class="xl:col-span-5">
                             <template #default>
                                 <div class="space-y-4">
                                     <div class="flex items-center justify-between">
@@ -227,14 +257,23 @@ const handleNav = (key) => {
                                         </button>
                                     </div>
                                     <div class="flex flex-wrap gap-2">
-                                        <DayPill v-for="(day, index) in activeDays" :key="`${day.label}-${index}`" :label="day.label" :active="day.active" />
+                                        <DayPill
+                                            v-for="(day, index) in activeDays"
+                                            :key="`${day.label}-${index}`"
+                                            :label="day.label"
+                                            :active="day.active"
+                                        />
                                     </div>
                                     <div class="grid grid-cols-2 gap-2">
-                                        <BaseInput :model-value="localSchedule.days?.find(d => d.enabled)?.from ?? '09:00 AM'" label="From" />
-                                        <BaseInput :model-value="localSchedule.days?.find(d => d.enabled)?.to ?? '05:00 PM'" label="To" />
+                                        <BaseInput :model-value="localSchedule.days?.find((d) => d.enabled)?.from ?? '09:00 AM'" label="From" />
+                                        <BaseInput :model-value="localSchedule.days?.find((d) => d.enabled)?.to ?? '05:00 PM'" label="To" />
                                     </div>
                                     <div class="rounded-xl border border-teal-200 bg-[#F0FDFA] px-3 py-2 dark:border-teal-500/20 dark:bg-teal-500/8">
-                                        <InfoMiniCard title="Standard Availability" subtitle="This is a weekly visible support schedule for your patients." icon="availability" />
+                                        <InfoMiniCard
+                                            title="Standard Availability"
+                                            subtitle="This is a weekly visible support schedule for your patients."
+                                            icon="availability"
+                                        />
                                     </div>
                                 </div>
                             </template>
@@ -245,12 +284,19 @@ const handleNav = (key) => {
                         <div class="grid gap-4 md:grid-cols-3">
                             <BaseInput v-model="form.currentPassword" label="Current Password" type="password" placeholder="Enter current password" />
                             <BaseInput v-model="form.newPassword" label="New Password" type="password" placeholder="Create a new password" />
-                            <BaseInput v-model="form.confirmPassword" label="Confirm New Password" type="password" placeholder="Confirm new password" />
+                            <BaseInput
+                                v-model="form.confirmPassword"
+                                label="Confirm New Password"
+                                type="password"
+                                placeholder="Confirm new password"
+                            />
                         </div>
                     </FormSectionCard>
 
                     <!-- Inertia form status feedback -->
-                    <div class="flex flex-col gap-3 border-t border-[#E5E7EB] pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-[#334155]">
+                    <div
+                        class="flex flex-col gap-3 border-t border-[#E5E7EB] pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-[#334155]"
+                    >
                         <p class="min-h-5 text-xs font-medium text-[#14B8A6] dark:text-[#2DD4BF]">
                             <span v-if="form.wasSuccessful">Profile saved successfully.</span>
                             <span v-else-if="form.hasErrors" class="text-red-500">Please fix the errors above.</span>
