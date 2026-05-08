@@ -6,6 +6,9 @@ use App\Http\Controllers\Auth\DoctorController;
 use App\Http\Controllers\Auth\PatientController;
 use App\Http\Controllers\Auth\PharmacyController;
 use App\Http\Controllers\Auth\SessionController;
+use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
+use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
+use App\Http\Controllers\Doctor\ProfileController as DoctorProfileController;
 use App\Http\Controllers\Patient\AppointmentController;
 use App\Http\Controllers\Patient\DashboardController;
 use App\Http\Controllers\Patient\ImagingController;
@@ -28,81 +31,46 @@ Route::get('/home', function () {
 
 // ==========================================
 // DOCTOR DASHBOARD ROUTES
-// (All render paths updated to new DoctorDashboard/ structure)
-// TODO: Replace closures with DoctorDashboardController methods
-//       and pass real Eloquent data matching the Inertia data contract.
 // ==========================================
+Route::middleware(['auth', 'active', 'role:doctor'])
+    ->prefix('doctor')
+    ->name('doctor.')
+    ->group(function () {
 
-Route::get('/doctor/dashboard', function () {
-    return Inertia::render('DoctorDashboard/Index', [
-        // 'doctor'               => [...],  // DoctorProp shape
-        // 'stats'                => [...],  // StatsProp shape
-        // 'todaySchedule'        => [...],
-        // 'upcomingAppointments' => [...],
-        // 'pendingReviews'       => [...],
-        // 'recentPatients'       => [...],
-        // 'schedule'             => [...],
-    ]);
-});
+        // Main Dashboard (Name becomes 'doctor.dashboard' automatically)
+        Route::get('/dashboard', [DoctorDashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/doctor/profile', function () {
-    return Inertia::render('DoctorDashboard/Profile', [
-        // 'doctor'   => [...],  // DoctorProp shape (clinic from doctor->clinic->name)
-        // 'schedule' => [...],
-    ]);
-});
+        // Profile Settings (Names become 'doctor.profile.edit', etc.)
+        Route::get('/profile', [DoctorProfileController::class, 'show'])->name('profile.edit');
+        Route::patch('/profile/update', [DoctorProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/avatar', [DoctorProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+        Route::delete('/profile/avatar', [DoctorProfileController::class, 'removeAvatar'])->name('profile.avatar.remove');
 
-Route::get('/doctor/appointments', function () {
-    return Inertia::render('DoctorDashboard/Appointments', [
-        // 'doctor'                  => [...],
-        // 'completedAppointments'   => [...],
-        // 'upcomingAppointments'    => [...],
-        // 'cancelledAppointments'   => [...],
-    ]);
-});
+        Route::get('/appointments', [DoctorAppointmentController::class, 'index'])->name('appointments');
 
-Route::get('/doctor/notifications', function () {
-    return Inertia::render('DoctorDashboard/Notifications', [
-        // 'doctor'        => [...],
-        // 'notifications' => [...],
-    ]);
-});
+        Route::get('/notifications', function () {
+            return Inertia::render('DoctorDashboard/Notifications');
+        })->name('notifications');
 
-Route::get('/doctor/reviews', function () {
-    return Inertia::render('DoctorDashboard/Reviews', [
-        // 'doctor'  => [...],
-        // 'reviews' => [...],
-    ]);
-});
+        Route::get('/reviews', function () {
+            return Inertia::render('DoctorDashboard/Reviews');
+        })->name('reviews.index');
 
-Route::get('/doctor/reviews/files', function () {
-    return Inertia::render('DoctorDashboard/ReviewFiles', [
-        // 'doctor'  => [...],
-        // 'patient' => [...],
-        // 'files'   => [...],
-    ]);
-});
+        Route::get('/reviews/files', function () {
+            return Inertia::render('DoctorDashboard/ReviewFiles');
+        })->name('reviews.files');
 
-Route::get('/doctor/reviews/view-full-file', function (\Illuminate\Http\Request $request) {
-    return Inertia::render('DoctorDashboard/ViewFullFile', [
-        // 'doctor'   => [...],
-        'fileType' => $request->query('type', 'imaging'),  // REQUIRED: passed as prop (not window.location)
-        // 'imaging'  => [...],  // nullable
-        // 'lab'      => [...],  // nullable
-    ]);
-});
+        Route::get('/reviews/view-full-file', function (\Illuminate\Http\Request $request) {
+            return Inertia::render('DoctorDashboard/ViewFullFile', [
+                'fileType' => $request->query('type', 'imaging'),
+            ]);
+        })->name('reviews.view-file');
 
-Route::get('/doctor/reviews/medical-record', function () {
-    return Inertia::render('DoctorDashboard/MedicalRecord', [
-        // 'doctor'        => [...],
-        // 'patient'       => [...],
-        // 'testResults'   => [...],
-        // 'imaging'       => [...],
-        // 'prescriptions' => [...],
-        // 'visits'        => [...],
-    ]);
-});
+        Route::get('/reviews/medical-record', function () {
+            return Inertia::render('DoctorDashboard/MedicalRecord');
+        })->name('reviews.medical-record');
 
+    });
 
 Route::get('/waiting-approval', function () {
     $user = auth()->user();

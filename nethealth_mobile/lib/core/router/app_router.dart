@@ -26,7 +26,7 @@ import '../../features/profile/ui/edit_profile_screen.dart';
 // ── Appointments ──────────────────────────────────────────────────────────────
 import '../../features/appointments/ui/appointments_screen.dart';
 import '../../features/appointments/ui/appointment_detail_screen.dart';
-import '../../features/appointments/ui/find_specialist_screen.dart';
+//import '../../features/appointments/ui/find_specialist_screen.dart';
 import '../../features/appointments/ui/doctor_details_screen.dart';
 import '../../shared/models/doctor_booking_model.dart';
 // ── Records ───────────────────────────────────────────────────────────────────
@@ -178,11 +178,11 @@ final routerProvider = Provider<GoRouter>((ref) {
               builder: (_, __) => const AppointmentsScreen(),
               routes: [
                 // Find Specialist
-                GoRoute(
-                  path:    'find-specialist',
-                  name:    RouteNames.findSpecialist,
-                  builder: (_, __) => const FindSpecialistScreen(),
-                ),
+                //GoRoute(
+                //  path:    'find-specialist',
+                //  name:    RouteNames.findSpecialist,
+                //  builder: (_, __) => const FindSpecialistScreen(),
+                //),
 
                 // Doctor Details — requires DoctorModel in extra
                 GoRoute(
