@@ -7,7 +7,7 @@ defineProps({
 
 <template>
     <section
-        class="dash-card rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-200 dark:border-[#334155] dark:bg-[#1E293B]"
+        class="dash-card rounded-2xl border border-[#F1F5F9] bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-200 dark:border-[#1E293B] dark:bg-[#1E293B]"
         style="box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
     >
         <header class="mb-5 flex items-start justify-between gap-3">

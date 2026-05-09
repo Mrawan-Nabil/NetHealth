@@ -6,7 +6,7 @@ defineProps({
 
 <template>
     <section
-        class="flex items-center justify-between rounded-2xl border border-[#E5E7EB] bg-white px-6 py-5 dark:border-[#334155] dark:bg-[#1E293B]"
+        class="flex items-center justify-between rounded-2xl border border-[#F1F5F9] bg-white px-6 py-5 dark:border-[#1E293B] dark:bg-[#1E293B]"
         style="box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
     >
         <div>

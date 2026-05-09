@@ -7,6 +7,7 @@ import AppointmentCardUpcoming from '@/components/doctor-appointments/Appointmen
 import AppointmentsTabs from '@/components/doctor-appointments/AppointmentsTabs.vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
+import RescheduleModal from '@/components/dashboard/RescheduleModal.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
 // ─── Props (Inertia Data Contract) ───────────────────────────────────────────
@@ -57,6 +58,30 @@ const openPrescription = () => router.get('/doctor/reviews/medical-record');
 
 const cancelUpcoming = (id) => {
     localUpcoming.value = localUpcoming.value.filter((a) => a.id !== id);
+};
+
+const showRescheduleModal = ref(false);
+const selectedAppointment = ref(null);
+
+const openRescheduleModal = (item) => {
+    selectedAppointment.value = item;
+    showRescheduleModal.value = true;
+};
+
+const handleRescheduleConfirm = (payload) => {
+    if (!selectedAppointment.value) return;
+    router.put(
+        `/appointments/${selectedAppointment.value.id}`,
+        { date: payload.date, time: payload.time, reason: payload.reason },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                selectedAppointment.value = null;
+                showRescheduleModal.value = false;
+            },
+            onError: (errors) => console.error('Reschedule failed:', errors),
+        },
+    );
 };
 
 const handleNav = (key) => {
@@ -114,6 +139,7 @@ const handleNav = (key) => {
                             @view-patient="openPatientRecord"
                             @review-files="openReviewFiles"
                             @cancel="cancelUpcoming(item.id)"
+                            @reschedule="openRescheduleModal"
                         />
                         <AppointmentCardCancelled
                             v-else
@@ -127,4 +153,12 @@ const handleNav = (key) => {
             </main>
         </div>
     </div>
+
+    <RescheduleModal
+        :is-open="showRescheduleModal"
+        :is-dark="isDark"
+        :appointment="selectedAppointment"
+        @close="showRescheduleModal = false"
+        @confirm="handleRescheduleConfirm"
+    />
 </template>
