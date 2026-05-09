@@ -120,7 +120,7 @@ const handleNav = (key) => {
                             v-for="item in props.cancelledAppointments"
                             :key="item.id"
                             :item="item"
-                            @reschedule="activeTab = 'upcoming'"
+                            @reschedule="activeTab = 'cancelled'"
                         />
                     </section>
                 </transition>

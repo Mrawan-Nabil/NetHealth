@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Doctor;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Traits\AvatarResolver;
+use App\Traits\DoctorPropBuilder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,7 +13,7 @@ use Inertia\Inertia;
 class AppointmentController extends Controller
 {
     use AvatarResolver;
-
+    use DoctorPropBuilder;
     /**
      * Display the Doctor's Appointments Manager.
      */
@@ -22,14 +23,7 @@ class AppointmentController extends Controller
         $doctorId = $user->id;
 
         // 1. Construct Doctor Profile Prop
-        $firstName = explode(' ', $user->full_name)[0] ?? 'Doctor';
-        $doctorProfile = [
-            'id' => $user->id,
-            'name' => 'Dr. '.$firstName,
-            'fullName' => $user->full_name,
-            'handle' => '@'.($user->username ?? strtolower($firstName).$user->id),
-            'avatar' => $this->resolveAvatarUrl($user->avatar, $user->full_name ?? 'Doctor', '14B8A6'),
-        ];
+        $doctorProfile = $this->buildDoctorProp($user);
 
         // 2. Fetch all appointments for this doctor with eager loading
         // We fetch them all at once, then filter using Laravel Collections for performance

@@ -22,12 +22,15 @@ trait DoctorPropBuilder
             'name' => 'Dr. '.$firstName,
             'fullName' => $user->full_name,
             'handle' => '@'.($user->username ?? strtolower($firstName).$user->id),
-            'avatar' => $user->avatar ? asset('storage/'.$user->avatar) : null,
-
+            'avatar' => $user->avatar ?? $this->resolveAvatarUrl(
+                $user->avatar,
+                $user->full_name ?? 'Doctor',
+                '14B8A6'
+            ),
             // Nested Clinic Object
             'clinic' => $user->clinic ? [
-                'name' => $user->clinic->clinic_name, // adjust to match your db column (e.g., 'name')
-                'address' => $user->clinic->clinic_address, // adjust to match your db column (e.g., 'address')
+            'name' => $user->clinic->clinic_name, // adjust to match your db column (e.g., 'name')
+            'address' => $user->clinic->clinic_address, // adjust to match your db column (e.g., 'address')
             ] : null,
         ];
     }
