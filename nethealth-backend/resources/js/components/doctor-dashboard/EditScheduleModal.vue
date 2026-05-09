@@ -204,7 +204,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown));
                                     description="Review lab results and imaging reports"
                                     icon="M5 4.5h9l5 5V19a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19V6A1.5 1.5 0 0 1 5.5 4.5Z"
                                 >
-                                    <div v-if="localSchedule.appointmentTypes.labReview" class="mt-3 space-y-2">
+                                    <div v-if="localSchedule.appointmentTypes.labReview" class="mt-3 flex flex-col gap-2">
                                         <BaseCheckbox v-model="localSchedule.labReviewOptions.acceptLabTests" label="Accept Lab Tests" />
                                         <BaseCheckbox v-model="localSchedule.labReviewOptions.acceptXrayImages" label="Accept X-ray Images" />
                                     </div>

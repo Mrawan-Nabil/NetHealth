@@ -33,7 +33,7 @@ const iconMap = {
 
     <aside
         :class="[
-            isDark ? 'border-[#334155] bg-[#1E293B]' : 'border-[#E5E7EB] bg-white',
+            isDark ? 'border-[#1E293B] bg-[#0F172A]' : 'border-[#E5E7EB] bg-white',
             isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         ]"
         class="fixed top-0 left-0 z-40 flex h-screen w-64 flex-col border-r transition-all duration-300 lg:translate-x-0"
@@ -50,13 +50,13 @@ const iconMap = {
             </Link>
         </div>
 
-        <div :class="isDark ? 'bg-[#334155]' : 'bg-[#E5E7EB]'" class="mx-5 h-px shrink-0" />
+        <div :class="isDark ? 'bg-[#1E293B]' : 'bg-[#E5E7EB]'" class="mx-5 h-px shrink-0" />
 
         <div class="shrink-0 px-5 pt-4 pb-2">
             <div class="relative">
                 <svg
                     class="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2"
-                    :class="isDark ? 'text-[#64748B]' : 'text-[#9CA3AF]'"
+                    :class="isDark ? 'text-[#475569]' : 'text-[#9CA3AF]'"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -67,7 +67,7 @@ const iconMap = {
                     type="text"
                     placeholder="Search..."
                     :class="isDark
-                        ? 'border-[#334155] bg-[#0F172A] text-[#F1F5F9] placeholder-[#64748B] focus:border-[#14B8A6] focus:bg-[#0F172A]'
+                        ? 'border-[#1E293B] bg-[#1E293B] text-[#F1F5F9] placeholder-[#475569] focus:border-[#14B8A6] focus:bg-[#1E293B]'
                         : 'border-[#F1F5F9] bg-[#F8FAFC] text-[#0F172A] placeholder-[#9CA3AF] focus:border-[#14B8A6] focus:bg-white'"
                     class="w-full rounded-lg border py-2 pr-4 pl-9 text-sm transition-all duration-200 focus:ring-2 focus:ring-[#14B8A6]/20 focus:outline-none"
                 />
@@ -107,11 +107,11 @@ const iconMap = {
                                 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200',
                                 item.key === 'logout'
                                     ? isDark
-                                        ? 'bg-[#0F172A] group-hover:bg-red-500/10'
+                                        ? 'bg-[#1E293B] group-hover:bg-red-500/10'
                                         : 'bg-transparent group-hover:bg-red-50'
                                     : item.active
-                                      ? isDark ? 'bg-[#14B8A6]/20' : 'bg-[#14B8A6]/12'
-                                      : isDark ? 'bg-[#0F172A] group-hover:bg-[#334155]' : 'bg-transparent group-hover:bg-[#F1F5F9]',
+                                      ? isDark ? 'bg-[#14B8A6]/15' : 'bg-[#14B8A6]/12'
+                                      : isDark ? 'bg-[#1E293B] group-hover:bg-[#334155]' : 'bg-transparent group-hover:bg-[#F1F5F9]',
                             ]"
                         >
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="iconMap[item.icon]" />
@@ -122,8 +122,8 @@ const iconMap = {
             </ul>
         </nav>
 
-        <div :class="isDark ? 'border-[#334155]' : 'border-[#E5E7EB]'" class="shrink-0 border-t p-4">
-            <div :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'" class="flex items-center gap-1 rounded-lg p-1">
+        <div :class="isDark ? 'border-[#1E293B]' : 'border-[#E5E7EB]'" class="shrink-0 border-t p-4">
+            <div :class="isDark ? 'bg-[#1E293B]' : 'bg-[#F8FAFC]'" class="flex items-center gap-1 rounded-xl p-1">
                 <button
                     type="button"
                     @click="$emit('toggle-theme', 'light')"

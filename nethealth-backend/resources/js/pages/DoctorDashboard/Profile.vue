@@ -35,6 +35,7 @@ const { state, setTheme } = useDashboard();
 const sidebarOpen = ref(false);
 const scheduleModalOpen = ref(false);
 const localAvatar = ref(props.doctor?.avatar ?? '');
+const showPassword = ref({ current: false, new: false, confirm: false });
 
 onMounted(() => setTheme(state.isDark ? 'dark' : 'light'));
 
@@ -281,15 +282,59 @@ const handleNav = (key) => {
                     </section>
 
                     <FormSectionCard title="Change Password" subtitle="Keep your account safe with a strong password">
-                        <div class="grid gap-4 md:grid-cols-3">
-                            <BaseInput v-model="form.currentPassword" label="Current Password" type="password" placeholder="Enter current password" />
-                            <BaseInput v-model="form.newPassword" label="New Password" type="password" placeholder="Create a new password" />
-                            <BaseInput
-                                v-model="form.confirmPassword"
-                                label="Confirm New Password"
-                                type="password"
-                                placeholder="Confirm new password"
-                            />
+                        <div class="space-y-4">
+                            <!-- Current Password -->
+                            <div>
+                                <label class="mb-1.5 block text-xs font-semibold text-[#374151] dark:text-[#94A3B8]">Current Password</label>
+                                <div class="relative">
+                                    <input
+                                        v-model="form.currentPassword"
+                                        :type="showPassword.current ? 'text' : 'password'"
+                                        placeholder="Enter current password"
+                                        class="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-3.5 pr-16 text-sm text-[#0F172A] placeholder-[#94A3B8] transition-all duration-200 focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/15 focus:outline-none dark:border-[#334155] dark:bg-[#0F172A] dark:text-[#F1F5F9] dark:placeholder-[#475569]"
+                                    />
+                                    <button type="button" @click="showPassword.current = !showPassword.current"
+                                        class="absolute top-1/2 right-3.5 -translate-y-1/2 text-[10px] font-bold text-[#14B8A6] transition-colors hover:text-[#0D9488]">
+                                        {{ showPassword.current ? 'Hide' : 'Show' }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <!-- New Password -->
+                                <div>
+                                    <label class="mb-1.5 block text-xs font-semibold text-[#374151] dark:text-[#94A3B8]">New Password</label>
+                                    <div class="relative">
+                                        <input
+                                            v-model="form.newPassword"
+                                            :type="showPassword.new ? 'text' : 'password'"
+                                            placeholder="Create new password"
+                                            class="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-3.5 pr-16 text-sm text-[#0F172A] placeholder-[#94A3B8] transition-all duration-200 focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/15 focus:outline-none dark:border-[#334155] dark:bg-[#0F172A] dark:text-[#F1F5F9] dark:placeholder-[#475569]"
+                                        />
+                                        <button type="button" @click="showPassword.new = !showPassword.new"
+                                            class="absolute top-1/2 right-3.5 -translate-y-1/2 text-[10px] font-bold text-[#14B8A6] transition-colors hover:text-[#0D9488]">
+                                            {{ showPassword.new ? 'Hide' : 'Show' }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div>
+                                    <label class="mb-1.5 block text-xs font-semibold text-[#374151] dark:text-[#94A3B8]">Confirm Password</label>
+                                    <div class="relative">
+                                        <input
+                                            v-model="form.confirmPassword"
+                                            :type="showPassword.confirm ? 'text' : 'password'"
+                                            placeholder="Confirm new password"
+                                            class="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-3.5 pr-16 text-sm text-[#0F172A] placeholder-[#94A3B8] transition-all duration-200 focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/15 focus:outline-none dark:border-[#334155] dark:bg-[#0F172A] dark:text-[#F1F5F9] dark:placeholder-[#475569]"
+                                        />
+                                        <button type="button" @click="showPassword.confirm = !showPassword.confirm"
+                                            class="absolute top-1/2 right-3.5 -translate-y-1/2 text-[10px] font-bold text-[#14B8A6] transition-colors hover:text-[#0D9488]">
+                                            {{ showPassword.confirm ? 'Hide' : 'Show' }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </FormSectionCard>
 

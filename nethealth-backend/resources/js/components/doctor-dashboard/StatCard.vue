@@ -38,7 +38,7 @@ const iconPaths = {
 
 <template>
     <article
-        class="group dash-card rounded-2xl border border-[#E5E7EB] bg-white p-5 select-none dark:border-[#334155] dark:bg-[#1E293B]"
+        class="group dash-card rounded-2xl border border-[#F1F5F9] bg-white p-5 select-none dark:border-[#1E293B] dark:bg-[#1E293B]"
         style="box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
     >
         <div class="mb-4 flex items-center justify-between">
