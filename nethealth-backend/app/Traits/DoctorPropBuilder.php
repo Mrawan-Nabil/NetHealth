@@ -6,6 +6,7 @@ use App\Models\User;
 
 trait DoctorPropBuilder
 {
+    use AvatarResolver;
     /**
      * Builds the standard 'doctor' prop object expected by Inertia.
      */
@@ -29,8 +30,8 @@ trait DoctorPropBuilder
             ),
             // Nested Clinic Object
             'clinic' => $user->clinic ? [
-            'name' => $user->clinic->clinic_name, // adjust to match your db column (e.g., 'name')
-            'address' => $user->clinic->clinic_address, // adjust to match your db column (e.g., 'address')
+                'name' => $user->clinic->clinic_name, // adjust to match your db column (e.g., 'name')
+                'address' => $user->clinic->clinic_address, // adjust to match your db column (e.g., 'address')
             ] : null,
         ];
     }

@@ -1,13 +1,13 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import DoctorNotesCard from '@/components/doctor-full-file/DoctorNotesCard.vue';
 import FileInfoCard from '@/components/doctor-full-file/FileInfoCard.vue';
 import ImagingViewer from '@/components/doctor-full-file/ImagingViewer.vue';
 import LabReportSummaryCard from '@/components/doctor-full-file/LabReportSummaryCard.vue';
 import PageActionBar from '@/components/doctor-full-file/PageActionBar.vue';
 import ResultsAnalysisTable from '@/components/doctor-full-file/ResultsAnalysisTable.vue';
+import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 

@@ -1,13 +1,13 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import RescheduleModal from '@/components/dashboard/RescheduleModal.vue';
 import AppointmentCardCancelled from '@/components/doctor-appointments/AppointmentCardCancelled.vue';
 import AppointmentCardCompleted from '@/components/doctor-appointments/AppointmentCardCompleted.vue';
 import AppointmentCardUpcoming from '@/components/doctor-appointments/AppointmentCardUpcoming.vue';
 import AppointmentsTabs from '@/components/doctor-appointments/AppointmentsTabs.vue';
 import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
-import RescheduleModal from '@/components/dashboard/RescheduleModal.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
 // ─── Props (Inertia Data Contract) ───────────────────────────────────────────

@@ -1,6 +1,7 @@
 <script setup>
 import BaseButton from './BaseButton.vue';
 import PatientAvatar from './PatientAvatar.vue';
+
 defineProps({ name: { type: String, required: true }, initials: { type: String, required: true }, age: { type: Number, required: true }, gender: { type: String, required: true }, patientId: { type: String, required: true } });
 defineEmits(['view-medical-record']);
 </script>

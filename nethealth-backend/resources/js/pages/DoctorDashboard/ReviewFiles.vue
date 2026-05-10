@@ -1,9 +1,9 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import MedicalFileCard from '@/components/doctor-reviews/MedicalFileCard.vue';
 import PatientSummaryCard from '@/components/doctor-reviews/PatientSummaryCard.vue';
+import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
@@ -33,9 +33,16 @@ const isDark = computed(() => state.isDark);
 // ─── Handlers ────────────────────────────────────────────────────────────────
 const toggleTheme = (value) => setTheme(value);
 
-const openFullFile = (category) => {
-    const type = category === 'Lab Test' ? 'lab' : 'imaging';
-    router.get(`/doctor/reviews/view-full-file?type=${type}`);
+const openFullFile = (category, fileId) => {
+    // 1. Force the word to lowercase safely
+    const safeCategory = String(category).toLowerCase();
+
+    // 2. Check if it includes the word 'imaging' (handles "Imaging", "imaging", or "x-ray imaging")
+    const fileType = safeCategory.includes('imaging') ? 'imaging' : 'lab';
+    router.get('/doctor/reviews/view-full-file', {
+        type: fileType,
+        file: fileId
+    });
 };
 
 const handleNav = (key) => {
@@ -48,12 +55,25 @@ const handleNav = (key) => {
     if (key === 'notification') return router.get('/doctor/notifications');
     if (key === 'logout') return router.get('/logout');
 };
+
+const handleviewmedicalrecord = () => {
+    router.get('/doctor/reviews/medical-record', {
+        patient: props.patient.rawId,
+    });
+};
 </script>
 
 <template>
     <Head title="Doctor Review Files" />
     <div :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'" class="min-h-screen transition-colors duration-300">
-        <AppSidebar :nav-items="navItems" :is-open="sidebarOpen" :is-dark="isDark" @close="sidebarOpen = false" @navigate="handleNav" @toggle-theme="toggleTheme" />
+        <AppSidebar
+            :nav-items="navItems"
+            :is-open="sidebarOpen"
+            :is-dark="isDark"
+            @close="sidebarOpen = false"
+            @navigate="handleNav"
+            @toggle-theme="toggleTheme"
+        />
         <div class="lg:ml-64">
             <TopHeader
                 title="Reviews"
@@ -63,14 +83,16 @@ const handleNav = (key) => {
                 :is-dark="isDark"
                 @toggle-sidebar="sidebarOpen = true"
             />
-            <main class="space-y-6 p-4 sm:p-6 lg:p-7 animate-fadeInUp">
+            <main class="animate-fadeInUp space-y-6 p-4 sm:p-6 lg:p-7">
                 <div class="mb-1">
                     <p :class="isDark ? 'text-[#475569]' : 'text-[#9CA3AF]'" class="mb-2 text-xs font-medium">
                         Patient Reviews <span class="mx-1.5 text-[#D1D5DB]">/</span>
                         <span :class="isDark ? 'text-[#94A3B8]' : 'text-[#64748B]'">View Files</span>
                     </p>
                     <h1 :class="isDark ? 'text-[#F1F5F9]' : 'text-[#0F172A]'" class="mb-1 text-2xl font-bold tracking-tight">View Files</h1>
-                    <p :class="isDark ? 'text-[#64748B]' : 'text-[#94A3B8]'" class="text-sm">Review the patient summary and attached medical files.</p>
+                    <p :class="isDark ? 'text-[#64748B]' : 'text-[#94A3B8]'" class="text-sm">
+                        Review the patient summary and attached medical files.
+                    </p>
                 </div>
                 <PatientSummaryCard
                     :name="props.patient.name"
@@ -78,12 +100,12 @@ const handleNav = (key) => {
                     :age="props.patient.age"
                     :gender="props.patient.gender"
                     :patient-id="props.patient.patientId"
-                    @view-medical-record="router.get('/doctor/reviews/medical-record')"
+                    @view-medical-record="handleviewmedicalrecord"
                 />
                 <section class="space-y-4">
                     <h2 :class="isDark ? 'text-[#F1F5F9]' : 'text-[#0F172A]'" class="text-sm font-semibold">Medical Files</h2>
                     <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                        <MedicalFileCard v-for="file in props.files" :key="file.id" :item="file" @view-file="openFullFile(file.category)" />
+                        <MedicalFileCard v-for="file in props.files" :key="file.id" :item="file" @view-file="openFullFile(file.category, file.id)" />
                     </div>
                 </section>
             </main>

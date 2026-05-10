@@ -78,9 +78,9 @@ const handleNav = (key) => {
         <div class="lg:ml-64">
             <TopHeader
                 title="Notifications"
-                :doctor-name="props.doctor.fullName"
-                :handle="props.doctor.handle"
-                :avatar="props.doctor.avatar ?? ''"
+                :doctor-name="props.doctor?.fullName"
+                :handle="props.doctor?.handle"
+                :avatar="props.doctor?.avatar ?? ''"
                 :notifications="localNotifications"
                 :is-dark="isDark"
                 :show-last-viewed="false"
