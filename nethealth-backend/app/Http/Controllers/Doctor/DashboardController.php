@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\MedicalAttachment;
 use App\Traits\AvatarResolver;
+use App\Traits\DoctorPropBuilder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,6 +14,7 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     use AvatarResolver;
+    use DoctorPropBuilder;
 
     /**
      * Display the Doctor Dashboard
@@ -23,23 +25,7 @@ class DashboardController extends Controller
         // 1. DOCTOR PROFILE
         // ---------------------------------------------------------
         $user = $request->user()->load('clinic');
-        $firstName = explode(' ', $user->full_name)[0] ?? 'Doctor';
-
-        $doctorProfile = [
-            'id' => $user->id,
-            'name' => 'Dr. '.$firstName,
-            'fullName' => $user->full_name,
-            'handle' => '@'.strtolower($firstName).$user->id,
-            'avatar' => $this->resolveAvatarUrl(
-                $user->avatar,
-                $user->full_name ?? 'Doctor',
-                '14B8A6'
-            ),
-            'clinic' => $user->clinic ? [
-                'name' => $user->clinic->clinic_name ?? 'NetHealth Clinic',
-                'address' => $user->clinic->clinic_address ?? 'Address not set',
-            ] : null,
-        ];
+        $doctorProfile = $this->buildDoctorProp($user);
 
         // ---------------------------------------------------------
         // 2. KPI STATS

@@ -1,9 +1,9 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
-import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import ReviewListItem from '@/components/doctor-reviews/ReviewListItem.vue';
 import ReviewStatsCard from '@/components/doctor-reviews/ReviewStatsCard.vue';
+import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
@@ -48,14 +48,30 @@ const handleNav = (key) => {
     if (key === 'logout') return router.get('/logout');
 };
 
-const handleViewFiles = () => router.get('/doctor/reviews/files');
-const handleReviewDetails = () => router.get('/doctor/reviews/view-full-file?type=lab');
+const handleViewFiles = (patientId) => {
+    router.get('/doctor/reviews/files', {
+        patient: patientId,
+    });
+};
+const handleReviewDetails = (type = 'lab', fileId) => {
+    router.get(`/doctor/reviews/view-full-file`, {
+        type: type,
+        file: fileId,
+    });
+};
 </script>
 
 <template>
     <Head title="Doctor Reviews" />
     <div :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'" class="min-h-screen transition-colors duration-300">
-        <AppSidebar :nav-items="navItems" :is-open="sidebarOpen" :is-dark="isDark" @close="sidebarOpen = false" @navigate="handleNav" @toggle-theme="toggleTheme" />
+        <AppSidebar
+            :nav-items="navItems"
+            :is-open="sidebarOpen"
+            :is-dark="isDark"
+            @close="sidebarOpen = false"
+            @navigate="handleNav"
+            @toggle-theme="toggleTheme"
+        />
         <div class="lg:ml-64">
             <TopHeader
                 title="Reviews"
@@ -65,7 +81,7 @@ const handleReviewDetails = () => router.get('/doctor/reviews/view-full-file?typ
                 :is-dark="isDark"
                 @toggle-sidebar="sidebarOpen = true"
             />
-            <main class="space-y-6 p-4 sm:p-6 lg:p-7 animate-fadeInUp">
+            <main class="animate-fadeInUp space-y-6 p-4 sm:p-6 lg:p-7">
                 <section>
                     <p :class="isDark ? 'text-[#475569]' : 'text-[#9CA3AF]'" class="mb-2 text-xs font-medium">
                         Dashboard <span class="mx-1.5 text-[#D1D5DB]">/</span>
@@ -85,7 +101,7 @@ const handleReviewDetails = () => router.get('/doctor/reviews/view-full-file?typ
                         :key="item.id"
                         :item="item"
                         @view-files="handleViewFiles"
-                        @view-details="handleReviewDetails"
+                        @view-details="handleViewFiles"
                         @edit-review="handleViewFiles"
                     />
                 </section>

@@ -9,6 +9,9 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
 use App\Http\Controllers\Doctor\ProfileController as DoctorProfileController;
+use App\Http\Controllers\Doctor\MedicalRecordController as DoctorMedicalRecordController;
+use App\Http\Controllers\Doctor\ReviewController;
+use App\Http\Controllers\Doctor\ReviewFileController;
 use App\Http\Controllers\Patient\AppointmentController;
 use App\Http\Controllers\Patient\DashboardController;
 use App\Http\Controllers\Patient\ImagingController;
@@ -52,23 +55,10 @@ Route::middleware(['auth', 'active', 'role:doctor'])
             return Inertia::render('DoctorDashboard/Notifications');
         })->name('notifications');
 
-        Route::get('/reviews', function () {
-            return Inertia::render('DoctorDashboard/Reviews');
-        })->name('reviews.index');
-
-        Route::get('/reviews/files', function () {
-            return Inertia::render('DoctorDashboard/ReviewFiles');
-        })->name('reviews.files');
-
-        Route::get('/reviews/view-full-file', function (\Illuminate\Http\Request $request) {
-            return Inertia::render('DoctorDashboard/ViewFullFile', [
-                'fileType' => $request->query('type', 'imaging'),
-            ]);
-        })->name('reviews.view-file');
-
-        Route::get('/reviews/medical-record', function () {
-            return Inertia::render('DoctorDashboard/MedicalRecord');
-        })->name('reviews.medical-record');
+        Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+        Route::get('/reviews/files', [ReviewFileController::class, 'index'])->name('reviews.files');
+        Route::get('/reviews/view-full-file', [ReviewFileController::class, 'show'])->name('reviews.view-file');
+        Route::get('/reviews/medical-record', [DoctorMedicalRecordController::class, 'show'])->name('reviews.medical-record');
 
     });
 

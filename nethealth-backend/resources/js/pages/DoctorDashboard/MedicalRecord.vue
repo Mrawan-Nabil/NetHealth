@@ -1,7 +1,6 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
-import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
 import FilterPills from '@/components/doctor-medical-record/FilterPills.vue';
 import ImagingCard from '@/components/doctor-medical-record/ImagingCard.vue';
 import InfoCard from '@/components/doctor-medical-record/InfoCard.vue';
@@ -10,8 +9,9 @@ import NotesCard from '@/components/doctor-medical-record/NotesCard.vue';
 import PatientSummaryCard from '@/components/doctor-medical-record/PatientSummaryCard.vue';
 import PrescriptionCard from '@/components/doctor-medical-record/PrescriptionCard.vue';
 import TestResultCard from '@/components/doctor-medical-record/TestResultCard.vue';
-import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import VisitHistoryCard from '@/components/doctor-medical-record/VisitHistoryCard.vue';
+import AppSidebar from '@/components/doctor-ui/AppSidebar.vue';
+import TopHeader from '@/components/doctor-ui/TopHeader.vue';
 import { useDashboard } from '@/composables/useDashboard';
 
 // ─── Props (Inertia Data Contract) ───────────────────────────────────────────
@@ -115,8 +115,18 @@ const filteredVisits = computed(() =>
 
 // ─── Handlers ────────────────────────────────────────────────────────────────
 const toggleTheme = (value) => setTheme(value);
-const openFullFile = (type = 'lab') => router.get(`/doctor/reviews/view-full-file?type=${type}`);
-const openPrescription = () => router.get('/doctor/reviews/view-full-file?type=lab');
+const openFullFile = (category, fileId) => {
+    // 1. Force the word to lowercase safely
+    const safeCategory = String(category).toLowerCase();
+
+    // 2. Check if it includes the word 'imaging' (handles "Imaging", "imaging", or "x-ray imaging")
+    const fileType = safeCategory.includes('imaging') ? 'imaging' : 'lab';
+    router.get('/doctor/reviews/view-full-file', {
+        type: fileType,
+        file: fileId,
+    });
+};
+const openPrescription = (id) => router.get(`/doctor/reviews/view-full-file?prescription=${id}`);
 
 const handleNav = (key) => {
     navItems.value = navItems.value.map((item) => ({ ...item, active: item.key === key }));
@@ -129,13 +139,22 @@ const handleNav = (key) => {
     if (key === 'logout') return router.get('/logout');
 };
 
-watch(activeMainTab, () => { activeFilter.value = 'all'; });
+watch(activeMainTab, () => {
+    activeFilter.value = 'all';
+});
 </script>
 
 <template>
     <Head title="Doctor Medical Record" />
     <div :class="isDark ? 'bg-[#0F172A]' : 'bg-[#F8FAFC]'" class="min-h-screen transition-colors duration-300">
-        <AppSidebar :nav-items="navItems" :is-open="sidebarOpen" :is-dark="isDark" @close="sidebarOpen = false" @navigate="handleNav" @toggle-theme="toggleTheme" />
+        <AppSidebar
+            :nav-items="navItems"
+            :is-open="sidebarOpen"
+            :is-dark="isDark"
+            @close="sidebarOpen = false"
+            @navigate="handleNav"
+            @toggle-theme="toggleTheme"
+        />
         <div class="lg:ml-64">
             <TopHeader
                 title="Reviews"
@@ -145,34 +164,77 @@ watch(activeMainTab, () => { activeFilter.value = 'all'; });
                 :is-dark="isDark"
                 @toggle-sidebar="sidebarOpen = true"
             />
-            <main class="space-y-6 p-4 sm:p-6 lg:p-7 animate-fadeInUp">
+            <main class="animate-fadeInUp space-y-6 p-4 sm:p-6 lg:p-7">
                 <div>
                     <p :class="isDark ? 'text-[#475569]' : 'text-[#9CA3AF]'" class="mb-2 text-xs font-medium">
                         Medical Record <span class="mx-1.5 text-[#D1D5DB]">/</span>
                         <span :class="isDark ? 'text-[#94A3B8]' : 'text-[#64748B]'">{{ tabLabel }}</span>
                     </p>
                     <h1 :class="isDark ? 'text-[#F1F5F9]' : 'text-[#0F172A]'" class="mb-1 text-2xl font-bold tracking-tight">{{ tabLabel }}</h1>
-                    <p :class="isDark ? 'text-[#64748B]' : 'text-[#94A3B8]'" class="text-sm">View patient information, files, prescriptions, and visit history.</p>
+                    <p :class="isDark ? 'text-[#64748B]' : 'text-[#94A3B8]'" class="text-sm">
+                        View patient information, files, prescriptions, and visit history.
+                    </p>
                 </div>
                 <MedicalRecordTabs :active-tab="activeMainTab" @change="activeMainTab = $event" />
 
                 <FilterPills v-if="pills.length" :pills="pills" :active-filter="activeFilter" @change="activeFilter = $event" />
 
                 <section v-if="activeMainTab === 'profile'" class="space-y-4">
-                    <PatientSummaryCard :patient="{ name: props.patient.name, initials: props.patient.initials, id: props.patient.id, dob: props.patient.dob, email: props.patient.email }" />
+                    <PatientSummaryCard
+                        :patient="{
+                            name: props.patient.name,
+                            initials: props.patient.initials,
+                            id: props.patient.id,
+                            dob: props.patient.dob,
+                            email: props.patient.email,
+                        }"
+                    />
                     <div class="grid gap-4 xl:grid-cols-2">
-                        <InfoCard title="Personal Information" icon="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM4 20a8 8 0 0 1 16 0" :items="[{ label: 'Full Name', value: props.patient.name }, { label: 'Gender', value: props.patient.gender }, { label: 'Age', value: props.patient.age }, { label: 'Phone Number', value: props.patient.phone }]" />
-                        <InfoCard title="Medical Information" icon="M3 12h4l2-6 4 12 2-6h4" :items="[{ label: 'Blood Type', badges: [{ label: props.patient.bloodType, variant: 'rose' }] }, { label: 'Chronic Diseases', badges: [{ label: 'Type 2 Diabetes', variant: 'amber' }, { label: 'Hypertension', variant: 'amber' }] }, { label: 'Allergies', badges: [{ label: 'Penicillin', variant: 'rose' }, { label: 'Pollen', variant: 'rose' }] }]" />
+                        <InfoCard
+                            title="Personal Information"
+                            icon="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM4 20a8 8 0 0 1 16 0"
+                            :items="[
+                                { label: 'Full Name', value: props.patient.name },
+                                { label: 'Gender', value: props.patient.gender },
+                                { label: 'Age', value: props.patient.age },
+                                { label: 'Phone Number', value: props.patient.phone },
+                            ]"
+                        />
+                        <InfoCard
+                            title="Medical Information"
+                            icon="M3 12h4l2-6 4 12 2-6h4"
+                            :items="[
+                                { label: 'Blood Type', badges: [{ label: props.patient.bloodType, variant: 'rose' }] },
+                                {
+                                    label: 'Chronic Diseases',
+                                    badges: [
+                                        { label: 'Type 2 Diabetes', variant: 'amber' },
+                                        { label: 'Hypertension', variant: 'amber' },
+                                    ],
+                                },
+                                {
+                                    label: 'Allergies',
+                                    badges: [
+                                        { label: 'Penicillin', variant: 'rose' },
+                                        { label: 'Pollen', variant: 'rose' },
+                                    ],
+                                },
+                            ]"
+                        />
                     </div>
-                    <NotesCard title="Additional Notes" icon="M7 8h10M7 12h10M7 16h6M5.5 4.5h13A1.5 1.5 0 0 1 20 6v12a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18V6a1.5 1.5 0 0 1 1.5-1.5Z" :content="props.patient.notes" />
+                    <NotesCard
+                        title="Additional Notes"
+                        icon="M7 8h10M7 12h10M7 16h6M5.5 4.5h13A1.5 1.5 0 0 1 20 6v12a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18V6a1.5 1.5 0 0 1 1.5-1.5Z"
+                        :notes="props.patient.notes"
+                    />
                 </section>
 
                 <section v-if="activeMainTab === 'test-results'" class="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
-                    <TestResultCard v-for="item in filteredTestResults" :key="item.title" :item="item" @view-details="openFullFile('lab')" />
+                    <TestResultCard v-for="item in filteredTestResults" :key="item.title" :item="item" @view-details="openFullFile('lab', item.id)" />
                 </section>
 
                 <section v-if="activeMainTab === 'imaging'" class="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
-                    <ImagingCard v-for="item in filteredImaging" :key="item.title" :item="item" @view-details="openFullFile('imaging')" />
+                    <ImagingCard v-for="item in filteredImaging" :key="item.title" :item="item" @view-details="openFullFile('imaging', item.id)" />
                 </section>
 
                 <section v-if="activeMainTab === 'prescriptions'" class="space-y-4">
@@ -180,7 +242,13 @@ watch(activeMainTab, () => { activeFilter.value = 'all'; });
                 </section>
 
                 <section v-if="activeMainTab === 'visit-history'" class="space-y-4">
-                    <VisitHistoryCard v-for="item in filteredVisits" :key="`${item.date}-${item.title}`" :item="item" @view-details="openFullFile('lab')" @view-prescription="openPrescription" />
+                    <VisitHistoryCard
+                        v-for="item in filteredVisits"
+                        :key="`${item.date}-${item.title}`"
+                        :item="item"
+                        @view-details="openFullFile(item.category, item.id)"
+                        @view-prescription="openPrescription"
+                    />
                 </section>
             </main>
         </div>

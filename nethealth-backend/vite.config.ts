@@ -16,7 +16,7 @@ export default defineConfig({
             input: ['resources/js/app.ts'],
             ssr: 'resources/js/ssr.ts',
             refresh: true,
-            detectTls: false,
+            detectTls: 'nethealth.test',
         }),
         tailwindcss(),
         vue({
